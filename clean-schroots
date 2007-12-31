@@ -1,0 +1,22 @@
+#!/bin/sh
+if [ -z "$vg" ]; then
+    vg=/dev/dink
+fi
+set -x
+for i in $(
+    for dir in "$vg" /var/lib/schroot/mount /var/lib/schroot/session; do
+        cd "$dir"
+        for i in *-*-sbuild-*-*-*-*-*; do
+            echo "$i"
+        done
+    done | \
+    sort -u | grep -v "\*"
+); do
+    schroot -ec "$(echo "$i" | sed 's/-cow$//')"
+    if [ "$1" = "-f" ]; then
+        tac /proc/mounts | cut -d" " -f2 | fgrep "/var/lib/schroot/mount/$i" | xargs -rn1 umount -l
+        lvremove -f "$vg/$i"
+        rmdir /var/lib/schroot/mount/"$i" /var/lib/schroot/session/"$i"
+	if ! [ -e "$vg/$i" ]; then rm "$vg/$i"; fi
+    fi
+done

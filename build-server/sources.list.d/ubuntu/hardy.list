@@ -1,0 +1,8 @@
+deb http://localhost:9999/ubuntu hardy main restricted universe
+deb-src http://localhost:9999/ubuntu hardy main restricted universe
+deb http://localhost:9999/ubuntu hardy-updates main restricted universe
+deb-src http://localhost:9999/ubuntu hardy-updates main restricted universe
+deb http://localhost:9999/ubuntu-security hardy-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security hardy-security main restricted universe
+deb http://localhost:9999/debathena hardy debathena debathena-config
+deb-src http://localhost:9999/debathena hardy debathena debathena-config

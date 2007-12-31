@@ -1,0 +1,5 @@
+debian          http://debian.lcs.mit.edu/debian
+debian-security http://debian.lcs.mit.edu/debian-security
+ubuntu          http://mirrors.ccs.neu.edu/archive.ubuntu.com
+ubuntu-security http://mirrors.ccs.neu.edu/archive.ubuntu.com
+debathena       http://debathena.mit.edu/apt

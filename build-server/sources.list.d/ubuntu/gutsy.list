@@ -1,0 +1,8 @@
+deb http://localhost:9999/ubuntu gutsy main restricted universe
+deb-src http://localhost:9999/ubuntu gutsy main restricted universe
+deb http://localhost:9999/ubuntu gutsy-updates main restricted universe
+deb-src http://localhost:9999/ubuntu gutsy-updates main restricted universe
+deb http://localhost:9999/ubuntu-security gutsy-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security gutsy-security main restricted universe
+deb http://localhost:9999/debathena gutsy debathena debathena-config
+deb-src http://localhost:9999/debathena gutsy debathena debathena-config

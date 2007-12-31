@@ -1,0 +1,4 @@
+#!/bin/sh
+for i in "$@"; do
+    schroot -u root -c "$1" -- sh -c 'apt-get update && apt-get -y dist-upgrade && apt-get clean'
+done

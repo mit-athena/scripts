@@ -1,0 +1,8 @@
+deb http://localhost:9999/ubuntu feisty main restricted universe
+deb-src http://localhost:9999/ubuntu feisty main restricted universe
+deb http://localhost:9999/ubuntu feisty-updates main restricted universe
+deb-src http://localhost:9999/ubuntu feisty-updates main restricted universe
+deb http://localhost:9999/ubuntu-security feisty-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security feisty-security main restricted universe
+deb http://localhost:9999/debathena feisty debathena debathena-config
+deb-src http://localhost:9999/debathena feisty debathena debathena-config

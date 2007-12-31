@@ -1,0 +1,65 @@
+#!/bin/bash
+set -xe
+package=$1
+stamp=$2
+suite=lenny
+psuite=etch
+tag="~debian4.1~0.1"
+[ -n "$1" ]
+[ -n "$2" ]
+trap 'echo "An error occured.  Press Enter to continue." >&2; echo -en "\a"; read ERROR; touch "$stamp.error"' EXIT
+touch "$stamp.started"
+dir=$(echo /afs/sipb.mit.edu/project/debathena/packages/*/"${package#debathena-}")
+[ -e "$dir" ]
+cd "$dir"
+if [ -e debathenify-* ]; then false; fi
+version=$(zcat /mit/debathena/apt/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
+if [ -d "built/" ]; then
+    dsc="$dir/built/${package}_$version.dsc"
+else
+    dsc="$dir/${package}_$version.dsc"
+fi
+[ -e "$dsc" ]
+
+if [ -e "${dsc%.dsc}_amd64.changes" ]; then
+    grep -Fq 'dpkg-source -b equivs' "${dsc%.dsc}_amd64.build"
+    changes="${dsc%.dsc}_amd64.changes"
+else
+    [ -e "${dsc%.dsc}_source.changes" ]
+    changes="${dsc%.dsc}_source.changes"
+    A=1
+    if (zcat /mit/debathena/apt/dists/$psuite/*/binary-i386/Packages.gz | dpkg-awk -f - "Source:^$package\$" -- Architecture; zcat /mit/debathena/apt/dists/$psuite/*/binary-i386/Packages.gz | dpkg-awk -f - "Package:^$package\$" -- Architecture) | grep -Fxv 'Architecture: all' | grep -q .; then
+	A=0
+    fi
+    sbuildhack "${suite}-amd64" -A "$dsc"
+    [ $A -eq 1 ] || sbuildhack "${suite}-i386" "$dsc"
+    changes=$changes\ "$(basename "${dsc%.dsc}${tag}_amd64.changes")"
+    [ $A -eq 1 ] || changes=$changes\ "$(basename "${dsc%.dsc}${tag}_i386.changes")"
+fi
+
+#while
+#    echo "Type yes to upload: $changes"
+#    echo -en "\a"
+#    read UPLOAD
+#    [ "$UPLOAD" != "yes" ]; do
+#    :
+#done
+
+REPREPRO="reprepro -Vb /mit/debathena/apt"
+
+(
+    flock -x 200
+    files=
+    for change in $changes; do
+	if [ "$change" = "${dsc%.dsc}_source.changes" ]; then
+	    $REPREPRO --ignore=wrongdistribution include "$suite" "$change"
+	else
+	    $REPREPRO --ignore=wrongdistribution include "$suite" "$change"
+	    files=$files\ $change\ $(perl -0ne '$_ =~ /\nFiles: *\n(( [^\n]*\n)*)/; print $1;' "$change" | awk '{print $5}' | grep -v '\.orig\.tar\.gz$' || :)
+	fi
+    done
+    ! [ -d "built/" ] || mv -i $files "built/"
+) 200> /tmp/debathena-repository-lock
+
+touch "$stamp.done"
+trap - EXIT

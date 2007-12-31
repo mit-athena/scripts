@@ -1,0 +1,31 @@
+#!/bin/sh
+if [ "$1" = "-A" ]; then
+
+shift
+prog=$1; shift
+$prog sarge-i386-sbuild "$@"
+$prog etch-amd64-sbuild "$@"
+$prog lenny-amd64-sbuild "$@"
+$prog dapper-amd64-sbuild "$@"
+$prog edgy-amd64-sbuild "$@"
+$prog feisty-amd64-sbuild "$@"
+$prog gutsy-amd64-sbuild "$@"
+
+else
+
+prog=$1; shift
+$prog sarge-i386-sbuild-source "$@"
+$prog etch-i386-sbuild-source "$@"
+$prog etch-amd64-sbuild-source "$@"
+$prog lenny-i386-sbuild-source "$@"
+$prog lenny-amd64-sbuild-source "$@"
+$prog dapper-i386-sbuild-source "$@"
+$prog dapper-amd64-sbuild-source "$@"
+$prog edgy-i386-sbuild-source "$@"
+$prog edgy-amd64-sbuild-source "$@"
+$prog feisty-i386-sbuild-source "$@"
+$prog feisty-amd64-sbuild-source "$@"
+$prog gutsy-i386-sbuild-source "$@"
+$prog gutsy-amd64-sbuild-source "$@"
+
+fi

@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+
+sub list {
+	my ($l) = @_;
+	$l =~ s/ \(.*\)$//;
+	$l =~ s/ \|.*$//;
+	$l =~ s/ \[.*$//;
+	split(/, /, $l);
+}
+
+open(DPKG, '-|', 'zcat /mit/debathena/apt/dists/etch/*/source/Sources.gz | dpkg-awk -f - -- Package Build-Depends') or die;
+my %src_deps = ();
+while (<DPKG>) {
+	last if /^$/;
+	my ($source) = /^Package: (.*)$/ or die;
+	@{$src_deps{$source}} = ();
+	while (<DPKG>) {
+		last if ($_ eq "\n");
+		if (my ($depends) = /^Build-Depends: (.*)$/) {
+			push @{$src_deps{$source}}, $_ for (list($depends));
+		} else {
+			die;
+		}
+	}
+}
+close DPKG;
+open(DPKG, '-|', 'zcat /mit/debathena/apt/dists/etch/debathena/binary-amd64/Packages.gz | dpkg-awk -f - -- Package Source Provides') or die;
+my %pkg_src = ();
+my %pkg_provider = ();
+while (<DPKG>) {
+	last if /^$/;
+	my ($package) = /^Package: (.*)$/ or die;
+	$pkg_src{$package} = $package;
+	$pkg_provider{$package} = $package;
+	while (<DPKG>) {
+		last if ($_ eq "\n");
+		if (my ($source) = /^Source: (.*)$/) {
+			$pkg_src{$package} = $source;
+		} elsif (my ($provides) = /^Provides: (.*)$/) {
+			$pkg_provider{$_} = $package for (list($provides));
+		} else {
+			die;
+		}
+	}
+}
+for my $source (keys %src_deps) {
+	print "build-all: \$(call package,$source)\n";
+	if ($source ne "debathena-build-depends") {
+	    print "\$(call package,debathena-build-depends): \$(call package,$source)\n";
+	}
+	for (@{$src_deps{$source}}) {
+		print "\$(call package,$source): \$(call package,$pkg_src{$pkg_provider{$_}})\n" if (defined $pkg_provider{$_});
+	}
+}

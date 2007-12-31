@@ -1,0 +1,4 @@
+#!/bin/sh
+for dist in sarge etch lenny dapper edgy feisty gutsy; do
+    reprepro -Vb /mit/debathena/apt --ignore=wrongdistribution include "$dist" "$1"
+done

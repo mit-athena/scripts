@@ -1,0 +1,54 @@
+#!/bin/sh
+A=0
+if [ "$1" = -A ]; then A=1; shift; fi
+prog="$1"; shift
+succ=
+fail=
+hr () {
+    for i in $(seq 60); do echo -n '═' >&2; done; echo >&2
+}
+t () {
+    while true; do
+	tput bold >&2
+	hr
+	echo "Running: $prog $@" >&2
+	tput sgr0 >&2
+	if $prog "$@"; then
+	    succ=$succ\ $1
+	    break
+	else
+	    tput bold >&2
+	    tput setf 4; echo -n "Failed: " >&2
+	    tput sgr0 >&2
+	    echo -n "$prog $@ [a/R/f] " >&2
+	    read -r x || exit $?
+	    if [ "$x" = "a" ]; then exit 1; fi
+            if [ "$x" = "f" ]; then fail=$fail\ $1 break; fi
+	fi
+    done
+    echo >&2
+}
+t sarge-i386 -A "$@"
+t dapper-amd64 -A "$@"
+[ $A -eq 1 ] || t dapper-i386 "$@"
+t edgy-amd64 -A "$@"
+[ $A -eq 1 ] || t edgy-i386 "$@"
+t etch-amd64 -A "$@"
+[ $A -eq 1 ] || t etch-i386 "$@"
+t feisty-amd64 -A "$@"
+[ $A -eq 1 ] || t feisty-i386 "$@"
+t gutsy-amd64 -A "$@"
+[ $A -eq 1 ] || t gutsy-i386 "$@"
+t lenny-amd64 -A "$@"
+[ $A -eq 1 ] || t lenny-i386 "$@"
+tput bold >&2
+hr
+echo "Done: $prog \$dist $@" >&2
+tput setf 2 >&2; echo -n "Succeeded:" >&2
+tput sgr0 >&2; echo "$succ" >&2
+if [ -n "$fail" ]; then
+    tput bold >&2; tput setf 4 >&2; echo -n "Failed:" >&2
+    tput sgr0 >&2; echo "$fail" >&2
+    exit 1
+fi
+exit 0

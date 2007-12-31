@@ -1,0 +1,8 @@
+deb http://localhost:9999/ubuntu dapper main restricted universe
+deb-src http://localhost:9999/ubuntu dapper main restricted universe
+deb http://localhost:9999/ubuntu dapper-updates main restricted universe
+deb-src http://localhost:9999/ubuntu dapper-updates main restricted universe
+deb http://localhost:9999/ubuntu-security dapper-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security dapper-security main restricted universe
+deb http://localhost:9999/debathena dapper debathena debathena-config
+deb-src http://localhost:9999/debathena dapper debathena debathena-config

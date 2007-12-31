@@ -1,0 +1,50 @@
+#!/bin/bash
+
+if [ -e debian/changelog ]; then
+    debian=debian
+elif [ "$(basename "$PWD")" = debian ] && [ -e changelog ]; then
+    debian=.
+else
+    echo "Cannot find debian/changelog." >&2
+    exit 1
+fi
+
+package=$(head -n1 "$debian/changelog" | sed -n 's/^\([^ ]*\).*$/\1/ p')
+version=$(head -n1 "$debian/changelog" | sed -n 's/^[^ ]* (\([^)]*\)).*$/\1/ p')
+if [ -z "$package" ] || [ -z "$version" ]; then
+    echo "Invalid debian/changelog." >&2
+fi
+
+dch_opts=()
+
+newversion=$(
+    newversion=$version
+    dpkg-awk -f <(zcat /mit/debathena/apt*/dists/*/*/source/Sources.gz) \
+	'Package:^'"$package"'$' -- Version | \
+	sed -n 's/Version: // p' | \
+	(
+	    while read aptversion; do
+		if dpkg --compare-versions "$aptversion" '>=' "$newversion"; then
+		    newversion=$(
+			echo "$aptversion" | \
+			    sed -n 's/debathena\([0-9]*\)/ \1/ p' | \
+			    (
+			        if read -r base darelease; then
+				    echo "${base}debathena$(($darelease + 1))"
+				else
+				    echo "${aptversion}debathena1"
+				fi
+			    )
+		    )
+		fi
+	    done
+	    echo "$newversion"
+	)
+)
+
+if [ "$newversion" != "$version" ]; then
+    echo "Changing version to $newversion"
+    dch_opts+=(--newversion "$newversion" --distribution unstable)
+fi
+
+dch "${dch_opts[@]}" "$@"

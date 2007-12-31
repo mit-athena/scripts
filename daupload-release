@@ -1,0 +1,129 @@
+#!/bin/sh
+set -e
+
+case "$(basename "$0")" in
+    daupload-release)
+	repo=/mit/debathena/apt
+	;;
+    daupload-beta)
+	repo=/mit/debathena/apt-beta
+	;;
+    *)
+	echo "Unknown repo." >&2
+	exit 1
+	;;
+esac
+
+v () {
+    echo "$@"
+    "$@"
+}
+
+A=0
+if [ "$1" = "-A" ]; then A=1; shift; fi
+S=0
+if [ "$1" = "-S" ]; then S=1; shift; fi
+
+change=$1
+cd "$(dirname "$change")"
+change=$(basename "$change")
+
+check () {
+    [ -s "$1" ] || missing="$missing$1 "
+}
+uncheck () {
+    ! [ -s "$1" ] || missing="$missing-$1 "
+}
+
+missing=
+[ -s "$change" ]
+if [ $S -ne 1 ]; then
+    check "${change%_source.changes}~debian3.1_i386.changes"
+    check "${change%_source.changes}~debian4.0_amd64.changes"
+    check "${change%_source.changes}~debian4.1~0.1_amd64.changes"
+    check "${change%_source.changes}~ubuntu6.06_amd64.changes"
+    check "${change%_source.changes}~ubuntu6.10_amd64.changes"
+    check "${change%_source.changes}~ubuntu7.04_amd64.changes"
+    check "${change%_source.changes}~ubuntu7.10_amd64.changes"
+    if [ $A -eq 1 ]; then
+	uncheck "${change%_source.changes}~debian4.0_i386.changes"
+	uncheck "${change%_source.changes}~debian4.1~0.1_i386.changes"
+	uncheck "${change%_source.changes}~ubuntu6.06_i386.changes"
+	uncheck "${change%_source.changes}~ubuntu6.10_i386.changes"
+	uncheck "${change%_source.changes}~ubuntu7.04_i386.changes"
+	uncheck "${change%_source.changes}~ubuntu7.10_i386.changes"
+    else
+	check "${change%_source.changes}~debian4.0_i386.changes"
+	check "${change%_source.changes}~debian4.1~0.1_i386.changes"
+	check "${change%_source.changes}~ubuntu6.06_i386.changes"
+	check "${change%_source.changes}~ubuntu6.10_i386.changes"
+	check "${change%_source.changes}~ubuntu7.04_i386.changes"
+	check "${change%_source.changes}~ubuntu7.10_i386.changes"
+    fi
+fi
+
+if [ -n "$missing" ]; then
+    echo "Missing $missing" >&2
+    echo -n "Continue? [y/N]"
+    read a
+    [ "$a" = "y" ]
+fi
+
+REPREPRO="v reprepro -Vb $repo"
+REPREPROI="$REPREPRO --ignore=wrongdistribution"
+
+$REPREPROI include sarge "$change"
+$REPREPROI include etch "$change"
+$REPREPROI include lenny "$change"
+$REPREPROI include dapper "$change"
+$REPREPROI include edgy "$change"
+$REPREPROI include feisty "$change"
+$REPREPROI include gutsy "$change"
+
+if [ $S -ne 1 ]; then
+    $REPREPRO include sarge "${change%_source.changes}~debian3.1_i386.changes"
+    [ $A -eq 1 ] || $REPREPRO include etch "${change%_source.changes}~debian4.0_i386.changes"
+    $REPREPRO include etch "${change%_source.changes}~debian4.0_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include lenny "${change%_source.changes}~debian4.1~0.1_i386.changes"
+    $REPREPRO include lenny "${change%_source.changes}~debian4.1~0.1_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include dapper "${change%_source.changes}~ubuntu6.06_i386.changes"
+    $REPREPRO include dapper "${change%_source.changes}~ubuntu6.06_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include edgy "${change%_source.changes}~ubuntu6.10_i386.changes"
+    $REPREPRO include edgy "${change%_source.changes}~ubuntu6.10_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include feisty "${change%_source.changes}~ubuntu7.04_i386.changes"
+    $REPREPRO include feisty "${change%_source.changes}~ubuntu7.04_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include gutsy "${change%_source.changes}~ubuntu7.10_i386.changes"
+    $REPREPRO include gutsy "${change%_source.changes}~ubuntu7.10_amd64.changes"
+fi
+
+
+changes=$change
+changes=$changes\ ${change%_source.changes}~debian3.1_i386.changes
+[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~debian4.0_i386.changes
+changes=$changes\ ${change%_source.changes}~debian4.0_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~debian4.1~0.1_i386.changes
+changes=$changes\ ${change%_source.changes}~debian4.1~0.1_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu6.06_i386.changes
+changes=$changes\ ${change%_source.changes}~ubuntu6.06_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu6.10_i386.changes
+changes=$changes\ ${change%_source.changes}~ubuntu6.10_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu7.04_i386.changes
+changes=$changes\ ${change%_source.changes}~ubuntu7.04_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu7.10_i386.changes
+changes=$changes\ ${change%_source.changes}~ubuntu7.10_amd64.changes
+
+files=${change%.changes}.build\ $changes
+origfiles=
+for change in $changes; do
+    files=$files\ $(perl -0ne '$_ =~ /\nFiles: *\n(( [^\n]*\n)*)/; print $1;' "$change" | awk '{print $5}' | grep -v '\.orig\.tar\.gz$' || :)
+    origfiles=$origfiles\ $(perl -0ne '$_ =~ /\nFiles: *\n(( [^\n]*\n)*)/; print $1;' "$change" | awk '{print $5}' | grep '\.orig\.tar\.gz$' || :)
+done
+
+built=built/
+[ -d "$built" ] || mkdir "$built"
+mv -i $files "$built"
+if [ -n "$origfiles" ]; then
+    for orig in $origfiles; do
+        [ -e "$built/$orig" ] || cp -ai "$orig" "$built/"
+    done
+fi

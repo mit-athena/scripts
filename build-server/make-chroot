@@ -1,0 +1,82 @@
+#!/bin/sh
+set -xe
+
+VG=/dev/dink
+SUITE=$1
+ARCH=$2
+CHROOT="${SUITE}-${ARCH}-sbuild"
+DEVICE="$VG/$CHROOT"
+SIZE=2G
+
+exittrap() { :; }
+for sig in 1 2 13 15; do trap "exit $(($sig + 128))" $sig; done
+trap 'exittrap' EXIT
+
+if fgrep -x "[$CHROOT]" /etc/schroot/schroot.conf; then
+	echo "Chroot $CHROOT already exists." >&2
+	exit 1
+fi
+
+if [ "$ARCH" = "i386" ]; then
+	PERSONALITY=linux32
+elif [ "$ARCH" = "amd64" ]; then
+	PERSONALITY=linux
+else
+	echo "Unrecognized architecture $ARCH." >&2
+	exit 1
+fi
+
+DATA="$(dirname "$0")"
+
+SOURCESD="$DATA/sources.list.d"
+if [ -e "$SOURCESD/debian/$SUITE.list" ]; then
+	SOURCES="$SOURCESD/debian/$SUITE.list"
+	MIRROR=http://localhost:9999/debian
+elif [ -e "$SOURCESD/ubuntu/$SUITE.list" ]; then
+	SOURCES="$SOURCESD/ubuntu/$SUITE.list"
+	MIRROR=http://localhost:9999/ubuntu
+else
+	echo "Unrecognized suite $SUITE." >&2
+	exit 1
+fi
+
+lvcreate --size "$SIZE" --name "$CHROOT" "$VG"
+mkfs.ext3 "$DEVICE"
+tune2fs -c 0 -i 0 "$DEVICE"
+
+exittrap() { umount "$TARGET" || :; rmdir "$TARGET" || :; }
+TARGET=$(mktemp -dt make-chroot.XXXXXX)
+mount "$DEVICE" "$TARGET"
+debootstrap --variant=buildd --include=apt-utils,gnupg,build-essential,fakeroot --foreign --arch "$ARCH" "$SUITE" "$TARGET" "$MIRROR"
+install -m a=rx,u+w "$DATA/policy-rc.d" "$TARGET/usr/sbin/"
+umount "$TARGET"
+rmdir "$TARGET"
+exittrap() { :; }
+
+cat >> /etc/schroot/schroot.conf <<EOF
+
+[$CHROOT]
+type=lvm-snapshot
+description=$CHROOT
+priority=3
+groups=root,sbuild
+root-groups=root,sbuild
+source-groups=root
+device=$DEVICE
+mount-options=-o noatime
+lvm-snapshot-options=--size $SIZE
+personality=$PERSONALITY
+run-setup-scripts=true
+run-exec-scripts=true
+EOF
+
+schroot --chroot="${CHROOT}-source" --directory=/ -- /bin/sh -e - \
+    8< "$SOURCES" \
+    9< "$DATA/debathena-archive.asc" \
+    <<EOF
+/debootstrap/debootstrap --second-stage
+cat <&8 > /etc/apt/sources.list
+! type apt-key >/dev/null || apt-key add - <&9
+apt-get -q -y update
+apt-get -q -y dist-upgrade
+EOF
