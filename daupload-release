@@ -1,6 +1,18 @@
 #!/bin/sh
 set -e
 
+# Usage: daupload-release [-A] [-S] CHANGESFILE
+#        daupload-beta [-A] [-S] CHANGESFILE
+
+# After a package has been built for all Debian/Ubuntu versions and
+# platforms (typically using "da sbuildhack DSCFILE"), this script
+# uploads the package into the release or beta apt repository.  If -A
+# is specified, only one architecture per Debian/Ubuntu version is
+# uploaded.  If -S is specified, only the source package is uploaded.
+
+# Upon completion, moves all of the generated files into the "built"
+# subdirectory.
+
 case "$(basename "$0")" in
     daupload-release)
 	repo=/mit/debathena/apt

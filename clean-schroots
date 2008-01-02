@@ -1,4 +1,10 @@
 #!/bin/sh
+
+# Usage: clean-schroots
+
+# Remove any LVM snapshots and chroots left behind by schroot.  Not
+# normally necessary as schroot should clean up after itself.
+
 if [ -z "$vg" ]; then
     vg=/dev/dink
 fi

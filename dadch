@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Usage: dadch
+
+# Wrapper around dch for Debathena.  Increments the version number
+# according to Debathena rules if the current version has been
+# released, and leaves it alone otherwise.
+
 if [ -e debian/changelog ]; then
     debian=debian
 elif [ "$(basename "$PWD")" = debian ] && [ -e changelog ]; then

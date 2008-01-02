@@ -1,12 +1,33 @@
 #!/bin/sh
+
+# Usage: da [-A] PROGRAM ARGUMENTS
+
+# Runs PROGRAM over each of the build schroot names, like so:
+#
+#   PROGRAM SCHROOTNAME ARGUMENTS
+#
+# On one architecture of each Debian/Ubuntu version, passes the -A
+# option before ARGUMENTS.  If -A is passed to this script, the
+# program only gets run over one schroot per Debian/Ubuntu version.
+# At the end of the run, the script will display which schroots the
+# command succeeded and failed for.
+
+# Typically this script is used to build Debathena packages, in which
+# case PROGRAM is sbuildhack and ARGUMENTS is a path to a .dsc file.
+
 A=0
 if [ "$1" = -A ]; then A=1; shift; fi
 prog="$1"; shift
 succ=
 fail=
+
+# Display a horizontal rule on stderr.
 hr () {
     for i in $(seq 60); do echo -n '═' >&2; done; echo >&2
 }
+
+# Run $prog with the provided arguments, with display annotations and
+# success/failure tracking.
 t () {
     while true; do
 	tput bold >&2
@@ -28,6 +49,7 @@ t () {
     done
     echo >&2
 }
+
 t sarge-i386 -A "$@"
 t dapper-amd64 -A "$@"
 [ $A -eq 1 ] || t dapper-i386 "$@"
@@ -41,6 +63,7 @@ t gutsy-amd64 -A "$@"
 [ $A -eq 1 ] || t gutsy-i386 "$@"
 t lenny-amd64 -A "$@"
 [ $A -eq 1 ] || t lenny-i386 "$@"
+
 tput bold >&2
 hr
 echo "Done: $prog \$dist $@" >&2
