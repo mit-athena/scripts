@@ -2,12 +2,14 @@
 
 # Usage: all-schroots [-A] PROGRAM ARGUMENTS
 
-# Runs PROGRAM over each of the build schroots, like so:
+# Runs PROGRAM over each of the source (template) build schroots, like
+# so:
 #
 #   PROGRAM SCHROOTNAME ARGUMENTS
 #
 # If -A is specified, only runs the program over one schroot per
-# Debian/Ubuntu version.
+# Debian/Ubuntu version, and ephemeral session chroots are used
+# instead of source chroots.
 
 if [ "$1" = "-A" ]; then
 
