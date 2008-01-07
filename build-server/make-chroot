@@ -1,4 +1,11 @@
 #!/bin/sh
+
+# Usage: make-chroot SUITE ARCH
+
+# Constructs a chroot environment for the Debian/Ubuntu version SUITE
+# and architecture ARCH, and sets up schroot configuration for it.
+# Assumes an approx cache is running at localhost:9999.
+
 set -xe
 
 VG=/dev/dink
