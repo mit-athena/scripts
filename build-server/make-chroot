@@ -82,6 +82,9 @@ schroot --chroot="${CHROOT}-source" --directory=/ -- /bin/sh -e - \
     9< "$DATA/debathena-archive.asc" \
     <<EOF
 /debootstrap/debootstrap --second-stage
+debconf-set-selections <<SELECTIONS
+debconf	debconf/frontend	select	Noninteractive
+SELECTIONS
 cat <&8 > /etc/apt/sources.list
 ! type apt-key >/dev/null || apt-key add - <&9
 apt-get -q -y update
