@@ -13,12 +13,14 @@ set -e
 # Upon completion, moves all of the generated files into the "built"
 # subdirectory.
 
+: ${DEBATHENA_APT=/mit/debathena/apt}
+
 case "$(basename "$0")" in
     daupload-release)
-	repo=/mit/debathena/apt
+	repo=$DEBATHENA_APT
 	;;
     daupload-beta)
-	repo=/mit/debathena/apt-beta
+	repo=${DEBATHENA_APT}-beta
 	;;
     *)
 	echo "Unknown repo." >&2

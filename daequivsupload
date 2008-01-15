@@ -6,6 +6,8 @@
 # packages are very simple, there is no need to build them separately
 # for each dist.
 
+: ${DEBATHENA_APT=/mit/debathena/apt}
+
 for dist in sarge etch lenny dapper edgy feisty gutsy; do
-    reprepro -Vb /mit/debathena/apt --ignore=wrongdistribution include "$dist" "$1"
+    reprepro -Vb $DEBATHENA_APT --ignore=wrongdistribution include "$dist" "$1"
 done

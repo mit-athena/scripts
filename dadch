@@ -6,6 +6,8 @@
 # according to Debathena rules if the current version has been
 # released, and leaves it alone otherwise.
 
+: ${DEBATHENA_APT=/mit/debathena/apt}
+
 if [ -e debian/changelog ]; then
     debian=debian
 elif [ "$(basename "$PWD")" = debian ] && [ -e changelog ]; then
@@ -25,7 +27,7 @@ dch_opts=()
 
 newversion=$(
     newversion=$version
-    dpkg-awk -f <(zcat /mit/debathena/apt*/dists/*/*/source/Sources.gz) \
+    dpkg-awk -f <(zcat ${DEBATHENA_APT}*/dists/*/*/source/Sources.gz) \
 	'Package:^'"$package"'$' -- Version | \
 	sed -n 's/Version: // p' | \
 	(
