@@ -1,0 +1,84 @@
+#!/bin/sh
+
+# Usage: dasource [-r REPOS] [PACKAGENAME ...]
+
+# Creates or updates a checkout and source package for each listed
+# PACKAGENAME, or for all regular packages if no PACKAGENAME is
+# specified.
+
+# If REPOS is specified, it is used in preference to the canonical
+# Athena repository trunk.
+
+# Package subdirectories are created in the cwd.  The source checkout
+# will reside in PACKAGENAME/PACKAGENAME-VERSION and the source
+# package will be created in PACKAGENAME.
+
+set -e
+
+pkgfile=$(dirname "$0")/packages
+repo=svn+ssh://svn.mit.edu/athena/trunk
+
+while getopts r: opt; do
+  case "$opt" in
+  r)
+    type="$OPTARG"
+    ;;
+  \?)
+    echo "$usage"
+    exit 1
+    ;;
+  esac
+done
+
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+do_package() {
+  pkgname=$1
+  pkgpath=$2
+  if [ ! -d $pkgname ]; then
+    echo "Creating directory $pkgname"
+    mkdir $pkgname
+  fi
+  if [ $(echo $pkgname/$pkgname-* | wc -w) -gt 2 ]; then
+    die "More than one checkout under $pkgname!"
+  elif [ -d $pkgname/$pkgname-* ]; then
+    dir=$(echo $pkgname/$pkgname-*)
+    echo "Updating $dir"
+    (cd $dir && svn update)
+  else
+    dir=$pkgname/$pkgname
+    echo "Checking out $repo/$pkgpath into $dir"
+    svn co $repo/$pkgpath $dir
+  fi
+  changever=$(cd $dir && dpkg-parsechangelog | sed -n 's/Version: //p')
+  upver=$(echo $changever | sed -r -e 's/^([0-9]+:)//' -e 's/-[^-]*$//')
+  if [ $changever != $upver ]; then
+    die "Version $changever has epoch or Debian version component!"
+  fi
+  correctdir=$pkgname/${pkgname}-$upver
+  if [ $dir != $correctdir ]; then
+    echo "Renaming $dir to $correctdir"
+    mv $dir $correctdir
+    dir=$correctdir
+  fi
+  echo "Creating source package"
+  (cd $dir && debuild -S -I.svn)
+}
+
+if [ $# -gt 0 ]; then
+  # Build specific source packages.
+  for pkgname; do
+    pkgpath=$(sed -nre "s/^$pkgname[[:space:]]+//p" $pkgfile)
+    [ -n "$pkgpath" ] || die "Can't find package $pkgname"
+    do_package $pkgname $pkgpath
+  done
+else
+  # Build all source packages.
+  exec <$pkgfile
+  while read pkgname pkgpath; do
+    do_package $pkgname $pkgpath
+  done
+fi
