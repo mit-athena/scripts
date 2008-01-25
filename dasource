@@ -42,6 +42,8 @@ do_package() {
     echo "Creating directory $pkgname"
     mkdir $pkgname
   fi
+
+  # Check out or update the package source.
   if [ $(echo $pkgname/$pkgname-* | wc -w) -gt 2 ]; then
     die "More than one checkout under $pkgname!"
   elif [ -d $pkgname/$pkgname-* ]; then
@@ -53,19 +55,30 @@ do_package() {
     echo "Checking out $repo/$pkgpath into $dir"
     svn co $repo/$pkgpath $dir
   fi
+
+  # Extract the changelog version and strip off the epoch and Debian component.
   changever=$(cd $dir && dpkg-parsechangelog | sed -n 's/Version: //p')
-  upver=$(echo $changever | sed -r -e 's/^([0-9]+:)//' -e 's/-[^-]*$//')
-  if [ $changever != $upver ]; then
-    die "Version $changever has epoch or Debian version component!"
-  fi
+  sver=$(echo $changever | sed -re 's/^[0-9]+://p')
+  upver=$(echo $sver | sed -re 's/-[^-]*$//')
+
+  # Rename the source checkout if necessary.
   correctdir=$pkgname/${pkgname}-$upver
   if [ $dir != $correctdir ]; then
     echo "Renaming $dir to $correctdir"
     mv $dir $correctdir
     dir=$correctdir
   fi
+
+  # Create an orig tarfile if the version has a Debian component.
+  if [ $sver != $upver ]; then
+    echo "Creating original source archive"
+    (cd $pkgname && tar --exclude=.svn --exclude=debian $correctname -czf \
+     ${pkgname}_$upver.orig.tar.gz ${pkgname}-$upver)
+  fi
+
+  # Build an unsigned package, ignoring version control subdirs in the source.
   echo "Creating source package"
-  (cd $dir && debuild -S -I.svn)
+  (cd $dir && debuild -S -i -I -sa -us -uc)
 }
 
 if [ $# -gt 0 ]; then
