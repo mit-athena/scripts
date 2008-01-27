@@ -8,6 +8,7 @@ debathena-attach		athena/bin/attach
 debathena-attachandrun		athena/bin/attachandrun
 debathena-autofs-config		debathena/config/autofs-config
 debathena-base			debathena/config/base
+debathena-build-common		debathena/debathena/build-common
 debathena-build-depends		debathena/meta/build-depends
 debathena-config-build-common	debathena/config/config-build-common
 debathena-delete		athena/bin/delete
