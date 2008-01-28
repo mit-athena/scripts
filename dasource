@@ -48,8 +48,9 @@ do_package() {
     die "More than one checkout under $pkgname!"
   elif [ -d $pkgname/$pkgname-* ]; then
     dir=$(echo $pkgname/$pkgname-*)
-    echo "Updating $dir"
-    (cd $dir && svn update)
+    echo "Updating and cleaning $dir"
+    (cd $dir && svn update && svn revert -R . &&
+     svn st | awk '/^?/ {print $2}' | xargs rm -vrf)
   else
     dir=$pkgname/$pkgname
     echo "Checking out $repo/$pkgpath into $dir"
