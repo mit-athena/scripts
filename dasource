@@ -15,7 +15,9 @@
 
 set -e
 
-pkgfile=$(dirname "$0")/packages
+: ${DEBATHENA_APT=/mit/debathena/apt}
+basedir=$(dirname "$0")
+pkgfile=$basedir/packages
 repo=svn+ssh://svn.mit.edu/athena/trunk
 
 while getopts r: opt; do
@@ -70,11 +72,24 @@ do_package() {
     dir=$correctdir
   fi
 
-  # Create an orig tarfile if the version has a Debian component.
-  if [ $sver != $upver ]; then
-    echo "Creating original source archive"
-    (cd $pkgname && tar --exclude=.svn --exclude=debian $correctname -czf \
-     ${pkgname}_$upver.orig.tar.gz ${pkgname}-$upver)
+  # Add autoconf goo if it's an Athena source directory.
+  case $pkgpath in
+  athena/*)
+    (cd $dir && $basedir/daconfiscate)
+    ;;
+  esac
+
+  tarfile=${pkgname}_$upver.orig.tar.gz
+  if [ ! -e $pkgname/$tarfile ]; then
+    aptorig=$(find ${DEBATHENA_APT}*/pool -name $tarfile | head -1)
+    if [ -n "$aptorig" ]; then
+      echo "Copying existing $aptorig to original source"
+      cp $aptorig $pkgname/$tarfile
+    else
+      echo "Creating original source archive"
+      (cd $pkgname && tar --exclude=.svn --exclude=debian $correctname -czf \
+       $tarfile ${pkgname}-$upver)
+    fi
   fi
 
   # Build an unsigned package, ignoring version control subdirs in the source.

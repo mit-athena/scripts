@@ -1,0 +1,44 @@
+#!/bin/sh
+
+# Usage: daconfiscate
+
+# Prepare an athena source checkout or export for use as a Debian
+# source package by copying in the Athena aclocal.m4 and some autoconf
+# boilerplate and generating configure.
+
+set -e
+
+datadir=$(dirname "$0")
+
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+# These are packaged with automake even though install-sh is a hard
+# requirement for autoconf.  If we pull them from
+# /usr/share/automake-1.10 then we have to deal with automake version
+# skew.  So we keep our own copies.  mkinstalldirs can be eliminated
+# by switching to mkdir -p in our Makefiles and we should do that.
+cp $datadir/mkinstalldirs .
+cp $datadir/install-sh .
+
+# Copy in the Athena aclocal.m4 and the Debian config.guess and
+# config.sub.
+cp $datadir/aclocal.m4 .
+cp /usr/share/misc/config.guess .
+cp /usr/share/misc/config.sub .
+
+# Add libtool materials only if we're using it.
+if [ -e configure.ac ]; then
+  configsrc=configure.ac
+else
+  configsrc=configure.in
+fi
+if grep -q AC_PROG_LIBTOOL $configsrc; then
+  cp /usr/share/libtool/ltmain.sh $(DEB_SRCDIR)
+  cat /usr/share/libtool/libtool.m4 >> aclocal.m4
+fi
+
+autoconf
+rm -rf autom4te.cache
