@@ -5,12 +5,10 @@
 # Remove any LVM snapshots and chroots left behind by schroot.  Not
 # normally necessary as schroot should clean up after itself.
 
-if [ -z "$vg" ]; then
-    vg=/dev/dink
-fi
+: ${VG=/dev/dink}
 set -x
 for i in $(
-    for dir in "$vg" /var/lib/schroot/mount /var/lib/schroot/session; do
+    for dir in "$VG" /var/lib/schroot/mount /var/lib/schroot/session; do
         cd "$dir"
         for i in *-*-sbuild-*-*-*-*-*; do
             echo "$i"
@@ -21,8 +19,8 @@ for i in $(
     schroot -ec "$(echo "$i" | sed 's/-cow$//')"
     if [ "$1" = "-f" ]; then
         tac /proc/mounts | cut -d" " -f2 | fgrep "/var/lib/schroot/mount/$i" | xargs -rn1 umount -l
-        lvremove -f "$vg/$i"
+        lvremove -f "$VG/$i"
         rmdir /var/lib/schroot/mount/"$i" /var/lib/schroot/session/"$i"
-	if ! [ -e "$vg/$i" ]; then rm "$vg/$i"; fi
+	if ! [ -e "$VG/$i" ]; then rm "$VG/$i"; fi
     fi
 done

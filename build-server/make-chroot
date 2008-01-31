@@ -8,7 +8,7 @@
 
 set -xe
 
-VG=/dev/dink
+: ${VG=/dev/dink}
 SUITE=$1
 ARCH=$2
 CHROOT="${SUITE}-${ARCH}-sbuild"
