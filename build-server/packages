@@ -1,9 +1,8 @@
+approx
 devscripts-el
-sbuild
 dpkg-awk
-reprepro
-schroot setup
 liburi-perl
-cvs
-rpm
 quilt
+reprepro
+sbuild
+schroot
