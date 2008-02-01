@@ -41,6 +41,7 @@ if [ "$1" = "-S" ]; then S=1; shift; fi
 change=$1
 cd "$(dirname "$change")"
 change=$(basename "$change")
+base=${change%_source.changes}
 
 check () {
     [ -s "$1" ] || missing="$missing$1 "
@@ -52,27 +53,27 @@ uncheck () {
 missing=
 [ -s "$change" ]
 if [ $S -ne 1 ]; then
-    check "${change%_source.changes}~debian3.1_i386.changes"
-    check "${change%_source.changes}~debian4.0_amd64.changes"
-    check "${change%_source.changes}~debian4.1~0.1_amd64.changes"
-    check "${change%_source.changes}~ubuntu6.06_amd64.changes"
-    check "${change%_source.changes}~ubuntu6.10_amd64.changes"
-    check "${change%_source.changes}~ubuntu7.04_amd64.changes"
-    check "${change%_source.changes}~ubuntu7.10_amd64.changes"
+    check "$base~debian3.1_i386.changes"
+    check "$base~debian4.0_amd64.changes"
+    check "$base~debian4.1~0.1_amd64.changes"
+    check "$base~ubuntu6.06_amd64.changes"
+    check "$base~ubuntu6.10_amd64.changes"
+    check "$base~ubuntu7.04_amd64.changes"
+    check "$base~ubuntu7.10_amd64.changes"
     if [ $A -eq 1 ]; then
-	uncheck "${change%_source.changes}~debian4.0_i386.changes"
-	uncheck "${change%_source.changes}~debian4.1~0.1_i386.changes"
-	uncheck "${change%_source.changes}~ubuntu6.06_i386.changes"
-	uncheck "${change%_source.changes}~ubuntu6.10_i386.changes"
-	uncheck "${change%_source.changes}~ubuntu7.04_i386.changes"
-	uncheck "${change%_source.changes}~ubuntu7.10_i386.changes"
+	uncheck "$base~debian4.0_i386.changes"
+	uncheck "$base~debian4.1~0.1_i386.changes"
+	uncheck "$base~ubuntu6.06_i386.changes"
+	uncheck "$base~ubuntu6.10_i386.changes"
+	uncheck "$base~ubuntu7.04_i386.changes"
+	uncheck "$base~ubuntu7.10_i386.changes"
     else
-	check "${change%_source.changes}~debian4.0_i386.changes"
-	check "${change%_source.changes}~debian4.1~0.1_i386.changes"
-	check "${change%_source.changes}~ubuntu6.06_i386.changes"
-	check "${change%_source.changes}~ubuntu6.10_i386.changes"
-	check "${change%_source.changes}~ubuntu7.04_i386.changes"
-	check "${change%_source.changes}~ubuntu7.10_i386.changes"
+	check "$base~debian4.0_i386.changes"
+	check "$base~debian4.1~0.1_i386.changes"
+	check "$base~ubuntu6.06_i386.changes"
+	check "$base~ubuntu6.10_i386.changes"
+	check "$base~ubuntu7.04_i386.changes"
+	check "$base~ubuntu7.10_i386.changes"
     fi
 fi
 
@@ -95,36 +96,36 @@ $REPREPROI include feisty "$change"
 $REPREPROI include gutsy "$change"
 
 if [ $S -ne 1 ]; then
-    $REPREPRO include sarge "${change%_source.changes}~debian3.1_i386.changes"
-    [ $A -eq 1 ] || $REPREPRO include etch "${change%_source.changes}~debian4.0_i386.changes"
-    $REPREPRO include etch "${change%_source.changes}~debian4.0_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include lenny "${change%_source.changes}~debian4.1~0.1_i386.changes"
-    $REPREPRO include lenny "${change%_source.changes}~debian4.1~0.1_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include dapper "${change%_source.changes}~ubuntu6.06_i386.changes"
-    $REPREPRO include dapper "${change%_source.changes}~ubuntu6.06_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include edgy "${change%_source.changes}~ubuntu6.10_i386.changes"
-    $REPREPRO include edgy "${change%_source.changes}~ubuntu6.10_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include feisty "${change%_source.changes}~ubuntu7.04_i386.changes"
-    $REPREPRO include feisty "${change%_source.changes}~ubuntu7.04_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include gutsy "${change%_source.changes}~ubuntu7.10_i386.changes"
-    $REPREPRO include gutsy "${change%_source.changes}~ubuntu7.10_amd64.changes"
+    $REPREPRO include sarge "$base~debian3.1_i386.changes"
+    [ $A -eq 1 ] || $REPREPRO include etch "$base~debian4.0_i386.changes"
+    $REPREPRO include etch "$base~debian4.0_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include lenny "$base~debian4.1~0.1_i386.changes"
+    $REPREPRO include lenny "$base~debian4.1~0.1_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include dapper "$base~ubuntu6.06_i386.changes"
+    $REPREPRO include dapper "$base~ubuntu6.06_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include edgy "$base~ubuntu6.10_i386.changes"
+    $REPREPRO include edgy "$base~ubuntu6.10_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include feisty "$base~ubuntu7.04_i386.changes"
+    $REPREPRO include feisty "$base~ubuntu7.04_amd64.changes"
+    [ $A -eq 1 ] || $REPREPRO include gutsy "$base~ubuntu7.10_i386.changes"
+    $REPREPRO include gutsy "$base~ubuntu7.10_amd64.changes"
 fi
 
 
 changes=$change
-changes=$changes\ ${change%_source.changes}~debian3.1_i386.changes
-[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~debian4.0_i386.changes
-changes=$changes\ ${change%_source.changes}~debian4.0_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~debian4.1~0.1_i386.changes
-changes=$changes\ ${change%_source.changes}~debian4.1~0.1_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu6.06_i386.changes
-changes=$changes\ ${change%_source.changes}~ubuntu6.06_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu6.10_i386.changes
-changes=$changes\ ${change%_source.changes}~ubuntu6.10_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu7.04_i386.changes
-changes=$changes\ ${change%_source.changes}~ubuntu7.04_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ ${change%_source.changes}~ubuntu7.10_i386.changes
-changes=$changes\ ${change%_source.changes}~ubuntu7.10_amd64.changes
+changes=$changes\ $base~debian3.1_i386.changes
+[ $A -eq 1 ] || changes=$changes\ $base~debian4.0_i386.changes
+changes=$changes\ $base~debian4.0_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ $base~debian4.1~0.1_i386.changes
+changes=$changes\ $base~debian4.1~0.1_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ $base~ubuntu6.06_i386.changes
+changes=$changes\ $base~ubuntu6.06_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ $base~ubuntu6.10_i386.changes
+changes=$changes\ $base~ubuntu6.10_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ $base~ubuntu7.04_i386.changes
+changes=$changes\ $base~ubuntu7.04_amd64.changes
+[ $A -eq 1 ] || changes=$changes\ $base~ubuntu7.10_i386.changes
+changes=$changes\ $base~ubuntu7.10_amd64.changes
 
 files=${change%.changes}.build\ $changes
 origfiles=
