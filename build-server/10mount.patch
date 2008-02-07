@@ -1,0 +1,10 @@
+--- etc/schroot/setup.d/10mount	2007-08-24 17:15:18.000000000 -0400
++++ /etc/schroot/setup.d/10mount	2007-10-28 16:59:56.000000000 -0400
+@@ -106,6 +106,7 @@
+ 	    do_mount "-t tmpfs"   "tmpfs"    "${CHROOT_PATH}/dev/shm"
+ 	    do_mount "-o rw,bind" "/home"    "${CHROOT_PATH}/home"
+ 	    do_mount "-o rw,bind" "/tmp"     "${CHROOT_PATH}/tmp"
++	    do_mount "-o rw,bind" "/afs"     "${CHROOT_PATH}/afs"
+ 	fi
+ 
+     elif [ $1 = "setup-stop" ]; then
