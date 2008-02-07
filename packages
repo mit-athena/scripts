@@ -6,6 +6,7 @@ debathena-athinfod		athena/etc/athinfod
 debathena-athrun		athena/bin/athrun
 debathena-attach		athena/bin/attach
 debathena-attachandrun		athena/bin/attachandrun
+debathena-authwatch		athena/bin/authwatch
 debathena-autofs-config		debathena/config/autofs-config
 debathena-base			debathena/config/base
 debathena-build-common		debathena/debathena/build-common
