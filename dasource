@@ -26,7 +26,6 @@ usage() {
 
 : ${DEBATHENA_APT=/mit/debathena/apt}
 basedir=$(dirname "$0")
-pkgfile=$basedir/packages
 repo=svn+ssh://svn.mit.edu/athena/trunk
 
 while getopts r: opt; do
@@ -103,16 +102,20 @@ do_package() {
   (cd $dir && debuild -S -i -I -sa -us -uc)
 }
 
+if [ ! -r packages ]; then
+  die "Can't read packages file; create with gen-packages"
+fi
+
 if [ $# -gt 0 ]; then
   # Build specific source packages.
   for pkgname; do
-    pkgpath=$(sed -nre "s/^$pkgname[[:space:]]+//p" $pkgfile)
+    pkgpath=$(sed -nre "s/^$pkgname[[:space:]]+//p" packages)
     [ -n "$pkgpath" ] || die "Can't find package $pkgname"
     do_package $pkgname $pkgpath
   done
 else
   # Build all source packages.
-  exec <$pkgfile
+  exec <packages
   while read pkgname pkgpath; do
     do_package $pkgname $pkgpath
   done

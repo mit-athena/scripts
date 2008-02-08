@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Usage: gen-packages [-r REPOS]
+
+# Scans the repository and generates a file named "packages" in the
+# current directory containing a table of source package names and
+# their corresponding directories.
+
+# If REPOS is specified, it is used in preference to the canonical
+# Athena repository trunk.
+
+set -e
+
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+usage() {
+  die "gen-packages [-r repos]"
+}
+
+repo=svn+ssh://svn.mit.edu/athena/trunk
+
+while getopts r: opt; do
+  case "$opt" in
+  r)
+    type="$OPTARG"
+    ;;
+  \?)
+    usage
+    ;;
+  esac
+done
+
+echo "Scanning file list of $repo"
+rm -f packages.unsorted
+for control in $(svn ls -R $repo | grep 'debian/control$'); do
+  echo "Reading $control"
+  name=$(svn cat $repo/$control | sed -ne 's/^Source: \(.*\)$/\1/p')
+  dir=${control%/debian/control}
+  printf "%-35s %s\n" $name $dir >> packages.unsorted
+done
+sort packages.unsorted > packages
+rm -f packages.unsorted
