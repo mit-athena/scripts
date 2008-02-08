@@ -6,8 +6,10 @@
 # packages are very simple, there is no need to build them separately
 # for each dist.
 
+source $(dirname "$0")/debian-versions.sh
+
 : ${DEBATHENA_APT=/mit/debathena/apt}
 
-for dist in sarge etch lenny dapper edgy feisty gutsy; do
-    reprepro -Vb $DEBATHENA_APT --ignore=wrongdistribution include "$dist" "$1"
+for code in $DEBIAN_CODES; do
+    reprepro -Vb $DEBATHENA_APT --ignore=wrongdistribution include "$code" "$1"
 done

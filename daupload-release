@@ -13,7 +13,11 @@ set -e
 # Upon completion, moves all of the generated files into the "built"
 # subdirectory.
 
-: ${DEBATHENA_APT=/mit/debathena/apt}
+source $(dirname "$0")/debian-versions.sh
+
+if [ -z "$DEBATHENA_APT" ]; then
+    DEBATHENA_APT=/mit/debathena/apt
+fi
 
 case "$(basename "$0")" in
     daupload-release)
@@ -53,27 +57,32 @@ uncheck () {
 missing=
 [ -s "$change" ]
 if [ $S -ne 1 ]; then
-    check "$base~debian3.1_i386.changes"
-    check "$base~debian4.0_amd64.changes"
-    check "$base~debian4.1~0.1_amd64.changes"
-    check "$base~ubuntu6.06_amd64.changes"
-    check "$base~ubuntu6.10_amd64.changes"
-    check "$base~ubuntu7.04_amd64.changes"
-    check "$base~ubuntu7.10_amd64.changes"
+    for code in $DEBIAN_CODES; do
+	if [ "$code" = "sarge" ]; then
+	    check "$base~debian3.1_i386.changes"
+	else
+	    tag=$(gettag "$code")
+	    check "${base}${tag}_amd64.changes"
+	fi
+    done
     if [ $A -eq 1 ]; then
-	uncheck "$base~debian4.0_i386.changes"
-	uncheck "$base~debian4.1~0.1_i386.changes"
-	uncheck "$base~ubuntu6.06_i386.changes"
-	uncheck "$base~ubuntu6.10_i386.changes"
-	uncheck "$base~ubuntu7.04_i386.changes"
-	uncheck "$base~ubuntu7.10_i386.changes"
+	for code in $DEBIAN_CODES; do
+	    if [ "$code" = "sarge" ]; then
+		true;
+	    else
+		tag=$(gettag "$code")
+		uncheck "${base}${tag}_i386.changes"
+	    fi
+	done
     else
-	check "$base~debian4.0_i386.changes"
-	check "$base~debian4.1~0.1_i386.changes"
-	check "$base~ubuntu6.06_i386.changes"
-	check "$base~ubuntu6.10_i386.changes"
-	check "$base~ubuntu7.04_i386.changes"
-	check "$base~ubuntu7.10_i386.changes"
+	for code in $DEBIAN_CODES; do
+	    if [ "$code" = "sarge" ]; then
+		true;
+	    else
+		tag=$(gettag "$code")
+		check "${base}${tag}_i386.changes"
+	    fi
+	done
     fi
 fi
 
@@ -87,45 +96,32 @@ fi
 REPREPRO="v reprepro -Vb $repo"
 REPREPROI="$REPREPRO --ignore=wrongdistribution"
 
-$REPREPROI include sarge "$change"
-$REPREPROI include etch "$change"
-$REPREPROI include lenny "$change"
-$REPREPROI include dapper "$change"
-$REPREPROI include edgy "$change"
-$REPREPROI include feisty "$change"
-$REPREPROI include gutsy "$change"
+for code in $DEBIAN_CODES; do
+    $REPREPROI include "$code" "$change"
+done
 
 if [ $S -ne 1 ]; then
-    $REPREPRO include sarge "$base~debian3.1_i386.changes"
-    [ $A -eq 1 ] || $REPREPRO include etch "$base~debian4.0_i386.changes"
-    $REPREPRO include etch "$base~debian4.0_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include lenny "$base~debian4.1~0.1_i386.changes"
-    $REPREPRO include lenny "$base~debian4.1~0.1_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include dapper "$base~ubuntu6.06_i386.changes"
-    $REPREPRO include dapper "$base~ubuntu6.06_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include edgy "$base~ubuntu6.10_i386.changes"
-    $REPREPRO include edgy "$base~ubuntu6.10_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include feisty "$base~ubuntu7.04_i386.changes"
-    $REPREPRO include feisty "$base~ubuntu7.04_amd64.changes"
-    [ $A -eq 1 ] || $REPREPRO include gutsy "$base~ubuntu7.10_i386.changes"
-    $REPREPRO include gutsy "$base~ubuntu7.10_amd64.changes"
+    for code in $DEBIAN_CODES; do
+	if [ "$code" = "sarge" ]; then
+	    $REPREPRO include sarge "$base~debian3.1_i386.changes"
+	else
+	    tag=$(gettag "$code")
+	    [ $A -eq 1 ] || $REPREPRO include "$code" "${base}${tag}_i386.changes"
+	    $REPREPRO include "$code" "${base}${tag}_amd64.changes"
+	fi
+    done
 fi
 
-
 changes=$change
-changes=$changes\ $base~debian3.1_i386.changes
-[ $A -eq 1 ] || changes=$changes\ $base~debian4.0_i386.changes
-changes=$changes\ $base~debian4.0_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ $base~debian4.1~0.1_i386.changes
-changes=$changes\ $base~debian4.1~0.1_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ $base~ubuntu6.06_i386.changes
-changes=$changes\ $base~ubuntu6.06_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ $base~ubuntu6.10_i386.changes
-changes=$changes\ $base~ubuntu6.10_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ $base~ubuntu7.04_i386.changes
-changes=$changes\ $base~ubuntu7.04_amd64.changes
-[ $A -eq 1 ] || changes=$changes\ $base~ubuntu7.10_i386.changes
-changes=$changes\ $base~ubuntu7.10_amd64.changes
+for code in $$DEBIAN_CODES; do
+    if [ "$code" = "sarge" ]; then
+	changes=$changes\ $base~debian3.1_i386.changes
+    else
+	tag=$(gettag "$code")
+	[ $A -eq 1 ] || changes=$changes\ "${base}${tag}"_i386.changes
+	changes=$changes\ "${base}${tag}"_amd64.changes
+    fi
+done
 
 files=${change%.changes}.build\ $changes
 origfiles=

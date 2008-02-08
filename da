@@ -15,6 +15,8 @@
 # Typically this script is used to build Debathena packages, in which
 # case PROGRAM is sbuildhack and ARGUMENTS is a path to a .dsc file.
 
+source $(dirname "$0")/debian-versions.sh
+
 A=0
 if [ "$1" = -A ]; then A=1; shift; fi
 prog="$1"; shift
@@ -50,19 +52,14 @@ t () {
     echo >&2
 }
 
-t sarge-i386 -A "$@"
-t dapper-amd64 -A "$@"
-[ $A -eq 1 ] || t dapper-i386 "$@"
-t edgy-amd64 -A "$@"
-[ $A -eq 1 ] || t edgy-i386 "$@"
-t etch-amd64 -A "$@"
-[ $A -eq 1 ] || t etch-i386 "$@"
-t feisty-amd64 -A "$@"
-[ $A -eq 1 ] || t feisty-i386 "$@"
-t gutsy-amd64 -A "$@"
-[ $A -eq 1 ] || t gutsy-i386 "$@"
-t lenny-amd64 -A "$@"
-[ $A -eq 1 ] || t lenny-i386 "$@"
+for code in $DEBIAN_CODES; do
+    if [ "$code" = "sarge" ]; then
+	t sarge-i386 -A "$@"
+	continue
+    fi
+    t "$code"-amd64 -A "$@"
+    [ $A -eq 1 ] || t "$code"-i386 "$@"
+done
 
 tput bold >&2
 hr
