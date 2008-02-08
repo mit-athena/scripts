@@ -72,4 +72,5 @@ libnss-nonlocal			debathena/debathena/libnss-nonlocal
 libpam-athena-locker		debathena/debathena/libpam-athena-locker
 libpam-debathena-home-type	debathena/debathena/libpam-debathena-home-type
 libpam-krb524			debathena/debathena/libpam-krb524
+libpam-mktemp			debathena/debathena/libpam-mktemp
 libpam-xauthority		debathena/debathena/libpam-xauthority
