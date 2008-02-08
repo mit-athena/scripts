@@ -13,11 +13,8 @@ set -e
 # Upon completion, moves all of the generated files into the "built"
 # subdirectory.
 
+: ${DEBATHENA_APT=/mit/debathena/apt}
 source $(dirname "$0")/debian-versions.sh
-
-if [ -z "$DEBATHENA_APT" ]; then
-    DEBATHENA_APT=/mit/debathena/apt
-fi
 
 case "$(basename "$0")" in
     daupload-release)
