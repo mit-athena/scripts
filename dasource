@@ -15,6 +15,15 @@
 
 set -e
 
+die() {
+  echo "$@" >&2
+  exit 1
+}
+
+usage() {
+  die "dasource [-r repos] [packagename ...]"
+}
+
 : ${DEBATHENA_APT=/mit/debathena/apt}
 basedir=$(dirname "$0")
 pkgfile=$basedir/packages
@@ -26,16 +35,10 @@ while getopts r: opt; do
     type="$OPTARG"
     ;;
   \?)
-    echo "$usage"
-    exit 1
+    usage
     ;;
   esac
 done
-
-die() {
-  echo "$@" >&2
-  exit 1
-}
 
 do_package() {
   pkgname=$1
