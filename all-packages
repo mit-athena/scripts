@@ -1,0 +1,77 @@
+#!/usr/bin/perl
+
+# Usage: all-packages
+
+# Run this script from a build area after running gen-packages and
+# dasource.  The script will output a list of normal Debian packages
+# (not equivs or debathenify packages) in dependency order.
+#
+# This script is imperfect in a couple of ways:
+#
+# (1) It knows nothing about Provides declarations, because those are
+#     computed when a package is built and this script is intended to
+#     operate before binary packages are built.
+#
+# (2) It will always pick the first package of a disjunction.
+
+use strict;
+
+# Process a Build-Depends specification into a list of package names.
+sub list {
+	my ($l) = @_;
+	my @a = split(/, /, $l);
+	foreach (@a) {
+	    s/ \(.*\)$//;
+	    s/ \|.*$//;
+	    s/ \[.*$//;
+	}
+	return @a;
+}
+
+# Read in the package-to-directory map.
+my %dirmap;
+open(PACKAGES, "<", "packages")
+  || die "Can't read packages file; create with gen-packages";
+while (<PACKAGES>) {
+    chomp;
+    /^(\S+)\s+(\S+)$/ || die "Malformed packages line";
+    $dirmap{$1} = $2;
+}
+close(PACKAGES);
+
+# Read the dsc file for each package to get build dependencies.
+my %deps;
+foreach my $name (keys(%dirmap)) {
+    # Look for dsc files under $name and pick the one that sorts highest.
+    my @dscfiles = sort glob("$name/*.dsc");
+    if (scalar @dscfiles == 0) {
+	die "No source package for $name; create with dasource"
+    }
+    my $dscfile = $dscfiles[$#dscfiles];
+
+    open(DSC, "<", $dscfile) || die "Can't read $dscfile";
+    $deps{$name} = [];
+    while (<DSC>) {
+	chomp;
+	(my ($depline) = /^Build-Depends: (.*)$/) || next;
+	push @{$deps{$name}}, list($depline);
+    }
+    close(DSC);
+}
+
+# Recursively output a package's dependency names and then the package
+# name itself, without outputting any name twice.
+my %done;
+sub process {
+    my ($name) = @_;
+    return if ($done{$name});
+    foreach my $dep (@{${deps{$name}}}) {
+	process($dep) if ($dirmap{$dep});
+    }
+    print $name, "\n";
+    $done{$name} = 1;
+}
+
+foreach my $name (keys(%dirmap)) {
+    process($name);
+}
