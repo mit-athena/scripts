@@ -6,7 +6,7 @@
 # packages are very simple, there is no need to build them separately
 # for each dist.
 
-source $(dirname "$0")/debian-versions.sh
+. $(dirname "$0")/debian-versions.sh
 
 : ${DEBATHENA_APT=/mit/debathena/apt}
 

@@ -8,7 +8,8 @@ sub new_binNMU_version {
     my $v = shift;
     my $binNMUver = shift;
     die("Wrong binNMUver!") unless ($binNMUver == 171717);
-    return "$v".`. $(dirname "$0")/debian-versions.sh; gettag $main::distribution`;
+    die("No NMUTAG set in environment!") unless ($ENV{"NMUTAG"});
+    return $v . $ENV{"NMUTAG"};
 };
 
 *old_begin_session = \&Sbuild::Chroot::begin_session;

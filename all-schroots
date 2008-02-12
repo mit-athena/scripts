@@ -11,7 +11,7 @@
 # Debian/Ubuntu version, and ephemeral session chroots are used
 # instead of source chroots.
 
-source $(dirname "$0")/debian-versions.sh
+. $(dirname "$0")/debian-versions.sh
 
 if [ "$1" = "-A" ]; then
 
