@@ -110,7 +110,7 @@ if [ $S -ne 1 ]; then
 fi
 
 changes=$change
-for code in $$DEBIAN_CODES; do
+for code in $DEBIAN_CODES; do
     if [ "$code" = "sarge" ]; then
 	changes=$changes\ $base~debian3.1_i386.changes
     else
