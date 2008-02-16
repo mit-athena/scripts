@@ -24,7 +24,7 @@ gettag() {
 	    echo "~ubuntu7.10"
 	    ;;
 	hardy)
-	    echo "~ubuntu8.04"
+	    echo "~ubuntu8.04~0.1"
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
