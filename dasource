@@ -48,10 +48,11 @@ do_package() {
   fi
 
   # Check out or update the package source.
-  if [ $(echo $pkgname/$pkgname-* | wc -w) -gt 2 ]; then
+  pattern="$pkgname/$pkgname-[0-9]*[0-9]"
+  if [ $(echo $pattern | wc -w) -gt 1 ]; then
     die "More than one checkout under $pkgname!"
-  elif [ -d $pkgname/$pkgname-* ]; then
-    dir=$(echo $pkgname/$pkgname-*)
+  elif [ -d $pattern ]; then
+    dir=$(echo $pattern)
     echo "Updating and cleaning $dir"
     (cd $dir && svn update && svn revert -R . &&
      svn st | awk '/^?/ {print $2}' | xargs rm -vrf)
