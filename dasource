@@ -99,7 +99,7 @@ do_package() {
 
   # Build an unsigned package, ignoring version control subdirs in the source.
   echo "Creating source package"
-  (cd $dir && debuild -S -i -I -sa -us -uc)
+  (cd $dir && debuild -S -i -I.svn -sa -us -uc)
 }
 
 if [ ! -r packages ]; then
