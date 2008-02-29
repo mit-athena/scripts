@@ -1,13 +1,18 @@
 #!/bin/sh
 
-# Usage: gen-packages [-r REPOS]
+# Usage: gen-packages [-c|-r] [LOCATION]
 
-# Scans the repository and generates a file named "packages" in the
-# current directory containing a table of source package names and
-# their corresponding directories.
+# Scans the repository or a checkout of it and generates a file named
+# "packages" in the current directory containing a table of source
+# package names and their corresponding directories.  Scanning a
+# checkout is much faster, but relies on the checkout being
+# sufficiently up to date.
 
-# If REPOS is specified, it is used in preference to the canonical
-# Athena repository trunk.
+# If -c is specified, scans a checkout.  If -r is specified, scans the
+# repository.  -r is the default.
+
+# If LOCATION is specified, it is used in preference to the canonical
+# Athena repository trunk or the canonical source checkout.
 
 set -e
 
@@ -17,15 +22,18 @@ die() {
 }
 
 usage() {
-  die "gen-packages [-r repos]"
+  die "gen-packages [-r|-c] [LOCATION]"
 }
 
-repo=svn+ssh://svn.mit.edu/athena/trunk
+type=repos
 
-while getopts r: opt; do
+while getopts cr opt; do
   case "$opt" in
+  c)
+    type=checkout
+    ;;
   r)
-    type="$OPTARG"
+    type=repos
     ;;
   \?)
     usage
@@ -33,13 +41,31 @@ while getopts r: opt; do
   esac
 done
 
-echo "Scanning file list of $repo"
+shift $(($OPTIND - 1))
+if [ $# -gt 0 ]; then
+  loc=$1
+elif [ $type = repos ]; then
+  loc=svn+ssh://svn.mit.edu/athena/trunk
+else
+  loc=/afs/dev.mit.edu/source/src-svn
+fi
+
 rm -f packages.unsorted
-for control in $(svn ls -R $repo | grep 'debian/control$'); do
-  echo "Reading $control"
-  name=$(svn cat $repo/$control | sed -ne 's/^Source: \(.*\)$/\1/p')
-  dir=${control%/debian/control}
-  printf "%-35s %s\n" $name $dir >> packages.unsorted
-done
+echo "Scanning file list of $loc"
+if [ $type = repos ]; then
+  for cf in $(svn ls -R $loc | grep 'debian/control$'); do
+    echo "Reading $cf"
+    name=$(svn cat $loc/$cf | sed -ne 's/^Source: \(.*\)$/\1/p')
+    dir=${cf%/debian/control}
+    printf "%-35s %s\n" $name $dir >> packages.unsorted
+  done
+else
+  for cf in $(cd $loc && find | sed -ne '/debian\/control$/s/^\.\///p'); do
+    echo "Reading $cf"
+    name=$(sed -ne 's/^Source: \(.*\)$/\1/p' $loc/$cf)
+    dir=${cf%/debian/control}
+    printf "%-35s %s\n" $name $dir >> packages.unsorted
+  done
+fi
 sort packages.unsorted > packages
 rm -f packages.unsorted
