@@ -1,8 +1,9 @@
+#!/bin/sh
+
 # Usage: upgrade-schroot SCHROOTNAME ...
 
 # Updates the system packages in one or more schroots.
 
-#!/bin/sh
 for i in "$@"; do
     schroot -u root -c "$i" -- sh -c 'apt-get update && apt-get -y dist-upgrade && apt-get clean'
 done
