@@ -82,21 +82,8 @@ do_package() {
     ;;
   esac
 
-  # If the version has a debian component then we need an orig archive.
-  if [ $sver != $upver ]; then
-    tarfile=${pkgname}_$upver.orig.tar.gz
-    if [ ! -e $pkgname/$tarfile ]; then
-      aptorig=$(find ${DEBATHENA_APT}*/pool -name $tarfile | head -1)
-      if [ -n "$aptorig" ]; then
-        echo "Copying existing $aptorig to original source"
-        cp $aptorig $pkgname/$tarfile
-      else
-        echo "Creating original source archive"
-        (cd $pkgname && tar --exclude=.svn --exclude=debian $correctname -czf \
-         $tarfile ${pkgname}-$upver)
-      fi
-    fi
-  fi
+  # Create a suitable orig tarball if necessary.
+  (cd $dir && daorig)
 
   # Build an unsigned package, ignoring version control subdirs in the source.
   echo "Creating source package"

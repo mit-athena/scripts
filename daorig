@@ -1,0 +1,39 @@
+#!/bin/sh
+
+# Usage: daorig
+
+# Fake up an "original" source tarball for a Debathena package.  Run
+# this from the top level of a checkout or copy of the sources for a
+# Debathena package; the orig tarball will be created in the parent
+# directory if necessary.
+
+# If the package has no Debian version component, this script will do
+# nothing.  If an orig file already exists, this script will also do
+# nothing.
+
+set -e
+
+: ${DEBATHENA_APT=/mit/debathena/apt}
+
+# Extract the changelog version and strip off the epoch and Debian component.
+pkgname=$(dpkg-parsechangelog | sed -n 's/Source: //p')
+changever=$(dpkg-parsechangelog | sed -n 's/Version: //p')
+sver=$(echo "$changever" | sed -re 's/^[0-9]+://p')
+upver=$(echo "$sver" | sed -re 's/-[^-]*$//')
+
+# If the version has no Debian component, do nothing.
+if [ "x$sver" = "x$upver" ]; then exit; fi
+
+# If an orig file already exists, do nothing.
+tarfile=${pkgname}_$upver.orig.tar.gz
+if [ -e "../$tarfile" ]; then exit; fi
+
+aptorig=$(find ${DEBATHENA_APT}*/pool -name $tarfile | head -1)
+if [ -n "$aptorig" ]; then
+  echo "Copying existing $aptorig to original source"
+  cp "$aptorig" "../$tarfile"
+else
+  echo "Creating original source archive"
+  dirname=$(basename $(pwd))
+  (cd .. && tar --exclude=.svn --exclude=debian -czf "$tarfile" "$dirname")
+fi
