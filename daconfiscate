@@ -36,7 +36,7 @@ else
   configsrc=configure.in
 fi
 if grep -q AC_PROG_LIBTOOL $configsrc; then
-  cp /usr/share/libtool/ltmain.sh $(DEB_SRCDIR)
+  cp /usr/share/libtool/ltmain.sh .
   cat /usr/share/libtool/libtool.m4 >> aclocal.m4
 fi
 
