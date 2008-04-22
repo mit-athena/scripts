@@ -3,6 +3,10 @@
 use warnings;
 use strict;
 
+my $psuite = $ARGV[0];
+$psuite or die "Usage: gen-build-deps <previous suite name>";
+$ENV{DEBATHENA_APT} or $ENV{DEBATHENA_APT}="/mit/debathena/apt";
+
 sub list {
 	my ($l) = @_;
 	$l =~ s/ \(.*\)$//;
@@ -11,7 +15,7 @@ sub list {
 	split(/, /, $l);
 }
 
-open(DPKG, '-|', 'zcat /mit/debathena/apt/dists/etch/*/source/Sources.gz | dpkg-awk -f - -- Package Build-Depends') or die;
+open(DPKG, '-|', "zcat $ENV{DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - -- Package Build-Depends") or die;
 my %src_deps = ();
 while (<DPKG>) {
 	last if /^$/;
@@ -27,7 +31,7 @@ while (<DPKG>) {
 	}
 }
 close DPKG;
-open(DPKG, '-|', 'zcat /mit/debathena/apt/dists/etch/debathena/binary-amd64/Packages.gz | dpkg-awk -f - -- Package Source Provides') or die;
+open(DPKG, '-|', "zcat $ENV{DEBATHENA_APT}/dists/$psuite/debathena/binary-amd64/Packages.gz | dpkg-awk -f - -- Package Source Provides") or die;
 my %pkg_src = ();
 my %pkg_provider = ();
 while (<DPKG>) {

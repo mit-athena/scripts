@@ -2,18 +2,23 @@
 set -xe
 package=$1
 stamp=$2
-suite=lenny
-psuite=etch
-tag="~debian4.1~0.1"
+suite=$3
+psuite=$4
+: ${DEBATHENA_APT=/mit/debathena/apt}
+: ${DEBATHENA_BUILD_AREA=/afs/sipb.mit.edu/project/debathena/packages}
+tag=$(shell . /mit/debathena/bin/debian-versions.sh; gettag $(suite))
 [ -n "$1" ]
 [ -n "$2" ]
 trap 'echo "An error occured.  Press Enter to continue." >&2; echo -en "\a"; read ERROR; touch "$stamp.error"' EXIT
 touch "$stamp.started"
-dir=$(echo /afs/sipb.mit.edu/project/debathena/packages/*/"${package#debathena-}")
+dir=$(echo ${DEBATHENA_BUILD_AREA}/*/"${package#debathena-}")
+if [ ! -e $dir ]; then
+    dir=$(echo ${DEBATHENA_BUILD_AREA}/*/"${package}")
+fi
 [ -e "$dir" ]
 cd "$dir"
 if [ -e debathenify-* ]; then false; fi
-version=$(zcat /mit/debathena/apt/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
+version=$(zcat ${DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
 if [ -d "built/" ]; then
     dsc="$dir/built/${package}_$version.dsc"
 else
@@ -21,14 +26,19 @@ else
 fi
 [ -e "$dsc" ]
 
-if [ -e "${dsc%.dsc}_amd64.changes" ]; then
-    grep -Fq 'dpkg-source -b equivs' "${dsc%.dsc}_amd64.build"
+if [ -e "${dsc%.dsc}_amd64.changes" ] || [ -e "${dsc%.dsc}_i386.changes" ]; then
     changes="${dsc%.dsc}_amd64.changes"
+    buildlog="${dsc%.dsc}_amd64.build"
+    if [ ! -e $changes ]; then
+	changes="${dsc%.dsc}_i386.changes"
+	buildlog="${dsc%.dsc}_i386.build"
+    fi
+    grep -Fq 'dpkg-source -b equivs' $buildlog
 else
     [ -e "${dsc%.dsc}_source.changes" ]
     changes="${dsc%.dsc}_source.changes"
     A=1
-    if (zcat /mit/debathena/apt/dists/$psuite/*/binary-i386/Packages.gz | dpkg-awk -f - "Source:^$package\$" -- Architecture; zcat /mit/debathena/apt/dists/$psuite/*/binary-i386/Packages.gz | dpkg-awk -f - "Package:^$package\$" -- Architecture) | grep -Fxv 'Architecture: all' | grep -q .; then
+    if (zcat ${DEBATHENA_APT}/dists/$psuite/*/binary-i386/Packages.gz | dpkg-awk -f - "Source:^$package\$" -- Architecture; zcat ${DEBATHENA_APT}/dists/$psuite/*/binary-i386/Packages.gz | dpkg-awk -f - "Package:^$package\$" -- Architecture) | grep -Fxv 'Architecture: all' | grep -q .; then
 	A=0
     fi
     sbuildhack "${suite}-amd64" -A "$dsc"
@@ -45,7 +55,7 @@ fi
 #    :
 #done
 
-REPREPRO="reprepro -Vb /mit/debathena/apt"
+REPREPRO="reprepro -Vb ${DEBATHENA_APT}"
 
 (
     flock -x 200
