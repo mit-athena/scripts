@@ -67,5 +67,7 @@ else
     printf "%-35s %s\n" $name $dir >> packages.unsorted
   done
 fi
-sort packages.unsorted > packages
+
+# cyrus-sasl2-mit has a debian dir but is really a debathenify package.
+sort packages.unsorted | grep -v cyrus-sasl2-mit > packages
 rm -f packages.unsorted
