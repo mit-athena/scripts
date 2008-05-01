@@ -19,7 +19,7 @@ $(call package,%):
 		echo "other" >> "$$file" && \
 		screen -X source "$$file" && \
 		sleep 1 && \
-		rm -f "$file"
+		rm -f "$$file"
 	[ -e $(STAMPS)/$*.started ]
 	while ! [ -e $(STAMPS)/$*.done ] && ! [ -e $(STAMPS)/$*.error ]; do sleep 1; done
 	rm -f $(STAMPS)/$*.started
