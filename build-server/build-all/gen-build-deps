@@ -9,10 +9,13 @@ $ENV{DEBATHENA_APT} or $ENV{DEBATHENA_APT}="/mit/debathena/apt";
 
 sub list {
 	my ($l) = @_;
-	$l =~ s/ \(.*\)$//;
-	$l =~ s/ \|.*$//;
-	$l =~ s/ \[.*$//;
-	split(/, /, $l);
+	my @a = split(/, /, $l);
+	foreach (@a) {
+	    s/ \(.*\)$//;
+	    s/ \|.*$//;
+	    s/ \[.*$//;
+	}
+	return @a;
 }
 
 open(DPKG, '-|', "zcat $ENV{DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - -- Package Build-Depends") or die;
