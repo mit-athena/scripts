@@ -53,10 +53,6 @@ t () {
 }
 
 for code in $DEBIAN_CODES; do
-    if [ "$code" = "sarge" ]; then
-	t sarge-i386 -A "$@"
-	continue
-    fi
     t "$code"-amd64 -A "$@"
     [ $A -eq 1 ] || t "$code"-i386 "$@"
 done

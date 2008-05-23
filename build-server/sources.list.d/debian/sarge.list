@@ -1,6 +1,0 @@
-deb http://localhost:9999/debian sarge main
-deb-src http://localhost:9999/debian sarge main
-deb http://localhost:9999/debian-security sarge/updates main
-deb-src http://localhost:9999/debian-security sarge/updates main
-deb http://localhost:9999/debathena sarge debathena debathena-config
-deb-src http://localhost:9999/debathena sarge debathena debathena-config

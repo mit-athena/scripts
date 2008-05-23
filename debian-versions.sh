@@ -1,10 +1,7 @@
 #!/bin/sh
-DEBIAN_CODES="sarge etch lenny dapper edgy feisty gutsy hardy"
+DEBIAN_CODES="etch lenny dapper edgy feisty gutsy hardy"
 gettag() {
     case "$1" in
-	sarge)
-	    echo "~debian3.1"
-	    ;;
 	etch)
 	    echo "~debian4.0"
 	    ;;
