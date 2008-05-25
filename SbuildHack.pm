@@ -1,7 +1,6 @@
 package SbuildHack;
 
 use Sbuild qw(binNMU_version);
-use Fcntl qw(:flock);
 
 sub new_binNMU_version {
     my $v = shift;
