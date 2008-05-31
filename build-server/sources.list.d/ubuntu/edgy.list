@@ -1,8 +1,0 @@
-deb http://localhost:9999/ubuntu edgy main restricted universe
-deb-src http://localhost:9999/ubuntu edgy main restricted universe
-deb http://localhost:9999/ubuntu edgy-updates main restricted universe
-deb-src http://localhost:9999/ubuntu edgy-updates main restricted universe
-deb http://localhost:9999/ubuntu-security edgy-security main restricted universe
-deb-src http://localhost:9999/ubuntu-security edgy-security main restricted universe
-deb http://localhost:9999/debathena edgy debathena debathena-config
-deb-src http://localhost:9999/debathena edgy debathena debathena-config

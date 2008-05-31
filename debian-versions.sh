@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="etch lenny dapper edgy feisty gutsy hardy"
+DEBIAN_CODES="etch lenny dapper feisty gutsy hardy"
 gettag() {
     case "$1" in
 	etch)
@@ -10,9 +10,6 @@ gettag() {
 	    ;;
 	dapper)
 	    echo "~ubuntu6.06"
-	    ;;
-	edgy)
-	    echo "~ubuntu6.10"
 	    ;;
 	feisty)
 	    echo "~ubuntu7.04"
