@@ -1,0 +1,100 @@
+#!/usr/bin/pagsh
+
+# This script is intended to be run from a cron job by a local account
+# on a build machine--either debuild on debuild.mit.edu or builder on
+# linux-build-10.mit.edu.  The account should have:
+#
+# * A keytab installed in $HOME/keytab containing a keytab for
+#   daemon/HOSTNAME, which should have write access to the build
+#   directory and apt repository.
+#
+# * A GPG secret key capable of signing packages for the apt
+#   repository.
+#
+# * A file named $HOME/autodebathenify.config specifying shell
+#   variable assignments for:
+#   - error_addr: An email address to send errors to
+#   - scripts_dir: Directory containing Debathena scripts (da, etc.)
+#   - build_dir: Build directory location, up through "third".
+#   - packages: A list of packages to keep up to date
+#   It should also specify an environment variable assignment for
+#   DEBATHENA_APT.
+
+# Send all output to a logfile.
+mkdir -p "$HOME/logs"
+logfile=$HOME/logs/$(date '+%Y-%m-%d-%H').log
+exec </dev/null >>$logfile 2>&1
+
+# Read configuration; if it's not complete, do nothing.
+config=$HOME/autodebathenify.config
+. $HOME/autodebathenify.config
+if [ ! -n "$error_addr" -o ! -n "$scripts_dir" -o ! -n "$build_dir" -o \
+     ! -n "$packages" ]; then
+  echo "Incomplete $config; doing nothing."
+  exit
+fi
+
+suppress=$HOME/autodebathenify.suppress
+if [ -e "$suppress" ]; then
+  echo "$suppress exists; not running."
+  exit
+fi
+
+# Send an error report to $error_addr and suppress future runs until a
+# human has checked things out.  This function does not remove the run
+# file and does not exit the script.
+error() {
+  touch "$suppress"
+  /usr/sbin/sendmail -t << EOM
+From: Autodebathenify <$error_addr>
+To: Autodebathenify <$error_addr>
+Subject: Autodebathenify failure: $1
+
+Autodebathenify has experienced a failure.
+
+Please see $logfile on $(hostname) for more details.
+
+Autodebathenify will stop running until $suppress is removed.
+EOM
+}
+
+# Make sure runs of this script do not overlap.
+runfile=$HOME/autodebathenify.running
+if [ -e "$runfile" ]; then
+  # A previous invocation appears to still be running.
+  pid=$(cat "$runfile")
+  if ! kill -0 "$pid" 2>/dev/null; then
+    # Okay, it's not really running.  Perhaps the machine has
+    # rebooted.  Wait for manual intervention before running again.
+    error "Stale runfile"
+    exit
+  else
+    echo "$runfile exists; not running."
+  fi
+fi
+echo $$ > $runfile
+
+set -e
+trap 'error "$state"; rm -f "$runfile"' EXIT
+
+# Acquire credentials.
+state="acquiring credentials"
+export KRB5CCNAME=$HOME/autodebathenify.ccache
+kinit -k -t "$HOME/keytab" daemon/$(hostname --fqdn)
+aklog athena.mit.edu dev.mit.edu
+
+export PATH=${scripts_dir}:$PATH
+
+state="changing to build dir"
+cd "$build_dir"
+for pkg in $packages; do
+  state="updating $pkg"
+  cd "$pkg"
+  da ./debathenify-"$pkg" source binary upload
+  cd ..
+done
+
+state="cleaning up"
+kdestroy
+rm -f "$runfile"
+trap '' EXIT
