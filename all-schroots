@@ -17,7 +17,7 @@ if [ "$1" = "-A" ]; then
 
 shift
 prog=$1; shift
-for code in "$DEBIAN_CODES"; do
+for code in $DEBIAN_CODES; do
     $prog ${code}-amd64-sbuild "$@"
 done
 
@@ -25,7 +25,7 @@ else
 
 prog=$1; shift
 
-for code in "$DEBIAN_CODES"; do
+for code in $DEBIAN_CODES; do
     $prog ${code}-i386-sbuild-source "$@"
     $prog ${code}-amd64-sbuild-source "$@"
 done
