@@ -47,6 +47,15 @@ do_package() {
     mkdir $pkgname
   fi
 
+  # Work around a bad interaction between dpkg-source and AFS.
+  # (dpkg-source invokes perl's Tempfile which checks if the parent
+  # directory is writable using mode bits).  This will not actually
+  # grant any outside access to the directory since AFS ignores
+  # non-user mode bits.
+  if fs whichcell . >/dev/null 2>&1; then
+    chmod 777 $pkgname
+  fi
+
   # Check out or update the package source.
   pattern="$pkgname/$pkgname-[0-9]*[0-9]"
   if [ $(echo $pattern | wc -w) -gt 1 ]; then
