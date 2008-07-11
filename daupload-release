@@ -13,6 +13,8 @@ set -e
 # Upon completion, moves all of the generated files into the "built"
 # subdirectory.
 
+# This script will skip dists listed in ./nobuild.
+
 : ${DEBATHENA_APT=/mit/debathena/apt}
 . $(dirname "$0")/debian-versions.sh
 
@@ -50,6 +52,17 @@ check () {
 uncheck () {
     ! [ -s "$1" ] || missing="$missing-$1 "
 }
+
+# If ./nobuild exists, filter out its contents from DEBIAN_CODES.
+if [ -e nobuild ]; then
+    newcodes=
+    for code in $DEBIAN_CODES; do
+	if ! fgrep -q "$code" nobuild; then
+	    newcodes="$newcodes $code"
+	fi
+    done
+    DEBIAN_CODES=$newcodes
+fi
 
 missing=
 [ -s "$change" ]
