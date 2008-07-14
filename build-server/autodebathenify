@@ -67,10 +67,10 @@ if [ -e "$runfile" ]; then
     # Okay, it's not really running.  Perhaps the machine has
     # rebooted.  Wait for manual intervention before running again.
     error "Stale runfile"
-    exit
   else
     echo "$runfile exists; not running."
   fi
+  exit
 fi
 echo $$ > $runfile
 
