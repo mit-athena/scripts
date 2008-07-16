@@ -69,5 +69,6 @@ else
 fi
 
 # cyrus-sasl2-mit has a debian dir but is really a debathenify package.
-sort packages.unsorted | grep -v cyrus-sasl2-mit > packages
+# config-package dev has some example packages we want to filter out.
+sort packages.unsorted | egrep -v 'cyrus-sasl2-mit|/examples/' > packages
 rm -f packages.unsorted
