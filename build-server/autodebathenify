@@ -58,6 +58,33 @@ Autodebathenify will stop running until $suppress is removed.
 EOM
 }
 
+# Similar to error, but do not suppress future runs.
+error_transient() {
+  /usr/sbin/sendmail -t << EOM
+From: Autodebathenify <$error_addr>
+To: Autodebathenify <$error_addr>
+Subject: Autodebathenify failure: $1
+
+Autodebathenify has experienced a transient failure.
+
+Autodebathenify will continue running; investigation is not required
+unless this failure repeats itself.  If that happens, see $logfile on
+$(hostname) for more details.
+EOM
+}
+
+# Exit handler.  If a subsidiary command exited with status 3, we
+# treat it as a transient failure; otherwise we treat it as a failure
+# requiring human investigation.  In either case, remove the run file.
+on_failure() {
+  if [ 3 -eq "$?" ]; then
+    error_transient "$state"
+  else
+    error "$state"
+  fi
+  rm -f "$runfile"
+}
+
 # Make sure runs of this script do not overlap.
 runfile=$HOME/autodebathenify.running
 if [ -e "$runfile" ]; then
@@ -74,8 +101,7 @@ if [ -e "$runfile" ]; then
 fi
 echo $$ > $runfile
 
-set -e
-trap 'error "$state"; rm -f "$runfile"' EXIT
+trap on_failure EXIT
 
 # Acquire credentials.
 state="acquiring credentials"
@@ -84,14 +110,16 @@ kinit -k -t "$HOME/keytab" daemon/$(hostname --fqdn)
 aklog athena.mit.edu dev.mit.edu
 
 export PATH=${scripts_dir}:$PATH
+. "$scripts_dir"/debian-versions.sh
 
 state="changing to build dir"
 cd "$build_dir"
 for pkg in $packages; do
-  state="updating $pkg"
-  cd "$pkg"
-  da ./debathenify-"$pkg" source binary upload
-  cd ..
+  for code in $DEBIAN_CODES; do
+    state="updating $pkg for $code"
+    ./debathenify-"$pkg" "$code"-amd64 -A source binary upload
+    ./debathenify-"$pkg" "$code"-amd64 source binary upload
+  done
 done
 
 state="cleaning up"
