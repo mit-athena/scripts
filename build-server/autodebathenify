@@ -120,7 +120,9 @@ for pkg in $packages; do
   cd "$pkg"
   for code in $DEBIAN_CODES; do
     state="updating $pkg for $code"
+    echo "--- Updating $pkg for $code (amd64) ---"
     ./debathenify-"$pkg" "$code"-amd64 -A source binary upload
+    echo "--- Updating $pkg for $code (i386) ---"
     ./debathenify-"$pkg" "$code"-amd64 source binary upload
   done
   cd ..
