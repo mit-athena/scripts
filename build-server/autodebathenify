@@ -102,6 +102,7 @@ fi
 echo $$ > $runfile
 
 trap on_failure EXIT
+set -e
 
 # Acquire credentials.
 state="acquiring credentials"
