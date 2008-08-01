@@ -115,11 +115,14 @@ export PATH=${scripts_dir}:$PATH
 state="changing to build dir"
 cd "$build_dir"
 for pkg in $packages; do
+  state="changing to $pkg in build dir"
+  cd "$pkg"
   for code in $DEBIAN_CODES; do
     state="updating $pkg for $code"
     ./debathenify-"$pkg" "$code"-amd64 -A source binary upload
     ./debathenify-"$pkg" "$code"-amd64 source binary upload
   done
+  cd ..
 done
 
 state="cleaning up"
