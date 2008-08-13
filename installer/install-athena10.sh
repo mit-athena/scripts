@@ -40,15 +40,14 @@ echo "Please choose the category which bets suits your needs.  Each category"
 echo "in this list includes the functionality of the previous ones.  See the"
 echo "documentation at http://athena10.mit.edu for more information."
 echo ""
-echo "  locker:      Minimal software necessary to run Athena locker software."
 echo "  standard:    Athena client software (e.g. discuss) and customizations"
 echo "  login:       Allow Athena users to log into your machine locally"
 echo "  workstation: Athena graphical login customizations"
 echo ""
 
 category=""
-while [ locker != "$category" -a standard != "$category" -a \
-        login != "$category" -a workstation != "$category" ]; do
+while [ standard != "$category" -a login != "$category" -a \
+        workstation != "$category" ]; do
   output -n "Please choose a category or press control-C to abort: "
   read category
 done
