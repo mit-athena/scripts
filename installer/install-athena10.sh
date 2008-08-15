@@ -41,7 +41,7 @@ echo "in this list includes the functionality of the previous ones.  See the"
 echo "documentation at http://athena10.mit.edu for more information."
 echo ""
 echo "  standard:    Athena client software (e.g. discuss) and customizations"
-echo "  login:       Allow Athena users to log into your machine locally"
+echo "  login:       Allow Athena users to log into your machine"
 echo "  workstation: Athena graphical login customizations"
 echo ""
 
