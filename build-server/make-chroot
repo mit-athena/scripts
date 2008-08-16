@@ -19,9 +19,15 @@ exittrap() { :; }
 for sig in 1 2 13 15; do trap "exit $(($sig + 128))" $sig; done
 trap 'exittrap' EXIT
 
-if fgrep -x "[$CHROOT]" /etc/schroot/schroot.conf; then
+if fgrep -qxRs "[$CHROOT]" /etc/schroot/schroot.conf /etc/schroot/chroot.d; then
 	echo "Chroot $CHROOT already exists." >&2
 	exit 1
+fi
+
+if [ -d /etc/schroot/chroot.d ]; then
+	CONF=/etc/schroot/chroot.d/$CHROOT
+else
+	CONF=/etc/schroot/schroot.conf
 fi
 
 if [ "$ARCH" = "i386" ]; then
@@ -64,8 +70,8 @@ umount "$TARGET"
 rmdir "$TARGET"
 exittrap() { :; }
 
-cat >> /etc/schroot/schroot.conf <<EOF
-
+! [ -s "$CONF" ] || echo >> "$CONF"
+cat >> "$CONF" <<EOF
 [$CHROOT]
 type=lvm-snapshot
 description=$CHROOT
