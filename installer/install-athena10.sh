@@ -53,14 +53,14 @@ while [ standard != "$category" -a login != "$category" -a \
 done
 mainpackage=debathena-$category
 
-additional=
-
+dev=no
 echo
 ask "Will this machine be used for Athena 10 development [y/N]? " n
 if [ y = "$answer" ]; then
-  additional="$additional debathena-debian-dev"
+  dev=yes
 fi
 
+csoft=no
 echo "The cluster-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more).  It does not turn your machine"
@@ -68,12 +68,13 @@ echo "into a cluster machine; it is only a standard software set."
 echo ""
 ask "Do you want the cluster-software package [y/N]? " n
 if [ y = "$answer" ]; then
-  additional="$additional debathena-cluster-software"
+  csoft=yes
 fi
 
 echo "A summary of your choices:"
-echo "  Main package: $mainpackage"
-echo "  Additional packages:$additional"
+echo "  Category: $category"
+echo "  Debian development package: $dev"
+echo "  Cluster software package: $csoft"
 echo ""
 output "Press return to begin or control-C to abort"
 read dummy
@@ -93,6 +94,8 @@ dapper|edgy|feisty|gutsy|hardy)
 esac
 
 output "Adding the Athena 10 repository to the apt sources"
+echo "(This may cause the update manager to claim new upgrades are available."
+echo "Ignore them until this script is complete.)"
 if [ -d /etc/apt/sources.list.d ]; then
   sourceslist=/etc/apt/sources.list.d/debathena.list
 else
@@ -138,5 +141,22 @@ fi
 output "Installing OpenAFS kernel metapackage"
 apt-get -y install $modules
 
-output "Installing Athena 10 packages"
-DEBIAN_FRONTEND=noninteractive aptitude -y install "$mainpackage" $additional
+# Use the noninteractive frontend to install the main package.  This
+# is so that AFS and Zephyr don't ask questions of the user which
+# debathena packages will later stomp on anyway.
+output "Installing main Athena 10 metapackage $mainpackage"
+DEBIAN_FRONTEND=noninteractive aptitude -y install "$mainpackage"
+
+# This package is relatively small so it's not as important, but allow
+# critical questions to be asked.
+if [ yes = "$dev" ]; then
+  output "Installing debathena-build-depends"
+  DEBIAN_PRIORITY=critical aptitude -y install debathena-build-depends
+fi
+
+# Use the default front end and allow questions to be asked; otherwise
+# Java will fail to install since it has to present its license.
+if [ yes = "$csoft" ]; then
+  output "Installing debathena-cluster-software"
+  DEBIAN_PRIORITY=critical aptitude -y install debathena-cluster-software
+fi
