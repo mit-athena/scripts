@@ -55,7 +55,7 @@ mainpackage=debathena-$category
 
 dev=no
 echo
-ask "Will this machine be used for Athena 10 development [y/N]? " n
+ask "Will this machine be used to build Debathena packages [y/N]? " n
 if [ y = "$answer" ]; then
   dev=yes
 fi
