@@ -34,7 +34,7 @@ if [ -e "${dsc%.dsc}_amd64.changes" ] || [ -e "${dsc%.dsc}_i386.changes" ]; then
 	changes="${dsc%.dsc}_i386.changes"
 	buildlog="${dsc%.dsc}_i386.build"
     fi
-    grep -Fq 'dpkg-source -b equivs' $buildlog
+    grep -q 'dpkg-source.* -b equivs' $buildlog
 else
     [ -e "${dsc%.dsc}_source.changes" ]
     changes="${dsc%.dsc}_source.changes"
