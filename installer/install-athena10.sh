@@ -61,12 +61,11 @@ if [ y = "$answer" ]; then
 fi
 
 csoft=no
-echo "The cluster-software package installs a standard set of software"
+echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
-echo "big (several gigabytes, possibly more).  It does not turn your machine"
-echo "into a cluster machine; it is only a standard software set."
+echo "big (several gigabytes, possibly more)."
 echo ""
-ask "Do you want the cluster-software package [y/N]? " n
+ask "Do you want the extra-software package [y/N]? " n
 if [ y = "$answer" ]; then
   csoft=yes
 fi
@@ -74,7 +73,7 @@ fi
 echo "A summary of your choices:"
 echo "  Category: $category"
 echo "  Debian development package: $dev"
-echo "  Cluster software package: $csoft"
+echo "  Extra-software package: $csoft"
 echo ""
 output "Press return to begin or control-C to abort"
 read dummy
@@ -157,6 +156,6 @@ fi
 # Use the default front end and allow questions to be asked; otherwise
 # Java will fail to install since it has to present its license.
 if [ yes = "$csoft" ]; then
-  output "Installing debathena-cluster-software"
-  DEBIAN_PRIORITY=critical aptitude -y install debathena-cluster-software
+  output "Installing debathena-extra-software"
+  DEBIAN_PRIORITY=critical aptitude -y install debathena-extra-software
 fi
