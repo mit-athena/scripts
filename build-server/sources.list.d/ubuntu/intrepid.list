@@ -1,0 +1,8 @@
+deb http://localhost:9999/ubuntu intrepid main restricted universe
+deb-src http://localhost:9999/ubuntu intrepid main restricted universe
+deb http://localhost:9999/ubuntu intrepid-updates main restricted universe
+deb-src http://localhost:9999/ubuntu intrepid-updates main restricted universe
+deb http://localhost:9999/ubuntu-security intrepid-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security intrepid-security main restricted universe
+deb http://localhost:9999/debathena intrepid debathena debathena-config
+deb-src http://localhost:9999/debathena intrepid debathena debathena-config
