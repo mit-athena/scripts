@@ -11,9 +11,6 @@ gettag() {
 	dapper)
 	    echo "~ubuntu6.06"
 	    ;;
-	feisty)
-	    echo "~ubuntu7.04"
-	    ;;
 	gutsy)
 	    echo "~ubuntu7.10"
 	    ;;
