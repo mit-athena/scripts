@@ -210,7 +210,13 @@ AC_CHECK_LIB(krb4, krb_rd_req,
 			   [KRB4_LIBS="-lkrb -ldes"],
 			   [AC_MSG_ERROR(Kerberos 4 libraries not found)],
 			   -ldes)],
-	     -ldes425 -lkrb5 -lk5crypto -lcom_err)])
+	     -ldes425 -lkrb5 -lk5crypto -lcom_err)
+if test "$KRB4_LIBS" != "" ; then
+	AC_CANONICAL_TARGET
+	case "$target_os" in
+	darwin*) KRB4_LIBS="$KRB4_LIBS -framework Kerberos"
+	esac
+fi])
 
 AC_DEFUN([ATHENA_KRB4],
 [AC_ARG_WITH(krb4,
@@ -254,6 +260,12 @@ AC_DEFUN([ATHENA_KRB5],
 if test "$krb5" != no; then
 	ATHENA_KRB5_CHECK
 	KRB5_LIBS="-lkrb5 -lk5crypto -lcom_err"
+	if test "$KRB5_LIBS" != "" ; then
+		AC_CANONICAL_TARGET
+		case "$target_os" in
+		darwin*) KRB5_LIBS="$KRB5_LIBS -framework Kerberos"
+		esac
+	fi
 	AC_DEFINE(HAVE_KRB5)
 fi
 AC_SUBST(KRB5_LIBS)])
