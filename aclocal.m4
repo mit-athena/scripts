@@ -194,7 +194,8 @@ fi])
 dnl ----- Kerberos 4 -----
 
 AC_DEFUN([ATHENA_KRB4_CHECK],
-[AC_CHECK_FUNC(gethostbyname, :, AC_CHECK_LIB(nsl, gethostbyname))
+[AC_REQUIRE([AC_CANONICAL_TARGET])
+AC_CHECK_FUNC(gethostbyname, :, AC_CHECK_LIB(nsl, gethostbyname))
 AC_CHECK_FUNC(socket, :, AC_CHECK_LIB(socket, socket))
 AC_CHECK_LIB(gen, compile)
 if test "$krb4" != yes; then
@@ -212,7 +213,6 @@ AC_CHECK_LIB(krb4, krb_rd_req,
 			   -ldes)],
 	     -ldes425 -lkrb5 -lk5crypto -lcom_err)
 if test "$KRB4_LIBS" != "" ; then
-	AC_CANONICAL_TARGET
 	case "$target_os" in
 	darwin*) KRB4_LIBS="$KRB4_LIBS -framework Kerberos"
 	esac
@@ -242,7 +242,8 @@ fi])
 dnl ----- Kerberos 5 -----
 
 AC_DEFUN([ATHENA_KRB5_CHECK],
-[AC_SEARCH_LIBS(gethostbyname, nsl)
+[AC_REQUIRE([AC_CANONICAL_TARGET])
+AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_SEARCH_LIBS(socket, socket)
 AC_CHECK_LIB(gen, compile)
 if test "$krb5" != yes; then
@@ -261,7 +262,6 @@ if test "$krb5" != no; then
 	ATHENA_KRB5_CHECK
 	KRB5_LIBS="-lkrb5 -lk5crypto -lcom_err"
 	if test "$KRB5_LIBS" != "" ; then
-		AC_CANONICAL_TARGET
 		case "$target_os" in
 		darwin*) KRB5_LIBS="$KRB5_LIBS -framework Kerberos"
 		esac
