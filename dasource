@@ -91,6 +91,9 @@ do_package() {
     ;;
   esac
 
+  # Generate debian/control from debian/control.in
+  (cd $dir && DEB_AUTO_UPDATE_DEBIAN_CONTROL=yes debian/rules debian/control)
+
   # Create a suitable orig tarball if necessary.
   (cd $dir && daorig)
 
