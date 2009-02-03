@@ -57,7 +57,7 @@ if [ $type = repos ]; then
     echo "Reading $cf"
     name=$(svn cat $loc/$cf | sed -ne 's/^Source: \(.*\)$/\1/p')
     dir=${cf%.in}
-    dir=${cf%/debian/control}
+    dir=${dir%/debian/control}
     printf "%-35s %s\n" $name $dir >> packages.unsorted
   done
 else
@@ -66,7 +66,7 @@ else
     echo "Reading $cf"
     name=$(sed -ne 's/^Source: \(.*\)$/\1/p' $loc/$cf)
     dir=${cf%.in}
-    dir=${cf%/debian/control}
+    dir=${dir%/debian/control}
     printf "%-35s %s\n" $name $dir >> packages.unsorted
   done
 fi
