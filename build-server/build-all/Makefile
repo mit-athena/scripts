@@ -1,5 +1,5 @@
-suite := hardy
-psuite := gutsy
+suite := intrepid
+psuite := hardy
 STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
 package = $(STAMPS)/$(1).done
