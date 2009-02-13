@@ -46,8 +46,12 @@ echo "  workstation: Athena graphical login customizations"
 echo ""
 
 category=""
+if test -f /root/unattended-cluster-install ; then
+  echo "Unattended cluster install detected, so installing \"cluster\"."
+  category=cluster
+fi
 while [ standard != "$category" -a login != "$category" -a \
-        workstation != "$category" ]; do
+        workstation != "$category" -a cluster != "$category" ]; do
   output -n "Please choose a category or press control-C to abort: "
   read category
 done
@@ -55,28 +59,99 @@ mainpackage=debathena-$category
 
 dev=no
 echo
-ask "Will this machine be used to build Debathena packages [y/N]? " n
-if [ y = "$answer" ]; then
-  dev=yes
+if ! test -f /root/unattended-cluster-install ; then
+  ask "Will this machine be used to build Debathena packages [y/N]? " n
+  if [ y = "$answer" ]; then
+    dev=yes
+  fi
 fi
 
 csoft=no
+tsoft=no
 echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more)."
 echo ""
-ask "Do you want the extra-software package [y/N]? " n
-if [ y = "$answer" ]; then
+if test -f /root/unattended-cluster-install ; then
+  echo "Unattended cluster install detected, so installing extras."
   csoft=yes
+  # Included here, though it may want to be a separate dialog option eventually:
+  tsoft=yes
+else
+  ask "Do you want the extra-software package [y/N]? " n
+  if [ y = "$answer" ]; then
+    csoft=yes
+  fi  
 fi
 
 echo "A summary of your choices:"
 echo "  Category: $category"
 echo "  Debian development package: $dev"
 echo "  Extra-software package: $csoft"
+echo "  Third-party software package: $tsoft"
 echo ""
-output "Press return to begin or control-C to abort"
-read dummy
+if test -f /root/unattended-cluster-install ; then
+  # Setup for package installs in a chrooted immediately-postinstall environment.
+  echo "Setting locale."
+  export LANG
+  . /etc/default/locale
+  echo "LANG set to $LANG."
+  echo "Mounting /proc."
+  mount /proc 2> /dev/null || :
+  # Clear toxic environment settings inherited from the installer.
+  unset DEBCONF_REDIR
+  unset DEBIAN_HAS_FRONTEND
+  # Preseed an answer to the java license query, which license was already accepted
+  # at install time.
+  echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" |debconf-set-selections
+  # Switch to canonical hostname.
+  ohostname=`cat /etc/hostname`
+  # Hack to avoid installing debconf-get for just this.
+  ipaddr=`grep netcfg/get_ipaddress /root/athena10.preseed|sed -e 's/.* //'`
+  netmask=`grep netcfg/get_netmask /root/athena10.preseed|sed -e 's/.* //'`
+  gateway=`grep netcfg/get_gateway /root/athena10.preseed|sed -e 's/.* //'`
+
+  hostname=`host $ipaddr | \
+        sed 's#^.*domain name pointer \(.*\)$#\1#' | sed 's;\.*$;;' | \
+        tr '[A-Z]' '[a-z]'`
+  if echo $hostname|grep -q "not found" ; then
+    hostname=""
+    printf "\a"; sleep 1 ; printf "\a"; sleep 1 ;printf "\a"
+    echo "The IP address you selected, $ipaddr, does not have an associated"
+    echo "hostname.  Please confirm that you're using the correct address."
+    while [ -z "$hostname" ] ; do
+      echo -n "Enter fully qualified hostname [no default]: "
+      read hostname
+    done
+  fi
+  echo ${hostname%%.*} > /etc/hostname
+  sed -e 's/\(127\.0\.1\.1[ 	]*\).*/\1'"$hostname ${hostname%%.*}/" < /etc/hosts > /etc/hosts.new
+  mv -f /etc/hosts.new /etc/hosts
+  if grep -q dhcp /etc/network/interfaces ; then
+    sed -e s/dhcp/static/ < /etc/network/interfaces > /etc/network/interfaces.new
+    echo "	address $ipaddr" >> /etc/network/interfaces.new
+    echo "	netmask $netmask" >> /etc/network/interfaces.new
+    echo "	gateway $gateway" >> /etc/network/interfaces.new
+    mv -f /etc/network/interfaces.new /etc/network/interfaces
+  fi
+  hostname ${hostname%%.*}
+  # Free up designated LVM overhead.
+  lvremove -f /dev/athena10/keep_2 || :
+
+  # This makes gx755s suck less.
+  if lspci -n|grep -q 1002:94c1 && ! grep -q radeonhd /etc/X11/xorg.conf ; then
+    DEBIAN_FRONTEND=noninteractive aptitude install xserver-xorg-video-radeonhd
+    cat >> /etc/X11/xorg.conf <<EOF
+Section "Device"
+	Identifier "Configured Video Device"
+	Driver "radeonhd"
+EndSection
+EOF
+  fi
+else
+  output "Press return to begin or control-C to abort"
+  read dummy
+fi
 
 output "Installing lsb-release to determine system type"
 aptitude -y install lsb-release
@@ -84,7 +159,7 @@ distro=`lsb_release -cs`
 case $distro in
 etch|lenny)
   ;;
-dapper|edgy|feisty|gutsy|hardy)
+dapper|edgy|feisty|gutsy|hardy|intrepid)
   ubuntu=yes
   ;;
 *)
@@ -144,6 +219,7 @@ apt-get -y install $modules
 # is so that AFS and Zephyr don't ask questions of the user which
 # debathena packages will later stomp on anyway.
 output "Installing main Athena 10 metapackage $mainpackage"
+
 DEBIAN_FRONTEND=noninteractive aptitude -y install "$mainpackage"
 
 # This package is relatively small so it's not as important, but allow
@@ -158,4 +234,8 @@ fi
 if [ yes = "$csoft" ]; then
   output "Installing debathena-extra-software"
   DEBIAN_PRIORITY=critical aptitude -y install debathena-extra-software
+fi
+if [ yes = "$tsoft" ]; then
+  output "Installing debathena-thirdparty"
+  DEBIAN_PRIORITY=critical aptitude -y install debathena-thirdparty
 fi
