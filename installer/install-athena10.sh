@@ -75,8 +75,7 @@ echo ""
 if test -f /root/unattended-cluster-install ; then
   echo "Unattended cluster install detected, so installing extras."
   csoft=yes
-  # Included here, though it may want to be a separate dialog option eventually:
-  tsoft=yes
+  # Not setting tsoft=yes here; -cluster will pull it in anyway.
 else
   ask "Do you want the extra-software package [y/N]? " n
   if [ y = "$answer" ]; then
