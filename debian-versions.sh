@@ -6,7 +6,10 @@ gettag() {
 	    echo "~debian4.0"
 	    ;;
 	lenny)
-	    echo "~debian4.1~0.1"
+	    echo "~debian5.0"
+	    ;;
+	squeeze)
+	    echo "~debian6.0~0.1"
 	    ;;
 	dapper)
 	    echo "~ubuntu6.06"
@@ -19,6 +22,9 @@ gettag() {
 	    ;;
 	intrepid)
 	    echo "~ubuntu8.10"
+	    ;;
+	jaunty)
+	    echo "~ubuntu9.04~0.1"
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
