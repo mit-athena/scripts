@@ -1,6 +1,6 @@
 #!/bin/sh
 # Athena 10 placeholder install script.
-# Maintainer: Greg Hudson <ghudson@mit.edu>
+# Maintainer: debathena@mit.edu
 # Based on Debathena installer script by: Tim Abbott <tabbott@mit.edu>
 
 # Download this to an Ubuntu machine and run it as root.  It can
@@ -45,10 +45,19 @@ echo "  login:       Allow Athena users to log into your machine"
 echo "  workstation: Athena graphical login customizations"
 echo ""
 
-category=""
+# Hack to deal with the older PXE installer (which used a simple flag file to
+# indicate a PXE cluster install).
 if test -f /root/unattended-cluster-install ; then
-  echo "Unattended cluster install detected, so installing \"cluster\"."
-  category=cluster
+  echo cluster > /root/pxe-install-flag
+fi
+
+category=""
+if test -f /root/pxe-install-flag ; then
+  pxetype=`head -1 /root/pxe-install-flag`
+  if [ cluster = "$pxetype" ] ; then
+    category=cluster ; 
+    echo "PXE cluster install detected, so installing \"cluster\"."
+  fi
 fi
 while [ standard != "$category" -a login != "$category" -a \
         workstation != "$category" -a cluster != "$category" ]; do
@@ -59,7 +68,7 @@ mainpackage=debathena-$category
 
 dev=no
 echo
-if ! test -f /root/unattended-cluster-install ; then
+if [ cluster != $category ] ; then
   ask "Will this machine be used to build Debathena packages [y/N]? " n
   if [ y = "$answer" ]; then
     dev=yes
@@ -72,8 +81,8 @@ echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more)."
 echo ""
-if test -f /root/unattended-cluster-install ; then
-  echo "Unattended cluster install detected, so installing extras."
+if [ cluster != $category ] ; then
+  echo "Cluster install detected, so installing extras."
   csoft=yes
   # Not setting tsoft=yes here; -cluster will pull it in anyway.
 else
@@ -89,7 +98,7 @@ echo "  Debian development package: $dev"
 echo "  Extra-software package: $csoft"
 echo "  Third-party software package: $tsoft"
 echo ""
-if test -f /root/unattended-cluster-install ; then
+if [ "$pxetype" ] ; then
   # Setup for package installs in a chrooted immediately-postinstall environment.
   echo "Setting locale."
   export LANG
@@ -100,52 +109,58 @@ if test -f /root/unattended-cluster-install ; then
   # Clear toxic environment settings inherited from the installer.
   unset DEBCONF_REDIR
   unset DEBIAN_HAS_FRONTEND
-  # Preseed an answer to the java license query, which license was already accepted
-  # at install time.
-  echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" |debconf-set-selections
-  # Switch to canonical hostname.
-  ohostname=`cat /etc/hostname`
-  # Hack to avoid installing debconf-get for just this.
-  ipaddr=`grep netcfg/get_ipaddress /root/athena10.preseed|sed -e 's/.* //'`
-  netmask=`grep netcfg/get_netmask /root/athena10.preseed|sed -e 's/.* //'`
-  gateway=`grep netcfg/get_gateway /root/athena10.preseed|sed -e 's/.* //'`
+  if [ cluster = "$pxetype" ] ; then
+    # Network, LVM, and display config that's specific to PXE cluster installs.
+    # If someone is installing -cluster on an already-installed machine, it's
+    # assumed that this config has already happened and shouldn't be stomped on.
 
-  hostname=`host $ipaddr | \
-        sed 's#^.*domain name pointer \(.*\)$#\1#' | sed 's;\.*$;;' | \
-        tr '[A-Z]' '[a-z]'`
-  if echo $hostname|grep -q "not found" ; then
-    hostname=""
-    printf "\a"; sleep 1 ; printf "\a"; sleep 1 ;printf "\a"
-    echo "The IP address you selected, $ipaddr, does not have an associated"
-    echo "hostname.  Please confirm that you're using the correct address."
-    while [ -z "$hostname" ] ; do
-      echo -n "Enter fully qualified hostname [no default]: "
-      read hostname
-    done
-  fi
-  echo ${hostname%%.*} > /etc/hostname
-  sed -e 's/\(127\.0\.1\.1[ 	]*\).*/\1'"$hostname ${hostname%%.*}/" < /etc/hosts > /etc/hosts.new
-  mv -f /etc/hosts.new /etc/hosts
-  if grep -q dhcp /etc/network/interfaces ; then
-    sed -e s/dhcp/static/ < /etc/network/interfaces > /etc/network/interfaces.new
-    echo "	address $ipaddr" >> /etc/network/interfaces.new
-    echo "	netmask $netmask" >> /etc/network/interfaces.new
-    echo "	gateway $gateway" >> /etc/network/interfaces.new
-    mv -f /etc/network/interfaces.new /etc/network/interfaces
-  fi
-  hostname ${hostname%%.*}
-  # Free up designated LVM overhead.
-  lvremove -f /dev/athena10/keep_2 || :
+    # Preseed an answer to the java license query, which license was already accepted
+    # at install time:
+    echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" |debconf-set-selections
+    # Switch to canonical hostname.
+    ohostname=`cat /etc/hostname`
+    # Hack to avoid installing debconf-get for just this.
+    ipaddr=`grep netcfg/get_ipaddress /root/athena10.preseed|sed -e 's/.* //'`
+    netmask=`grep netcfg/get_netmask /root/athena10.preseed|sed -e 's/.* //'`
+    gateway=`grep netcfg/get_gateway /root/athena10.preseed|sed -e 's/.* //'`
 
-  # This makes gx755s suck less.
-  if lspci -n|grep -q 1002:94c1 && ! grep -q radeonhd /etc/X11/xorg.conf ; then
-    DEBIAN_FRONTEND=noninteractive aptitude install xserver-xorg-video-radeonhd
-    cat >> /etc/X11/xorg.conf <<EOF
+    hostname=`host $ipaddr | \
+          sed 's#^.*domain name pointer \(.*\)$#\1#' | sed 's;\.*$;;' | \
+          tr '[A-Z]' '[a-z]'`
+    if echo $hostname|grep -q "not found" ; then
+      hostname=""
+      printf "\a"; sleep 1 ; printf "\a"; sleep 1 ;printf "\a"
+      echo "The IP address you selected, $ipaddr, does not have an associated"
+      echo "hostname.  Please confirm that you're using the correct address."
+      while [ -z "$hostname" ] ; do
+        echo -n "Enter fully qualified hostname [no default]: "
+        read hostname
+      done
+    fi
+    echo ${hostname%%.*} > /etc/hostname
+    sed -e 's/\(127\.0\.1\.1[ 	]*\).*/\1'"$hostname ${hostname%%.*}/" < /etc/hosts > /etc/hosts.new
+    mv -f /etc/hosts.new /etc/hosts
+    if grep -q dhcp /etc/network/interfaces ; then
+      sed -e s/dhcp/static/ < /etc/network/interfaces > /etc/network/interfaces.new
+      echo "	address $ipaddr" >> /etc/network/interfaces.new
+      echo "	netmask $netmask" >> /etc/network/interfaces.new
+      echo "	gateway $gateway" >> /etc/network/interfaces.new
+      mv -f /etc/network/interfaces.new /etc/network/interfaces
+    fi
+    hostname ${hostname%%.*}
+    # Free up designated LVM overhead.
+    lvremove -f /dev/athena10/keep_2 || :
+
+    # This makes gx755s suck less.
+    if lspci -n|grep -q 1002:94c1 && ! grep -q radeonhd /etc/X11/xorg.conf ; then
+      DEBIAN_FRONTEND=noninteractive aptitude install xserver-xorg-video-radeonhd
+      cat >> /etc/X11/xorg.conf <<EOF
 Section "Device"
 	Identifier "Configured Video Device"
 	Driver "radeonhd"
 EndSection
 EOF
+    fi
   fi
 else
   output "Press return to begin or control-C to abort"
