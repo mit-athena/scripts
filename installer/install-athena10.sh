@@ -81,7 +81,7 @@ echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more)."
 echo ""
-if [ cluster != $category ] ; then
+if [ cluster = $category ] ; then
   echo "Cluster install detected, so installing extras."
   csoft=yes
   # Not setting tsoft=yes here; -cluster will pull it in anyway.
