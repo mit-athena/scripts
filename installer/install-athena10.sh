@@ -1,9 +1,9 @@
 #!/bin/sh
-# Athena 10 placeholder install script.
+# Athena 10 installer script.
 # Maintainer: debathena@mit.edu
-# Based on Debathena installer script by: Tim Abbott <tabbott@mit.edu>
+# Based on original Debathena installer script by: Tim Abbott <tabbott@mit.edu>
 
-# Download this to an Ubuntu machine and run it as root.  It can
+# Download this to a Debian or Ubuntu machine and run it as root.  It can
 # be downloaded with:
 #   wget http://athena10.mit.edu/install-athena10.sh
 
@@ -15,7 +15,6 @@ output() {
 
 error() {
   printf '\033[31m'; echo "$@"; printf '\033[0m'
-  exit 1
 }
 
 ask() {
@@ -31,14 +30,15 @@ ask() {
 }
 
 if [ `id -u` != "0" ]; then
-  error "You must run the Athena 10 installer as root."
+  error "You must run the Debathena installer as root."
+  exit 1
 fi
 
-echo "Welcome to the Athena 10 install script."
+echo "Welcome to the Debathena installer."
 echo ""
 echo "Please choose the category which bets suits your needs.  Each category"
 echo "in this list includes the functionality of the previous ones.  See the"
-echo "documentation at http://athena10.mit.edu for more information."
+echo "documentation at http://debathena.mit.edu/beta for more information."
 echo ""
 echo "  standard:    Athena client software (e.g. discuss) and customizations"
 echo "  login:       Allow Athena users to log into your machine"
@@ -55,7 +55,7 @@ category=""
 if test -f /root/pxe-install-flag ; then
   pxetype=`head -1 /root/pxe-install-flag`
   if [ cluster = "$pxetype" ] ; then
-    category=cluster ; 
+    category=cluster ;
     echo "PXE cluster install detected, so installing \"cluster\"."
   fi
 fi
@@ -89,7 +89,7 @@ else
   ask "Do you want the extra-software package [y/N]? " n
   if [ y = "$answer" ]; then
     csoft=yes
-  fi  
+  fi
 fi
 
 echo "A summary of your choices:"
@@ -183,15 +183,18 @@ dapper|edgy|feisty|gutsy|hardy|intrepid)
   ;;
 *)
   error "Your machine seems to not be running a current Debian/Ubuntu release."
+  error "If you believe you are running a current release, contact debathena@mit.edu"
+  exit 1
   ;;
 esac
 
-output "Adding the Athena 10 repository to the apt sources"
-echo "(This may cause the update manager to claim new upgrades are available."
-echo "Ignore them until this script is complete.)"
+output "Adding the Debathena repository to the apt sources"
+output "(This may cause the update manager to claim new upgrades are available."
+output "Ignore them until this script is complete.)"
 if [ -d /etc/apt/sources.list.d ]; then
   sourceslist=/etc/apt/sources.list.d/debathena.list
 else
+  # dapper is the only "current" platform that doesn't support sources.list.d
   sourceslist=/etc/apt/sources.list
 fi
 
@@ -208,9 +211,9 @@ if [ "$ubuntu" = "yes" ]; then
   sed -i 's,^# \(deb\(\-src\)* http://archive.ubuntu.com/ubuntu [[:alnum:]]* universe\)$,\1,' /etc/apt/sources.list
 fi
 
-output "Downloading the Debathena archive key"
+output "Downloading the Debathena archive signing key"
 if ! wget http://athena10.mit.edu/apt/athena10-archive.asc ; then
-  echo "Download failed; terminating."
+  error "Download failed; terminating."
   exit 1
 fi
 echo "36e6d6a2c13443ec0e7361b742c7fa7843a56a0b  ./athena10-archive.asc" | \
@@ -229,6 +232,11 @@ done
 
 if [ -z "$modules" ]; then
   error "An OpenAFS modules metapackage for your kernel is not available."
+  error "Please use the manual installation instructions at"
+  error "http://debathena.mit.edu/beta/install"
+  error "You will need to compile your own AFS modules as described at:"
+  error "http://debathena.mit.edu/beta/troubleshooting#openafs-custom"
+  exit 1
 fi
 
 output "Installing OpenAFS kernel metapackage"
@@ -237,7 +245,7 @@ apt-get -y install $modules
 # Use the noninteractive frontend to install the main package.  This
 # is so that AFS and Zephyr don't ask questions of the user which
 # debathena packages will later stomp on anyway.
-output "Installing main Athena 10 metapackage $mainpackage"
+output "Installing main Debathena metapackage $mainpackage"
 
 DEBIAN_FRONTEND=noninteractive aptitude -y install "$mainpackage"
 
