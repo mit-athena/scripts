@@ -1,6 +1,6 @@
 high:
 - Non-cluster PXE installs need post-install network munging
-  by install-athena10.sh in order to have usable net, since
+  by install-debathena.sh in order to have usable net, since
   the ubuntu installer forces a DHCP config if the installer
   used DHCP.  So sad.
 - the entire install session *really* needs to be logged
@@ -19,6 +19,6 @@ low:
 - hack non-cluster preseed to not prompt for cd ejection.
 
 some of what was done:
-- add hacks to install-athena10.sh for noninteractive use
+- add hacks to install-debathena.sh for noninteractive use
 - push to MIT PXE servers
 - have a "debathena but not cluster version" install option

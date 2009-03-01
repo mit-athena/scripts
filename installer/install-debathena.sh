@@ -5,7 +5,7 @@
 
 # Download this to a Debian or Ubuntu machine and run it as root.  It can
 # be downloaded with:
-#   wget http://athena10.mit.edu/install-athena10.sh
+#   wget http://athena10.mit.edu/install-debathena.sh
 
 set -e
 
@@ -212,14 +212,14 @@ if [ "$ubuntu" = "yes" ]; then
 fi
 
 output "Downloading the Debathena archive signing key"
-if ! wget http://athena10.mit.edu/apt/athena10-archive.asc ; then
+if ! wget http://athena10.mit.edu/apt/debathena-archive-keyring.asc ; then
   error "Download failed; terminating."
   exit 1
 fi
-echo "36e6d6a2c13443ec0e7361b742c7fa7843a56a0b  ./athena10-archive.asc" | \
+echo "05c41a58b820b9aef198d8dad5a613c40cbd8b52  ./debathena-archive-keyring.asc" | \
   sha1sum -c
-apt-key add athena10-archive.asc
-rm ./athena10-archive.asc
+apt-key add debathena-archive-keyring.asc
+rm ./debathena-archive-keyring.asc
 
 apt-get update
 

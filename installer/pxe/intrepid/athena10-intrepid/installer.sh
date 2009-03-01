@@ -149,7 +149,7 @@ EOF
 echo "Fetching Athena 10 postinstaller."
 # 18.92.2.195 = OLD athena10.mit.edu
 # 18.9.60.73 = NEW athena10.mit.edu
-wget http://18.9.60.73/install-athena10.sh
+wget http://18.9.60.73/install-debathena.sh
 
 # Let the postinstall know what we are up to.
 echo "$pxetype" > $mp/pxe-install-flag
