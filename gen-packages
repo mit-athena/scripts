@@ -71,20 +71,7 @@ else
   done
 fi
 
-# Athena 10 uses a different version of gdm-config from SIPB.  Using
-# DEBATHENA_APT to distinguish between the two is a little hackish,
-# but it's what we've got.  We're setting $gdm to the location we want
-# to filter out, not the path we want to keep.
-case $DEBATHENA_APT in
-*athena10*)
-  gdm=' debathena/config/gdm-config$'
-  ;;
-*)
-  gdm=' debathena/config/gdm-config-athena10$'
-  ;;
-esac
-
 # cyrus-sasl2-mit has a debian dir but is really a debathenify package.
 # config-package dev has some example packages we want to filter out.
-sort -u packages.unsorted | egrep -v "cyrus-sasl2-mit|/examples/|$gdm" > packages
+sort -u packages.unsorted | egrep -v "cyrus-sasl2-mit|/examples/" > packages
 rm -f packages.unsorted
