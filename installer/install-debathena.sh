@@ -202,8 +202,8 @@ if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   if [ -e "$sourceslist" ]; then
     echo "" >> $sourceslist
   fi
-  echo "deb http://athena10.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
-  echo "deb-src http://athena10.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
+  echo "deb http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
 fi
 
 if [ "$ubuntu" = "yes" ]; then
@@ -212,7 +212,7 @@ if [ "$ubuntu" = "yes" ]; then
 fi
 
 output "Downloading the Debathena archive signing key"
-if ! wget http://athena10.mit.edu/apt/debathena-archive-keyring.asc ; then
+if ! wget http://debathena.mit.edu/apt/debathena-archive-keyring.asc ; then
   error "Download failed; terminating."
   exit 1
 fi
