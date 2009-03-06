@@ -89,7 +89,13 @@ while read pkg path; do
   # Display the package name if the apt repository version does not
   # match the current version.
   if [ "x$aptver" != "x$curver" ]; then
-    echo "$pkg"
+    case "$pkg" in 
+      debathena-linerva*)
+      ;;
+      *)
+        echo "$pkg"
+      ;;
+    esac
   fi
 done
 
