@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Usage: damove NEW_SUFFIX OLD_SUFFIX PACKAGE
+
+# Move the source package from the old suffix to the new suffix, where
+# a suffix is probably one of "", "-proposed", or "-dev"
+#
+# This moves any source or binary package built from the source
+# package PACKAGE
+
+: ${DEBATHENA_APT=/mit/debathena/apt}
+. $(dirname "$0")/debian-versions.sh
+
+if [ "$#" -lt 3 ]; then
+    echo "Usage: damove NEW_SUFFIX OLD_SUFFIX PACKAGE" >&2
+    exit 1
+fi
+
+for code in $DEBIAN_CODES; do
+    reprepro -Vb $DEBATHENA_APT copysrc "${code}${1}" "${code}${2}" "$3"
+    reprepro -Vb $DEBATHENA_APT removesrc "${code}${2}" "$3"
+done
