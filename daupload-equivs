@@ -20,7 +20,7 @@ case "$(basename "$0")" in
         release="-proposed"
         ;;
     daupload-equivs-dev)
-        release="-dev"
+        release="-development"
         ;;
     *)
         echo "Unknown release." >&2
