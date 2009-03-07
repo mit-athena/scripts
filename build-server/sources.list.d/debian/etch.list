@@ -4,3 +4,5 @@ deb http://localhost:9999/debian-security etch/updates main
 deb-src http://localhost:9999/debian-security etch/updates main
 deb http://localhost:9999/debathena etch debathena debathena-config
 deb-src http://localhost:9999/debathena etch debathena debathena-config
+deb http://localhost:9999/debathena etch-proposed debathena debathena-config
+deb-src http://localhost:9999/debathena etch-proposed debathena debathena-config

@@ -6,3 +6,5 @@ deb http://localhost:9999/ubuntu-security intrepid-security main restricted univ
 deb-src http://localhost:9999/ubuntu-security intrepid-security main restricted universe
 deb http://localhost:9999/debathena intrepid debathena debathena-config
 deb-src http://localhost:9999/debathena intrepid debathena debathena-config
+deb http://localhost:9999/debathena intrepid-proposed debathena debathena-config
+deb-src http://localhost:9999/debathena intrepid-proposed debathena debathena-config

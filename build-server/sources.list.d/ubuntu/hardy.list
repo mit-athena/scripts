@@ -6,3 +6,5 @@ deb http://localhost:9999/ubuntu-security hardy-security main restricted univers
 deb-src http://localhost:9999/ubuntu-security hardy-security main restricted universe
 deb http://localhost:9999/debathena hardy debathena debathena-config
 deb-src http://localhost:9999/debathena hardy debathena debathena-config
+deb http://localhost:9999/debathena hardy-proposed debathena debathena-config
+deb-src http://localhost:9999/debathena hardy-proposed debathena debathena-config

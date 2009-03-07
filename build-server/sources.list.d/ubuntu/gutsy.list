@@ -6,3 +6,5 @@ deb http://localhost:9999/ubuntu-security gutsy-security main restricted univers
 deb-src http://localhost:9999/ubuntu-security gutsy-security main restricted universe
 deb http://localhost:9999/debathena gutsy debathena debathena-config
 deb-src http://localhost:9999/debathena gutsy debathena debathena-config
+deb http://localhost:9999/debathena gutsy-proposed debathena debathena-config
+deb-src http://localhost:9999/debathena gutsy-proposed debathena debathena-config
