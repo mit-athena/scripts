@@ -2,13 +2,15 @@
 set -e
 
 # Usage: daupload-release [-A] [-S] CHANGESFILE
-#        daupload-beta [-A] [-S] CHANGESFILE
+#        daupload-proposed [-A] [-S] CHANGESFILE
+#        daupload-dev [-A] [-S] CHANGESFILE
 
 # After a package has been built for all Debian/Ubuntu versions and
 # platforms (typically using "da sbuildhack DSCFILE"), this script
-# uploads the package into the release or beta apt repository.  If -A
-# is specified, only one architecture per Debian/Ubuntu version is
-# uploaded.  If -S is specified, only the source package is uploaded.
+# uploads the package into the release, proposed, or beta apt
+# repository.  If -A is specified, only one architecture per
+# Debian/Ubuntu version is uploaded.  If -S is specified, only the
+# source package is uploaded.
 
 # Upon completion, moves all of the generated files into the "built"
 # subdirectory.
@@ -20,13 +22,16 @@ set -e
 
 case "$(basename "$0")" in
     daupload-release)
-	repo=$DEBATHENA_APT
+	release=""
 	;;
-    daupload-beta)
-	repo=${DEBATHENA_APT}-beta
+    daupload-proposed)
+        release="-proposed"
 	;;
+    daupload-dev)
+        release="-dev"
+        ;;
     *)
-	echo "Unknown repo." >&2
+	echo "Unknown release." >&2
 	exit 1
 	;;
 esac
@@ -91,18 +96,18 @@ if [ -n "$missing" ]; then
     [ "$a" = "y" ]
 fi
 
-REPREPRO="v reprepro -Vb $repo"
+REPREPRO="v reprepro -Vb $DEBATHENA_APT"
 REPREPROI="$REPREPRO --ignore=wrongdistribution"
 
 for code in $DEBIAN_CODES; do
-    $REPREPROI include "$code" "$change"
+    $REPREPROI include "${code}${release}" "$change"
 done
 
 if [ $S -ne 1 ]; then
     for code in $DEBIAN_CODES; do
 	tag=$(gettag "$code")
-	[ $A -eq 1 ] || $REPREPRO include "$code" "${base}${tag}_i386.changes"
-	$REPREPRO include "$code" "${base}${tag}_amd64.changes"
+	[ $A -eq 1 ] || $REPREPROI include "${code}${release}" "${base}${tag}_i386.changes"
+	$REPREPROI include "${code}${release}" "${base}${tag}_amd64.changes"
     done
 fi
 
