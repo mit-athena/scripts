@@ -1,0 +1,8 @@
+deb http://localhost:9999/debian squeeze main
+deb-src http://localhost:9999/debian squeeze main
+deb http://localhost:9999/debian-security squeeze/updates main
+deb-src http://localhost:9999/debian-security squeeze/updates main
+deb http://localhost:9999/debathena squeeze debathena debathena-config
+deb-src http://localhost:9999/debathena squeeze debathena debathena-config
+deb http://localhost:9999/debathena squeeze-proposed debathena debathena-config
+deb-src http://localhost:9999/debathena squeeze-proposed debathena debathena-config
