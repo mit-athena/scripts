@@ -18,12 +18,24 @@ if [ ! -e $dir ]; then
 fi
 [ -e "$dir" ]
 cd "$dir"
-if [ -e debathenify-* ]; then false; fi
+debathenificator=$(echo ./debathenify-*)
+if [ "$debathenificator" != "./debathenify-*" ]; then
+    "$debathenificator" "${suite}-amd64" -A source binary upload
+    "$debathenificator" "${suite}-i386" source binary upload
+    exit
+fi
 version=$(zcat ${DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
 if [ -d "built/" ]; then
-    dsc="$dir/built/${package}_$version.dsc"
-else
-    dsc="$dir/${package}_$version.dsc"
+    dsc="built/${package}_$version.dsc"
+fi
+if ! [ -e "$dsc" ]; then
+    if ! [ -e "${package}_$version.dsc" ]; then
+        schroot -c "${psuite}-amd64-sbuild" -- apt-get source "$package"
+    fi
+    if ! [ -e "${package}_${version}_source.changes" ]; then
+        (cd "${package}-${version/-*/}" && dpkg-genchanges -S -sa >"../${package}_${version}_source.changes")
+    fi
+    dsc="${package}_$version.dsc"
 fi
 [ -e "$dsc" ]
 
