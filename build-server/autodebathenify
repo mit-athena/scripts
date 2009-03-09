@@ -108,7 +108,7 @@ set -e
 state="acquiring credentials"
 export KRB5CCNAME=$HOME/autodebathenify.ccache
 kinit -k -t "$HOME/keytab" daemon/$(hostname --fqdn)
-aklog athena.mit.edu dev.mit.edu
+aklog
 
 export PATH=${scripts_dir}:$PATH
 . "$scripts_dir"/debian-versions.sh
