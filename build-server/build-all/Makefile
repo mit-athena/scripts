@@ -1,10 +1,13 @@
-suite := intrepid
-psuite := hardy
+suite := squeeze
+psuite := lenny
 STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
 package = $(STAMPS)/$(1).done
 
 all: build-all
+
+$(STAMPS):
+	mkdir $(STAMPS)
 
 deps.mk: gen-build-deps
 	./gen-build-deps $(psuite) > $@
@@ -13,7 +16,7 @@ include deps.mk
 build/%: $(call package,%)
 	:
 
-$(call package,%):
+$(call package,%): $(STAMPS)
 	file=$$(mktemp -t 'stupid.XXXXXX') && \
 		echo "screen sh -c '$(CURDIR)/do-build $* $(STAMPS)/$* $(suite) $(psuite)'" > "$$file" && \
 		echo "other" >> "$$file" && \
