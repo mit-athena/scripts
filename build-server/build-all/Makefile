@@ -6,9 +6,6 @@ package = $(STAMPS)/$(1).done
 
 all: build-all
 
-$(STAMPS):
-	mkdir $(STAMPS)
-
 deps.mk: gen-build-deps
 	./gen-build-deps $(psuite) > $@
 include deps.mk
@@ -16,7 +13,7 @@ include deps.mk
 build/%: $(call package,%)
 	:
 
-$(call package,%): $(STAMPS)
+$(call package,%):
 	file=$$(mktemp -t 'stupid.XXXXXX') && \
 		echo "screen sh -c '$(CURDIR)/do-build $* $(STAMPS)/$* $(suite) $(psuite)'" > "$$file" && \
 		echo "other" >> "$$file" && \
