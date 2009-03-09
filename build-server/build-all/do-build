@@ -22,6 +22,8 @@ debathenificator=$(echo ./debathenify-*)
 if [ "$debathenificator" != "./debathenify-*" ]; then
     "$debathenificator" "${suite}-amd64" -A source binary upload
     "$debathenificator" "${suite}-i386" source binary upload
+    touch "$stamp.done"
+    trap - EXIT
     exit
 fi
 version=$(zcat ${DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
