@@ -5,7 +5,7 @@
 
 # Download this to a Debian or Ubuntu machine and run it as root.  It can
 # be downloaded with:
-#   wget http://athena10.mit.edu/install-debathena.sh
+#   wget http://debathena.mit.edu/install-debathena.sh
 
 set -e
 
@@ -176,9 +176,9 @@ output "Installing lsb-release to determine system type"
 aptitude -y install lsb-release
 distro=`lsb_release -cs`
 case $distro in
-etch|lenny)
+etch|lenny|squeeze)
   ;;
-dapper|edgy|feisty|gutsy|hardy|intrepid)
+dapper|gutsy|hardy|intrepid|jaunty)
   ubuntu=yes
   ;;
 *)
