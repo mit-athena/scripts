@@ -36,7 +36,7 @@ fi
 
 echo "Welcome to the Debathena installer."
 echo ""
-echo "Please choose the category which bets suits your needs.  Each category"
+echo "Please choose the category which best suits your needs.  Each category"
 echo "in this list includes the functionality of the previous ones.  See the"
 echo "documentation at http://debathena.mit.edu/beta for more information."
 echo ""
