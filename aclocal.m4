@@ -209,7 +209,7 @@ AC_CHECK_LIB(krb4, krb_rd_req,
 	     [KRB4_LIBS="-lkrb4 -ldes425 -lkrb5 -lk5crypto -lcom_err"],
 	     [AC_CHECK_LIB(krb, krb_rd_req,
 			   [KRB4_LIBS="-lkrb -ldes"],
-			   [AC_MSG_ERROR(Kerberos 4 libraries not found)],
+			   [AC_MSG_WARN(--with-krb4 specified but Kerberos 4 libraries not found)],
 			   -ldes)],
 	     -ldes425 -lkrb5 -lk5crypto -lcom_err)
 if test "$KRB4_LIBS" != "" ; then
@@ -224,7 +224,9 @@ AC_DEFUN([ATHENA_KRB4],
 	[krb4="$withval"], [krb4=no])
 if test "$krb4" != no; then
 	ATHENA_KRB4_CHECK
-	AC_DEFINE(HAVE_KRB4)
+	if test "$KRB4_LIBS" != ""; then
+		AC_DEFINE(HAVE_KRB4)
+	fi
 fi
 AC_SUBST(KRB4_LIBS)])
 
@@ -234,6 +236,9 @@ AC_DEFUN([ATHENA_KRB4_REQUIRED],
 	[krb4="$withval"], [krb4=yes])
 if test "$krb4" != no; then
 	ATHENA_KRB4_CHECK
+	if test "$KRB4_LIBS" = ""; then
+		AC_MSG_ERROR(This package requires Kerberos 4.)
+	fi
 	AC_SUBST(KRB4_LIBS)
 else
 	AC_MSG_ERROR(This package requires Kerberos 4.)
