@@ -28,11 +28,10 @@ gettag() {
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
-	    exit 1
 	    ;;
 	*)
 	    echo "error"
-	    exit 1
+	    return 1
 	    ;;
     esac
 }
