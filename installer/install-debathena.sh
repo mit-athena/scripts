@@ -178,7 +178,7 @@ distro=`lsb_release -cs`
 case $distro in
 etch|lenny|squeeze)
   ;;
-dapper|gutsy|hardy|intrepid|jaunty)
+hardy|intrepid|jaunty)
   ubuntu=yes
   ;;
 *)
