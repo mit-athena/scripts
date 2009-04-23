@@ -18,7 +18,7 @@ gettag() {
 	    echo "~ubuntu8.10"
 	    ;;
 	jaunty)
-	    echo "~ubuntu9.04~0.1"
+	    echo "~ubuntu9.04"
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
