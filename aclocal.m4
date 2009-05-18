@@ -262,7 +262,7 @@ AC_CHECK_LIB(krb5, krb5_init_context, :,
 AC_DEFUN([ATHENA_KRB5],
 [AC_ARG_WITH(krb5,
 	[  --with-krb5=PREFIX      Use Kerberos 5],
-	[krb5="$withval"], [krb5=no])
+	[krb5="$withval"], [krb5=yes])
 if test "$krb5" != no; then
 	ATHENA_KRB5_CHECK
 	KRB5_LIBS="-lkrb5 -lk5crypto -lcom_err"
