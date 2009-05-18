@@ -43,6 +43,8 @@ echo ""
 echo "  standard:        Athena client software (e.g. discuss) and customizations"
 echo "  login:           Allow Athena users to log into your machine"
 echo "  login-graphical: Athena graphical login customizations"
+echo "  workstation:     Managed graphical workstation with minimal need for"
+echo "                   manual maintenance"
 echo ""
 
 # Hack to deal with the older PXE installer (which used a simple flag file to
@@ -60,7 +62,8 @@ if test -f /root/pxe-install-flag ; then
   fi
 fi
 while [ standard != "$category" -a login != "$category" -a \
-        login-graphical != "$category" -a cluster != "$category" ]; do
+        login-graphical != "$category" -a workstation != "$category" -a \
+        cluster != "$category" ]; do
   output -n "Please choose a category or press control-C to abort: "
   read category
 done
