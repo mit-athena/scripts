@@ -79,7 +79,7 @@ if test "$com_err" != no; then
 		CPPFLAGS="$CPPFLAGS -I$com_err/include"
 		LDFLAGS="$LDFLAGS -L$com_err/lib"
 	fi
-	AC_CHECK_LIB(com_err, com_err, :,
+	AC_CHECK_LIB(com_err, com_err, ,
 		     [AC_MSG_ERROR(com_err library not found)])
 else
 	AC_MSG_ERROR(This package requires com_err.)
@@ -98,7 +98,7 @@ if test "$ss" != no; then
 	fi
 	AC_CHECK_LIB(curses, initscr)
 	AC_CHECK_LIB(readline, readline)
-	AC_CHECK_LIB(ss, ss_perror, :,
+	AC_CHECK_LIB(ss, ss_perror, ,
 		     [AC_MSG_ERROR(ss library not found)], -lcom_err)
 else
 	AC_MSG_ERROR(This package requires ss.)
