@@ -5,7 +5,7 @@
 
 # Download this to a Debian or Ubuntu machine and run it as root.  It can
 # be downloaded with:
-#   wget http://debathena.mit.edu/install-debathena.sh
+#   wget -N http://debathena.mit.edu/install-debathena.sh
 
 set -e
 
@@ -215,7 +215,7 @@ if [ "$ubuntu" = "yes" ]; then
 fi
 
 output "Downloading the Debathena archive signing key"
-if ! wget http://debathena.mit.edu/apt/debathena-archive-keyring.asc ; then
+if ! wget -N http://debathena.mit.edu/apt/debathena-archive-keyring.asc ; then
   error "Download failed; terminating."
   exit 1
 fi
