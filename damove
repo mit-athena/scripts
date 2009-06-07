@@ -1,9 +1,9 @@
 #!/bin/sh
 
-# Usage: damove NEW_SUFFIX OLD_SUFFIX PACKAGE
+# Usage: damove NEW_SUFFIX OLD_SUFFIX SOURCE_PACKAGE
 
 # Move the source package from the old suffix to the new suffix, where
-# a suffix is probably one of "", "-proposed", or "-dev"
+# a suffix is probably one of "", "-proposed", or "-development"
 #
 # This moves any source or binary package built from the source
 # package PACKAGE
@@ -11,12 +11,29 @@
 : ${DEBATHENA_APT=/mit/debathena/apt}
 . $(dirname "$0")/debian-versions.sh
 
-if [ "$#" -lt 3 ]; then
-    echo "Usage: damove NEW_SUFFIX OLD_SUFFIX PACKAGE" >&2
+if [ "$#" -ne 3 ]; then
+    echo "Usage: damove NEW_SUFFIX OLD_SUFFIX SOURCE_PACKAGE" >&2
     exit 1
 fi
 
+case "${1}/${2}" in
+  /-proposed) ;;
+  /-development) ;;
+  -proposed/-development) ;;
+  *)
+    echo "WAIT. You are about to move $3"
+    echo "  FROM debathena$2 TO debathena$1,"
+    echo -n "which is probably backwards. Is that a good idea [yes/N]? "
+    read yn
+    if [ "$yn" != "yes" ]; then
+      echo "that's what I thought. Exiting."
+      return 1
+    fi ;;
+esac
+
 for code in $DEBIAN_CODES; do
     reprepro -Vb $DEBATHENA_APT copysrc "${code}${1}" "${code}${2}" "$3"
-    reprepro -Vb $DEBATHENA_APT removesrc "${code}${2}" "$3"
+    if [ "$1" != "$2" ]; then
+        reprepro -Vb $DEBATHENA_APT removesrc "${code}${2}" "$3"
+    fi
 done
