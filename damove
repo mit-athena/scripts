@@ -27,7 +27,7 @@ case "${1}/${2}" in
     read yn
     if [ "$yn" != "yes" ]; then
       echo "that's what I thought. Exiting."
-      return 1
+      exit 1
     fi ;;
 esac
 
