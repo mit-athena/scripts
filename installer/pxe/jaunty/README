@@ -1,0 +1,23 @@
+This directory contains some basic setup stuff for a PXE-based Athena
+10 installer.  If you're looking for basic Athena 10 install instructions, check out:
+
+http://athena10.mit.edu/
+
+This is largely a vanilla Ubuntu install; a DHCP server running a
+standard PXELINUX setup invokes the debian netinstall kernel with an
+invocation like:
+
+LABEL athena10
+   kernel intrepid-installer/i386/linux
+   append auto=true locale=en_US console-setup/layoutcode=us console-setup/charmap=UTF-8 interface=auto url=http://18.18.1.12/linux/athena10-intrepid.preseed initrd=intrepid-installer/i386/initrd.gz DEBCONF_DEBUG=5 --
+
+...after which the kernel loads the preseed file
+(athena10-intrepid.preseed), which fetches and runs a loader script
+(athena10-intrepid-loader.sh), which fetches, unpacks, and runs the real
+install script (out of athena10-intrepid.tar.gz), which asks a few
+questions up front and then generates a preseed file which can
+complete the install without further input.
+
+Most of this stuff is currently served via HTTP from athena10.mit.edu.
+
+--amb 27feb2009
