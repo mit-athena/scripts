@@ -53,6 +53,16 @@ netconfig () {
   mv -f /etc/resolv.conf.new /etc/resolv.conf
 }
 
+# Color strings. If the tput abstraction layer gives an error, then no string is fine.
+tput_noerr () {
+    tput "$@" 2>/dev/null
+}
+nnn=`tput_noerr sgr0`                                  # Normal
+rrr=`tput_noerr bold``tput_noerr setaf 1`              # Red, bold
+ccc=`tput_noerr setaf 6`                               # Cyan
+ddd="${rrr}`tput_noerr setab 7`"                       # "Blood on concrete"
+ddb="${rrr}`tput_noerr setab 7``tput_noerr blink`" 
+
 
 echo "Welcome to Athena."
 echo
@@ -60,21 +70,21 @@ echo
 while [ -z "$pxetype" ] ; do
   echo "Choose one:"
   echo
-  echo "  1: Perform an unattended debathena-cluster install, WIPING OUT your"
-  echo "     ENTIRE DISK. This option is only intended for people setting up"
+  echo "  1: Perform an unattended ${ccc}debathena-cluster${nnn} install, ${rrr}ERASING your"
+  echo "     ENTIRE DISK${nnn}. This option is only intended for people setting up"
   echo "     public cluster machines maintained by IS&T/Athena. If you select"
   echo "     this option, you hereby agree with the license terms at:"
   echo "     <http://dlc.sun.com/dlj/DLJ-v1.1.txt>,"
   echo "     Sun's Operating System Distributor License for Java version 1.1."
   echo
-  echo "  2: Do a normal Debathena install.  You'll need to answer normal Ubuntu"
+  echo "  2: Do a ${ccc}normal Debathena install${nnn}.  You'll need to answer normal Ubuntu"
   echo "     install prompts, and then the Athena-specific prompts, including"
   echo "     choosing which flavor of Debathena you'd like (e.g., private workstation)."
   echo
-  echo "  8: Punt to a completely  vanilla install of Ubuntu 9.04 (Jaunty Jackalope)."
+  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 9.04${nnn} (Jaunty Jackalope)."
   echo "     (Note: locale and keyboard have already been set.)"
   echo
-  echo "  9: /bin/sh (for rescue purposes)"
+  echo "  4: /bin/sh (for rescue purposes)"
   echo
   echo -n "Choose: "
   read r
@@ -83,9 +93,9 @@ while [ -z "$pxetype" ] ; do
       echo "Debathena CLUSTER it is."; pxetype=cluster ;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
-    8)
+    3)
       echo "Vanilla Ubuntu it is."; pxetype=vanilla;;
-    9)
+    4)
       echo "Here's a shell.  You'll return to this prompt when done."
       /bin/sh;;
     *)
@@ -120,9 +130,9 @@ if [ cluster = $pxetype ] ; then
   cat << EOF
 
 ************************************************************
-               DESTROYS
-THIS PROCEDURE DESTROYS THE CONTENTS OF THE HARD DISK.
-               DESTROYS
+               ${ddb}DESTROYS${nnn}
+${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
+               ${ddb}DESTROYS${nnn}
 
 IF YOU DO NOT WISH TO CONTINUE, REBOOT NOW.
 
