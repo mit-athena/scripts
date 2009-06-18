@@ -131,9 +131,9 @@ if [ "$pxetype" ] ; then
       # Switch to canonical hostname.
       ohostname=`cat /etc/hostname`
       # Hack to avoid installing debconf-get for just this.
-      ipaddr=`grep netcfg/get_ipaddress /root/athena10.preseed|sed -e 's/.* //'`
-      netmask=`grep netcfg/get_netmask /root/athena10.preseed|sed -e 's/.* //'`
-      gateway=`grep netcfg/get_gateway /root/athena10.preseed|sed -e 's/.* //'`
+      ipaddr=`grep netcfg/get_ipaddress /root/debathena.preseed|sed -e 's/.* //'`
+      netmask=`grep netcfg/get_netmask /root/debathena.preseed|sed -e 's/.* //'`
+      gateway=`grep netcfg/get_gateway /root/debathena.preseed|sed -e 's/.* //'`
 
       hostname=`host $ipaddr | \
           sed 's#^.*domain name pointer \(.*\)$#\1#' | sed 's;\.*$;;' | \
