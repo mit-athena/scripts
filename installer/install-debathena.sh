@@ -122,7 +122,7 @@ if [ "$pxetype" ] ; then
     echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" |debconf-set-selections
 
     # Configure network based on the preseed file settings, if present.
-    if test -f /root/athena10.preseed ; then
+    if test -f /root/debathena.preseed ; then
       # Switch to canonical hostname.
       ohostname=`cat /etc/hostname`
       # Hack to avoid installing debconf-get for just this.
@@ -157,7 +157,7 @@ if [ "$pxetype" ] ; then
     fi
 
     # Free up designated LVM overhead.
-    lvremove -f /dev/athena10/keep_2 || :
+    lvremove -f /dev/athena/keep_2 || :
 
     # This makes gx755s suck less.
     if lspci -n|grep -q 1002:94c1 && ! grep -q radeonhd /etc/X11/xorg.conf ; then
