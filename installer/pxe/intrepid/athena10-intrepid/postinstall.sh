@@ -3,7 +3,7 @@
 # This is only invoked when the relevant preseed entry is passed in
 # during the preinstall questioning.  (Thus, not for vanilla installs.)
 
-cp /athena10-intrepid/preseed /target/root/athena10.preseed
+cp /athena10-intrepid/preseed /target/root/debathena.preseed
 cp /athena10-intrepid/install-debathena.sh /target/root
 if test -f /athena10-intrepid/pxe-install-flag ; then
   cp /athena10-intrepid/pxe-install-flag /target/root/pxe-install-flag

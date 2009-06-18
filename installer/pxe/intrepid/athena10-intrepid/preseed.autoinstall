@@ -55,7 +55,7 @@ d-i partman-lvm/device_remove_lvm boolean true
 # just point at it.
 d-i partman-auto/expert_recipe_file string /athena10-intrepid/lvm-cluster-machine.partman
 # This is completely undocumented.  Sigh.
-d-i partman-auto-lvm/new_vg_name string athena10
+d-i partman-auto-lvm/new_vg_name string athena
 # Don't punt for no-method filesystems.  Another undocumented option.
 d-i partman-basicmethods/method_only boolean false
 
