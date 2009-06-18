@@ -6,6 +6,14 @@ touch preseed
 
 pxetype=""
 
+# Using debconf here will hang, so parse the command line manually.
+clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
+clusteraddr=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusteraddr | sed -e 's/.*=//'`
+
+if [ "$clusteraddr" ] ; then IPADDR=$clusteraddr ; fi
+
+if [ "$clusteraddr" -a "$clusterforce" = yes ] ; then pxetype=cluster ; fi
+
 netconfig () {
   echo "Configuring network..."
   mp=/debathena-jaunty
@@ -20,18 +28,23 @@ netconfig () {
   GATEWAY=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 4`
   maskbits=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 5`
 
+  echo "Address: $IPADDR"
+  echo
   echo "Autoconfigured settings:"
   echo "  Netmask bits: $maskbits"
   echo "  Broadcast: $bc"
   echo "  Gateway: $GATEWAY"
-  echo -n "Are these OK? [Y/n]: "; read response
-  case $response in
-    y|Y|"") ;;
-    *) 
-    echo -n "Netmask bits [$maskbits]: "; read r; if [ "$r" ] ; then maskbits=$r ; fi
-    echo -n "Broadcast [$bc]: "; read r; if [ "$r" ] ; then bc=$r ; fi
-    echo -n "Gateway [$GATEWAY]: "; read r; if [ "$r" ] ; then GATEWAY=$r ; fi
+
+  if [ "$clusterforce" != yes ] ; then
+    echo -n "Are these OK? [Y/n]: "; read response
+    case $response in
+      y|Y|"") ;;
+      *) 
+      echo -n "Netmask bits [$maskbits]: "; read r; if [ "$r" ] ; then maskbits=$r ; fi
+      echo -n "Broadcast [$bc]: "; read r; if [ "$r" ] ; then bc=$r ; fi
+      echo -n "Gateway [$GATEWAY]: "; read r; if [ "$r" ] ; then GATEWAY=$r ; fi
     esac
+  fi
 
   # We can not set the hostname here; running "debconf-set netcfg/get_hostname"
   # causes fatal reentry problems.  Setting values directly with preseeding
@@ -168,6 +181,8 @@ wget http://18.9.60.73/install-debathena.sh
 echo "$pxetype" > $mp/pxe-install-flag
 
 echo "Initial Debathena installer complete; exiting preconfig to start main install."
-echo "Hit return to continue."
-read r
+if ! [ "$clusteraddr" -a "$clusterforce" = yes ] ; then
+  echo "Hit return to continue."
+  read r
+fi
 exit 0

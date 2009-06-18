@@ -1,6 +1,11 @@
-# Don't look, don't use.  Icky.
-d=/afs/dev/system/athena10/installer/intrepid
+# This is pretty dangerous in a bunch of ways.  Approach with caution.
+d=/afs/dev/system/athena10/installer/jaunty
 
-${d}/athena10-intrepid.tar.gz: athena10-intrepid.preseed athena10-intrepid-loader.sh pxe.config athena10-intrepid
-	tar czvf ${d}/athena10-intrepid.tar.gz --exclude "*~" athena10-intrepid
-	cp athena10-intrepid.preseed athena10-intrepid-loader.sh ${d}
+default:
+	: Use "make install" to move this from where the installer will fetch it.
+
+install: ${d}/debathena-jaunty.tar.gz
+
+${d}/debathena-jaunty.tar.gz: debathena-jaunty.preseed debathena-jaunty-loader.sh debathena-jaunty
+	tar czvf ${d}/debathena-jaunty.tar.gz --exclude "*~" --exclude "*/.svn*" debathena-jaunty
+	cp debathena-jaunty.preseed debathena-jaunty-loader.sh ${d}
