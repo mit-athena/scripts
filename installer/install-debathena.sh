@@ -98,7 +98,7 @@ else
     csoft=yes
   fi
 fi
-if [ yes = "$csost" ]; then
+if [ yes = "$csoft" ]; then
     # Preseed an answer to the java license query, which license was already accepted
     # at install time:
     echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" |debconf-set-selections
