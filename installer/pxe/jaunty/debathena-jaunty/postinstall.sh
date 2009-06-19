@@ -10,6 +10,7 @@ if test -f /debathena-jaunty/pxe-install-flag ; then
 fi
 
 chvt 5
-chroot /target sh /root/install-debathena.sh < /dev/tty5 > /dev/tty5 2>&1
+chroot /target sh /root/install-debathena.sh < /dev/tty5 2>&1 \
+    | chroot /target tee /var/log/athena-install.log > /dev/tty5
 sleep 5
 chvt 1
