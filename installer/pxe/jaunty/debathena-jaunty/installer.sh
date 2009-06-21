@@ -66,15 +66,13 @@ netconfig () {
   mv -f /etc/resolv.conf.new /etc/resolv.conf
 }
 
-# Color strings. If the tput abstraction layer gives an error, then no string is fine.
-tput_noerr () {
-    tput "$@" 2>/dev/null
-}
-nnn=`tput_noerr sgr0`                                  # Normal
-rrr=`tput_noerr bold``tput_noerr setaf 1`              # Red, bold
-ccc=`tput_noerr setaf 6`                               # Cyan
-ddd="${rrr}`tput_noerr setab 7`"                       # "Blood on concrete"
-ddb="${rrr}`tput_noerr setab 7``tput_noerr blink`" 
+# Color strings. I'd like to use tput, but the installer doesn't have it.
+esc=""
+nnn="${esc}[m"          # Normal
+ccc="${esc}[36m"        # Cyan
+rrr="${esc}[1;31m"      # Bold and red
+ddd="${esc}[1;31;47m"   # Plus gray background
+ddb="${esc}[1;31;47;5m" # Plus blinking
 
 
 echo "Welcome to Athena."
