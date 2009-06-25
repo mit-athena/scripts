@@ -20,6 +20,9 @@ gettag() {
 	jaunty)
 	    echo "~ubuntu9.04"
 	    ;;
+        karmic)
+            echo "~ubuntu9.10~0.1"
+            ;;
 	versions)
 	    echo "$DEBIAN_CODES"
 	    ;;
