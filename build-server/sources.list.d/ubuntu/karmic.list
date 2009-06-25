@@ -1,0 +1,10 @@
+deb http://localhost:9999/ubuntu karmic main restricted universe
+deb-src http://localhost:9999/ubuntu karmic main restricted universe
+deb http://localhost:9999/ubuntu karmic-updates main restricted universe
+deb-src http://localhost:9999/ubuntu karmic-updates main restricted universe
+deb http://localhost:9999/ubuntu-security karmic-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security karmic-security main restricted universe
+deb http://localhost:9999/debathena karmic debathena debathena-config
+deb-src http://localhost:9999/debathena karmic debathena debathena-config
+deb http://localhost:9999/debathena karmic-proposed debathena debathena-config
+deb-src http://localhost:9999/debathena karmic-proposed debathena debathena-config
