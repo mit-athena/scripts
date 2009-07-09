@@ -277,3 +277,11 @@ if [ yes = "$tsoft" ]; then
   output "Installing debathena-thirdparty"
   DEBIAN_PRIORITY=critical aptitude -y install debathena-thirdparty
 fi
+
+# Post-install cleanup for cluster systems.
+if [ cluster = "$category" ] ; then
+  # Force an /etc/adjtime entry so there's no confusion about whether the
+  # hardware clock is UTC or local.
+  echo "Setting hardware clock to UTC."
+  hwclock --systohc --utc
+fi
