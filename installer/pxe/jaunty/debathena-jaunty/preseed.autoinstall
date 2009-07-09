@@ -108,7 +108,8 @@ d-i apt-setup/backports boolean true
 #d-i apt-setup/security_host string security.ubuntu.com
 #d-i apt-setup/security_path string /ubuntu
 d-i apt-setup/country string US
-d-i apt-setup/hostname string ubuntu.media.mit.edu
+# Actual mirror host now taken care of (semi-secretly) by the installer script.
+# d-i apt-setup/hostname string ubuntu.media.mit.edu
 d-i apt-setup/directory string /ubuntu
 d-i apt-setup/country US
 

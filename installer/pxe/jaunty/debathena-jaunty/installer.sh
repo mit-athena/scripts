@@ -102,6 +102,12 @@ while [ -z "$pxetype" ] ; do
   case "$r" in
     1)
       echo "Debathena CLUSTER it is."; pxetype=cluster ;;
+    1a)
+      # Yes, this is undocumented.
+      echo "Debathena CLUSTER it is."; pxetype=cluster
+      echo -n "...but choose a preferred mirror hostname, too: "
+      read mirrorsite
+      echo "Using mirror site $mirrorsite";;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
     3)
@@ -166,6 +172,13 @@ d-i netcfg/get_ipaddress string $IPADDR
 d-i netcfg/get_netmask string $NETMASK
 d-i netcfg/get_gateway string $GATEWAY
 d-i netcfg/confirm_static boolean true
+EOF
+
+if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
+
+# Perferred hostname of mirror site
+cat >> preseed <<EOF
+d-i apt-setup/hostname string $mirrorsite
 EOF
 
 # This is used by the final installer step.
