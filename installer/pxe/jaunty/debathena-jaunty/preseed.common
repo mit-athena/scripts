@@ -2,7 +2,8 @@
 
 ### Mirror settings
 d-i mirror/country string manual
-d-i mirror/http/hostname string ubuntu.media.mit.edu
+# Now set explicitly by install script.
+# d-i mirror/http/hostname string ubuntu.media.mit.edu
 d-i mirror/http/directory string /ubuntu
 d-i mirror/http/proxy string
 

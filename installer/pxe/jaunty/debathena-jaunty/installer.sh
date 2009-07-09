@@ -179,6 +179,7 @@ if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
 # Perferred hostname of mirror site
 cat >> preseed <<EOF
 d-i apt-setup/hostname string $mirrorsite
+d-i mirror/http/hostname string $mirrorsite
 EOF
 
 # This is used by the final installer step.
