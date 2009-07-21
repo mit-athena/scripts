@@ -31,13 +31,14 @@ repo=svn+ssh://svn.mit.edu/athena/trunk
 while getopts r: opt; do
   case "$opt" in
   r)
-    type="$OPTARG"
+    repo="$OPTARG"
     ;;
   \?)
     usage
     ;;
   esac
 done
+shift $(($OPTIND - 1))
 
 do_package() {
   pkgname=$1
