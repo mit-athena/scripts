@@ -156,6 +156,7 @@ if [ "$pxetype" ] ; then
 	echo "	address $ipaddr" >> /etc/network/interfaces.new
 	echo "	netmask $netmask" >> /etc/network/interfaces.new
 	echo "	gateway $gateway" >> /etc/network/interfaces.new
+	echo "	dns-nameservers 18.72.0.3 18.70.0.160 18.71.0.151" >> /etc/network/interfaces.new
 	mv -f /etc/network/interfaces.new /etc/network/interfaces
       fi
       hostname ${hostname%%.*}
