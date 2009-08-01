@@ -1,5 +1,5 @@
 #!/bin/sh
-# Athena 10 installer script.
+# Athena installer script.
 # Maintainer: debathena@mit.edu
 # Based on original Debathena installer script by: Tim Abbott <tabbott@mit.edu>
 
@@ -8,6 +8,11 @@
 #   wget -N http://debathena.mit.edu/install-debathena.sh
 
 set -e
+
+# If we run with the noninteractive frontend, mark Debconf questions as
+# seen, so you don't see all the suppressed questions next time you
+# upgrade that package, or worse, upgrade releases.
+export DEBCONF_NONINTERACTIVE_SEEN=true
 
 output() {
   printf '\033[38m'; echo "$@"; printf '\033[0m'
