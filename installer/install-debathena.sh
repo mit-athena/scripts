@@ -55,12 +55,6 @@ echo "  workstation:     Graphical workstation with automatic updates"
 echo "                   Recommended for an auto-managed cluster-like system."
 echo ""
 
-# Hack to deal with the older PXE installer (which used a simple flag file to
-# indicate a PXE cluster install).
-if test -f /root/unattended-cluster-install ; then
-  echo cluster > /root/pxe-install-flag
-fi
-
 category=""
 if test -f /root/pxe-install-flag ; then
   pxetype=`head -1 /root/pxe-install-flag`
