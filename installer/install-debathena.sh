@@ -52,7 +52,7 @@ echo "                   Recommended for private remote-access servers."
 echo "  login-graphical: Athena graphical login customizations"
 echo "                   Recommended for private multi-user desktops."
 echo "  workstation:     Graphical workstation with automatic updates"
-echo "                   Recommended for an auto-managed cluster-like system."
+echo "                   Recommended for auto-managed cluster-like systems."
 echo ""
 
 category=""
