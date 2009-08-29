@@ -79,8 +79,8 @@ if test "$com_err" != no; then
 		CPPFLAGS="$CPPFLAGS -I$com_err/include"
 		LDFLAGS="$LDFLAGS -L$com_err/lib"
 	fi
-	AC_CHECK_LIB(com_err, com_err, ,
-		     [AC_MSG_ERROR(com_err library not found)])
+	AC_SEARCH_LIBS(com_err, com_err, ,
+		       [AC_MSG_ERROR(com_err library not found)])
 else
 	AC_MSG_ERROR(This package requires com_err.)
 fi])
@@ -96,10 +96,10 @@ if test "$ss" != no; then
 		CPPFLAGS="$CPPFLAGS -I$ss/include"
 		LDFLAGS="$LDFLAGS -L$ss/lib"
 	fi
-	AC_CHECK_LIB(curses, initscr)
-	AC_CHECK_LIB(readline, readline)
-	AC_CHECK_LIB(ss, ss_perror, ,
-		     [AC_MSG_ERROR(ss library not found)], -lcom_err)
+	AC_SEARCH_LIBS(initscr, curses)
+	AC_SEARCH_LIBS(readline, readline)
+	AC_SEARCH_LIBS(ss_perror, ss, ,
+		       [AC_MSG_ERROR(ss library not found)], -lcom_err)
 else
 	AC_MSG_ERROR(This package requires ss.)
 fi])
@@ -115,8 +115,8 @@ if test "$regex" != no; then
 		CPPFLAGS="$CPPFLAGS -I$regex/include"
 		LDFLAGS="$LDFLAGS -L$regex/lib"
 	fi
-	AC_CHECK_LIB(regex, regcomp, REGEX_LIBS=-lregex,
-		     [AC_MSG_ERROR(regex library not found)])
+	AC_SEARCH_LIBS(regcomp, regex, REGEX_LIBS=-lregex,
+		       [AC_MSG_ERROR(regex library not found)])
 else
 	AC_CHECK_FUNC(regcomp, :,
 		      [AC_MSG_ERROR(can't find POSIX regexp support)])
@@ -130,7 +130,7 @@ AC_DEFUN([ATHENA_MOTIF_CHECK],
 	CPPFLAGS="$CPPFLAGS -I$motif/include"
 	LDFLAGS="$LDFLAGS -L$motif/lib"
 fi
-AC_CHECK_LIB(Xm, XmStringFree, :, [AC_MSG_ERROR(Motif library not found)])])
+AC_SEARCH_LIBS(XmStringFree, Xm, :, [AC_MSG_ERROR(Motif library not found)])])
 
 AC_DEFUN([ATHENA_MOTIF],
 [AC_ARG_WITH(motif,
@@ -156,16 +156,16 @@ fi])
 dnl ----- AFS -----
 
 AC_DEFUN([ATHENA_AFS_CHECK],
-[AC_CHECK_FUNC(insque, :, AC_CHECK_LIB(compat, insque))
-AC_CHECK_FUNC(gethostbyname, :, AC_CHECK_LIB(nsl, gethostbyname))
-AC_CHECK_FUNC(socket, :, AC_CHECK_LIB(socket, socket))
-AC_CHECK_FUNC(res_send, :, AC_CHECK_LIB(resolv, res_send))
+[AC_SEARCH_LIBS(insque, compat)
+AC_SEARCH_LIBS(gethostbyname, nsl)
+AC_SEARCH_LIBS(socket, socket)
+AC_SEARCH_LIBS(res_send, resolv)
 if test "$afs" != yes; then
 	CPPFLAGS="$CPPFLAGS -I$afs/include"
 	LDFLAGS="$LDFLAGS -L$afs/lib -L$afs/lib/afs"
 fi
-AC_CHECK_LIB(sys, pioctl, :, [AC_MSG_ERROR(AFS libraries not found)],
-	     -lrx -llwp -lsys -lafsutil)
+AC_SEARCH_LIBS(pioctl, sys, :, [AC_MSG_ERROR(AFS libraries not found)],
+	       -lrx -llwp -lsys -lafsutil)
 AFS_DIR=$afs
 AC_SUBST(AFS_DIR)])
 
@@ -195,9 +195,9 @@ dnl ----- Kerberos 4 -----
 
 AC_DEFUN([ATHENA_KRB4_CHECK],
 [AC_REQUIRE([AC_CANONICAL_TARGET])
-AC_CHECK_FUNC(gethostbyname, :, AC_CHECK_LIB(nsl, gethostbyname))
-AC_CHECK_FUNC(socket, :, AC_CHECK_LIB(socket, socket))
-AC_CHECK_LIB(gen, compile)
+AC_SEARCH_LIBS(gethostbyname, nsl)
+AC_SEARCH_LIBS(socket, socket)
+AC_SEARCH_LIBS(compile, gen)
 if test "$krb4" != yes; then
 	CPPFLAGS="$CPPFLAGS -I$krb4/include"
 	if test -d "$krb4/include/kerberosIV"; then
@@ -250,14 +250,14 @@ AC_DEFUN([ATHENA_KRB5_CHECK],
 [AC_REQUIRE([AC_CANONICAL_TARGET])
 AC_SEARCH_LIBS(gethostbyname, nsl)
 AC_SEARCH_LIBS(socket, socket)
-AC_CHECK_LIB(gen, compile)
+AC_SEARCH_LIBS(compile, gen)
 if test "$krb5" != yes; then
 	CPPFLAGS="$CPPFLAGS -I$krb5/include"
 	LDFLAGS="$LDFLAGS -L$krb5/lib"
 fi
-AC_CHECK_LIB(krb5, krb5_init_context, :,
-	     [AC_MSG_ERROR(Kerberos 5 libraries not found)],
-	     -lk5crypto -lcom_err)])
+AC_SEARCH_LIBS(krb5_init_context, krb5, :,
+	       [AC_MSG_ERROR(Kerberos 5 libraries not found)],
+	       -lk5crypto -lcom_err)])
 
 AC_DEFUN([ATHENA_KRB5],
 [AC_ARG_WITH(krb5,
@@ -288,13 +288,13 @@ fi])
 dnl ----- Hesiod -----
 
 AC_DEFUN([ATHENA_HESIOD_CHECK],
-[AC_CHECK_FUNC(res_send, :, AC_CHECK_LIB(resolv, res_send))
+[AC_SEARCH_LIBS(res_send, resolv)
 if test "$hesiod" != yes; then
 	CPPFLAGS="$CPPFLAGS -I$hesiod/include"
 	LDFLAGS="$LDFLAGS -L$hesiod/lib"
 fi
-AC_CHECK_LIB(hesiod, hes_resolve, :,
-	     [AC_MSG_ERROR(Hesiod library not found)])])
+AC_SEARCH_LIBS(hes_resolve, hesiod, :,
+	       [AC_MSG_ERROR(Hesiod library not found)])])
 
 AC_DEFUN([ATHENA_HESIOD],
 [AC_ARG_WITH(hesiod,
@@ -320,12 +320,12 @@ fi])
 dnl ----- libares -----
 
 AC_DEFUN([ATHENA_ARES_CHECK],
-[AC_CHECK_FUNC(res_send, :, AC_CHECK_LIB(resolv, res_send))
+[AC_SEARCH_LIBS(res_send, resolv)
 if test "$ares" != yes; then
 	CPPFLAGS="$CPPFLAGS -I$ares/include"
 	LDFLAGS="$LDFLAGS -L$ares/lib"
 fi
-AC_CHECK_LIB(ares, ares_init, :, [AC_MSG_ERROR(libares not found)])])
+AC_SEARCH_LIBS(ares_init, ares, :, [AC_MSG_ERROR(libares not found)])])
 
 AC_DEFUN([ATHENA_ARES],
 [AC_ARG_WITH(ares,
@@ -354,7 +354,7 @@ AC_DEFUN([ATHENA_ZEPHYR_CHECK],
 	CPPFLAGS="$CPPFLAGS -I$zephyr/include"
 	LDFLAGS="$LDFLAGS -L$zephyr/lib"
 fi
-AC_CHECK_LIB(zephyr, ZFreeNotice, :, [AC_MSG_ERROR(zephyr not found)])])
+AC_SEARCH_LIBS(ZFreeNotice, zephyr, :, [AC_MSG_ERROR(zephyr not found)])])
 
 AC_DEFUN([ATHENA_ZEPHYR],
 [AC_ARG_WITH(zephyr,
