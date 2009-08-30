@@ -1,0 +1,140 @@
+#!/usr/bin/pagsh
+
+# This script is intended to be run from a cron job by a local account
+# on the Debathena build server--i.e. debuild@debuild.mit.edu. The
+# account should have
+#
+# * A keytab installed in $HOME/keytab containing a keytab for
+#   daemon/HOSTNAME, which should have write access to
+#   /mit/debathena/live
+#
+# * A GPG secret key to sign the checksums for the live CDs.
+#
+# * A file named $HOME/autolivebuilder.config specifying shell
+#   variable assignments for:
+#   - error_addr: An email address to send errors to
+#   - release: The Ubuntu release to base the live CDs off of
+#   - release_version: The version number of that release
+#   - arch: Which architecture to use for the live CD
+#   - mirror: Which Ubuntu mirror to use
+#   - gpg_opts: A bash array of options to pass to gpg. This should
+#     include which keys to sign the checksums files with
+
+# Send all output to a logfile.
+mkdir -p "$HOME/autolivebuilder-logs"
+logfile=$HOME/autolivebuilder-logs/$(date '+%Y-%m-%d-%H').log
+exec </dev/null >>$logfile 2>&1
+
+# Set default configuration values
+mirror='ubuntu.media.mit.edu'
+
+# Read configuration; if it's not complete, do nothing.
+config=$HOME/autolivebuilder.config
+. $config
+if (! [ -n "$error_addr" ]) || \
+    (! [ -n "release" ]) || \
+    (! [ -n "$release_version" ]) || \
+    (! [ -n "$arch" ]) || \
+    (! [ -n "${gpg_opts[*]}" ]); then
+    echo "Incomplete $config; doing nothing."
+    exit
+fi
+
+suppress=$HOME/autolivebuilder.suppress
+if [ -e "$suppress" ]; then
+    echo "$suppress exists; not running."
+    exit
+fi
+
+# Make sure runs of this script do not overlap.
+runfile=$HOME/autodebathenify.running
+if [ -e "$runfile" ]; then
+  # A previous invocation appears to still be running.
+  pid=$(cat "$runfile")
+  if ! kill -0 "$pid" 2>/dev/null; then
+    # Okay, it's not really running.  Perhaps the machine has
+    # rebooted.  Wait for manual intervention before running again.
+    error "Stale runfile"
+  else
+    echo "$runfile exists; not running."
+  fi
+  exit
+fi
+echo $$ > $runfile
+
+# Put here cleanup that should always happen
+clean_up () {
+    err=$?
+
+    set +e
+
+    touch "$suppress"
+    /usr/bin/sendmail -t <<EOF
+From: Autolivebuilder <$error_addr>
+To: Autolivebuilder <$error_addr>
+Subject: Autolivebuilder failure
+
+Autolivebuilder has experienced a failure.
+
+Please see $logfile on $(hostname) for more details.
+
+Autolivebuilder will stop running until $suppress is removed.
+EOF
+
+    if [ -n "$session" ]; then
+	schroot -ec "$session"
+	print "$session"
+    fi
+
+    exit $err
+}
+
+trap clean_up ERR
+set -e
+
+# Acquire credentials.
+state="acquiring credentials"
+export KRB5CCNAME=$HOME/autolivebuilder.ccache
+kinit -k -t "$HOME/keytab" daemon/$(hostname --fqdn)
+aklog
+
+cd /home/debuild/live
+
+if [ -d debathena-live ]; then
+    (cd debathena-live && git pull)
+else
+    git clone file:///mit/debathena/git/debathena-live.git
+fi
+pushd debathena-live
+  # This will break if we ever add an epoch. So don't do that.
+  version="$(dpkg-parsechangelog | sed -ne 's/^Version: //p')"
+  debuild -us -uc -b
+popd
+
+iso="ubuntu-${release_version}-desktop-${arch}.iso"
+wget -N "http://${mirror}/ubuntu-releases/${release_version}/$iso"
+
+wget -N "http://${mirror}/ubuntu-releases/${release_version}/SHA1SUMS"
+wget -N "http://${mirror}/ubuntu-releases/${release_version}/SHA1SUMS.gpg"
+
+gpg --verify SHA1SUMS.gpg SHA1SUMS
+grep "$iso" SHA1SUMS | sha1sum -c
+
+session="$(schroot -bc "${release}-${arch}-sbuild")"
+
+schroot -rc "$session" -u root -- dpkg -i "debathena-livecd-tools_${version}_all.deb" || :
+schroot -rc "$session" -u root -- apt-get install -y -f
+
+date="$(date "+%Y%m%d")"
+da_iso="ubuntu-${release_version}-debathena-${date}-${arch}.iso"
+da_dvd_iso="ubuntu-${release-version}-debathena-${date}-${arch}-dvd.iso"
+
+schroot -rc "$session" -u root -- debathena-livecd-convert "$iso" "$da_iso"
+schroot -rc "$session" -u root -- debathena-livecd-convert --dvd "$iso" "$da_dvd_iso"
+
+cp "$da_iso" "$da_dvd_iso" /mit/debathena/live
+sha1sum "$da_iso" "$da_dvd_iso" >>/mit/debathena/live/SHA1SUMS
+sha512sum "$da_iso" "$da_dvd_iso" >>/mit/debathena/live/SHA1SUMS
+
+gpg --batch --yes "${gpg_opts[@]}" -a -b /mit/debathena/live/SHA1SUMS
+gpg --batch --yes "${gpg_opts[@]}" -a -b /mit/debathena/live/SHA512SUMS
