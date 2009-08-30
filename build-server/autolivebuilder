@@ -47,7 +47,7 @@ if [ -e "$suppress" ]; then
 fi
 
 # Make sure runs of this script do not overlap.
-runfile=$HOME/autodebathenify.running
+runfile=$HOME/autolivebuilder.running
 if [ -e "$runfile" ]; then
   # A previous invocation appears to still be running.
   pid=$(cat "$runfile")
