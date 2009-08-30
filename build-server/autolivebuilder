@@ -138,3 +138,6 @@ sha512sum "$da_iso" "$da_dvd_iso" >>/mit/debathena/live/SHA1SUMS
 
 gpg --batch --yes "${gpg_opts[@]}" -a -b /mit/debathena/live/SHA1SUMS
 gpg --batch --yes "${gpg_opts[@]}" -a -b /mit/debathena/live/SHA512SUMS
+
+kdestroy
+rm -f "$runfile"
