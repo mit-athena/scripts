@@ -100,10 +100,11 @@ aklog
 
 cd /home/debuild/live
 
-if [ -d debathena-live ]; then
-    (cd debathena-live && git pull)
-else
-    git clone file:///mit/debathena/git/debathena-live.git
+if ! [ -d debathena-live ]; then
+    echo "E: The Debathena Live CD builder is not checked out."
+    echo "E: Run 'git clone file:///mit/debathena/git/debathena-live.git' in"
+    echo "E: /home/debuild/live"
+    false
 fi
 pushd debathena-live
   # This will break if we ever add an epoch. So don't do that.
