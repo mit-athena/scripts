@@ -128,7 +128,7 @@ schroot -rc "$session" -u root -- apt-get install -y -f
 
 date="$(date "+%Y%m%d")"
 da_iso="ubuntu-${release_version}-debathena-${date}-${arch}.iso"
-da_dvd_iso="ubuntu-${release-version}-debathena-${date}-${arch}-dvd.iso"
+da_dvd_iso="ubuntu-${release_version}-debathena-${date}-${arch}-dvd.iso"
 
 schroot -rc "$session" -u root -- debathena-livecd-convert "$iso" "$da_iso"
 schroot -rc "$session" -u root -- debathena-livecd-convert --dvd "$iso" "$da_dvd_iso"
