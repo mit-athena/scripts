@@ -54,7 +54,7 @@ if [ -e "$runfile" ]; then
   if ! kill -0 "$pid" 2>/dev/null; then
     # Okay, it's not really running.  Perhaps the machine has
     # rebooted.  Wait for manual intervention before running again.
-    error "Stale runfile"
+    echo "Stale runfile."
   else
     echo "$runfile exists; not running."
   fi
@@ -69,7 +69,7 @@ clean_up () {
     set +e
 
     touch "$suppress"
-    /usr/bin/sendmail -t <<EOF
+    /usr/sbin/sendmail -t <<EOF
 From: Autolivebuilder <$error_addr>
 To: Autolivebuilder <$error_addr>
 Subject: Autolivebuilder failure
