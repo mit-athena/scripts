@@ -36,6 +36,9 @@ ask() {
 
 if [ `id -u` != "0" ]; then
   error "You must run the Debathena installer as root."
+  if dpkg -l ubuntu-desktop >/dev/null 2>&1; then
+    error "Try running 'sudo $0'."
+  fi
   exit 1
 fi
 
@@ -71,15 +74,6 @@ while [ standard != "$category" -a login != "$category" -a \
 done
 mainpackage=debathena-$category
 
-dev=no
-echo
-if [ cluster != $category ] ; then
-  ask "Will this machine be used to build Debathena packages [y/N]? " n
-  if [ y = "$answer" ]; then
-    dev=yes
-  fi
-fi
-
 csoft=no
 tsoft=no
 echo "The extra-software package installs a standard set of software"
@@ -108,7 +102,6 @@ fi
 
 echo "A summary of your choices:"
 echo "  Category: $category"
-echo "  Debian development package: $dev"
 echo "  Extra-software package: $csoft"
 echo "  Third-party software package: $tsoft"
 echo ""
@@ -262,13 +255,6 @@ apt-get -y install $modules
 output "Installing main Debathena metapackage $mainpackage"
 
 DEBIAN_FRONTEND=noninteractive aptitude -y install "$mainpackage"
-
-# This package is relatively small so it's not as important, but allow
-# critical questions to be asked.
-if [ yes = "$dev" ]; then
-  output "Installing debathena-build-depends"
-  DEBIAN_PRIORITY=critical aptitude -y install debathena-build-depends
-fi
 
 # Use the default front end and allow questions to be asked; otherwise
 # Java will fail to install since it has to present its license.
