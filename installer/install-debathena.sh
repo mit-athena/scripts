@@ -36,7 +36,7 @@ ask() {
 
 if [ `id -u` != "0" ]; then
   error "You must run the Debathena installer as root."
-  if dpkg -l ubuntu-desktop >/dev/null 2>&1; then
+  if [ -x /usr/bin/sudo ]; then
     error "Try running 'sudo $0'."
   fi
   exit 1
