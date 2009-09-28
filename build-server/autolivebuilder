@@ -4,10 +4,6 @@
 # on the Debathena build server--i.e. debuild@debuild.mit.edu. The
 # account should have
 #
-# * A keytab installed in $HOME/keytab containing a keytab for
-#   daemon/HOSTNAME, which should have write access to
-#   /mit/debathena/live
-#
 # * A GPG secret key to sign the checksums for the live CDs.
 #
 # * A file named $HOME/autolivebuilder.config specifying shell
@@ -19,6 +15,7 @@
 #   - mirror: Which Ubuntu mirror to use
 #   - gpg_opts: A bash array of options to pass to gpg. This should
 #     include which keys to sign the checksums files with
+#   - live_dir: The directory to put the live CDs into
 
 # Send all output to a logfile.
 mkdir -p "$HOME/autolivebuilder-logs"
@@ -35,7 +32,8 @@ if (! [ -n "$error_addr" ]) || \
     (! [ -n "release" ]) || \
     (! [ -n "$release_version" ]) || \
     (! [ -n "$arch" ]) || \
-    (! [ -n "${gpg_opts[*]}" ]); then
+    (! [ -n "${gpg_opts[*]}" ]) || \
+    (! [ -n "$live_dir" ]); then
     echo "Incomplete $config; doing nothing."
     exit
 fi
@@ -92,12 +90,6 @@ EOF
 trap clean_up ERR
 set -e
 
-# Acquire credentials.
-state="acquiring credentials"
-export KRB5CCNAME=$HOME/autolivebuilder.ccache
-kinit -k -t "$HOME/keytab" daemon/$(hostname --fqdn)
-aklog
-
 cd /home/debuild/live
 
 if ! [ -d debathena-live ]; then
@@ -133,12 +125,16 @@ da_dvd_iso="ubuntu-${release_version}-debathena-${date}-${arch}-dvd.iso"
 schroot -rc "$session" -u root -- debathena-livecd-convert "$iso" "$da_iso"
 schroot -rc "$session" -u root -- debathena-livecd-convert --dvd "$iso" "$da_dvd_iso"
 
-cp "$da_iso" "$da_dvd_iso" /mit/debathena/live
-sha1sum "$da_iso" "$da_dvd_iso" >>/mit/debathena/live/SHA1SUMS
-sha512sum "$da_iso" "$da_dvd_iso" >>/mit/debathena/live/SHA512SUMS
+cp "$da_iso" "$da_dvd_iso" "${live_dir}"
+sha1sum "$da_iso" >"${live_dir}/${da_iso}.sha1sum"
+sha512sum "$da_iso" >"${live_dir}/${da_iso}.sha512sum"
+sha1sum "$da_dvd_iso" >"${live_dir}/${da_dvd_iso}.sha1sum"
+sha512sum "$da_dvd_iso" >"${live_dir}/${da_dvd_iso}.sha512sum"
 
-gpg --batch --yes "${gpg_opts[@]}" -a -b /mit/debathena/live/SHA1SUMS
-gpg --batch --yes "${gpg_opts[@]}" -a -b /mit/debathena/live/SHA512SUMS
+gpg --batch --yes "${gpg_opts[@]}" -a -b "${live_dir}/${da_iso}.sha1sum"
+gpg --batch --yes "${gpg_opts[@]}" -a -b "${live_dir}/${da_iso}.sha512sum"
+gpg --batch --yes "${gpg_opts[@]}" -a -b "${live_dir}/${da_dvd_iso}.sha1sum"
+gpg --batch --yes "${gpg_opts[@]}" -a -b "${live_dir}/${da_dvd_iso}.sha512sum"
 
 kdestroy
 rm -f "$runfile"
