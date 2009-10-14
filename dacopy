@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Usage: dacopy NEW_SUFFIX OLD_SUFFIX SOURCE_PACKAGE
+
+# Copy the source package from the old suffix to the new suffix, where
+# a suffix is probably one of "", "-proposed", or "-development"
+#
+# This copies any source or binary package built from the source
+# package PACKAGE
+
+: ${DEBATHENA_APT=/mit/debathena/apt}
+. $(dirname "$0")/debian-versions.sh
+
+if [ "$#" -lt 3 ]; then
+    echo "Usage: dacopy NEW_SUFFIX OLD_SUFFIX SOURCE_PACKAGE" >&2
+    exit 1
+fi
+
+case "${1}/${2}" in
+  /-proposed) ;;
+  /-development) ;;
+  -proposed/-development) ;;
+  *)
+    echo "WAIT. You are about to copy $3"
+    echo "  FROM debathena$2 TO debathena$1,"
+    echo -n "which is probably backwards. Is that a good idea [yes/N]? "
+    read yn
+    if [ "$yn" != "yes" ]; then
+      echo "that's what I thought. Exiting."
+      exit 1
+    fi ;;
+esac
+
+for code in $DEBIAN_CODES; do
+    reprepro -Vb $DEBATHENA_APT copysrc "${code}${1}" "${code}${2}" "$3"
+done

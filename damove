@@ -16,24 +16,10 @@ if [ "$#" -ne 3 ]; then
     exit 1
 fi
 
-case "${1}/${2}" in
-  /-proposed) ;;
-  /-development) ;;
-  -proposed/-development) ;;
-  *)
-    echo "WAIT. You are about to move $3"
-    echo "  FROM debathena$2 TO debathena$1,"
-    echo -n "which is probably backwards. Is that a good idea [yes/N]? "
-    read yn
-    if [ "$yn" != "yes" ]; then
-      echo "that's what I thought. Exiting."
-      exit 1
-    fi ;;
-esac
+new_suffix="$1"; shift
+old_suffix="$1"; shift
 
-for code in $DEBIAN_CODES; do
-    reprepro -Vb $DEBATHENA_APT copysrc "${code}${1}" "${code}${2}" "$3"
-    if [ "$1" != "$2" ]; then
-        reprepro -Vb $DEBATHENA_APT removesrc "${code}${2}" "$3"
-    fi
-done
+dacopy "$new_suffix" "$old_suffix" "$@"
+if [ "$new_suffix" != "$old_suffix" ]; then
+    daremove "$old_suffix" "$@"
+fi
