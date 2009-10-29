@@ -21,7 +21,7 @@ gettag() {
 	    echo "~ubuntu9.04"
 	    ;;
         karmic)
-            echo "~ubuntu9.10~0.1"
+            echo "~ubuntu9.10"
             ;;
 	versions)
 	    echo "$DEBIAN_CODES"
