@@ -92,6 +92,8 @@ schroot --chroot="${CHROOT}-source" --directory=/ -- /bin/sh -xe - \
     9< "$DATA/debathena-archive.asc" \
     <<EOF
 #/debootstrap/debootstrap --second-stage
+dpkg-divert --local --rename --add /sbin/initctl
+ln -s /bin/true /sbin/initctl
 debconf-set-selections <<SELECTIONS
 debconf	debconf/frontend	select	Noninteractive
 SELECTIONS
