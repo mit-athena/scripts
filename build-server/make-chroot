@@ -73,18 +73,14 @@ exittrap() { :; }
 ! [ -s "$CONF" ] || echo >> "$CONF"
 cat >> "$CONF" <<EOF
 [$CHROOT]
-type=lvm-snapshot
+type=device
+union-type=aufs
 description=$CHROOT
-priority=3
 groups=root,sbuild
 root-groups=root,sbuild
 source-groups=root
 device=$DEVICE
-mount-options=-o noatime
-lvm-snapshot-options=--size $SIZE
 personality=$PERSONALITY
-run-setup-scripts=true
-run-exec-scripts=true
 EOF
 
 schroot --chroot="${CHROOT}-source" --directory=/ -- /bin/sh -xe - \
