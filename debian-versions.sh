@@ -9,7 +9,7 @@ gettag() {
 	    echo "~debian5.0"
 	    ;;
 	squeeze)
-	    echo "~debian6.0~0.1"
+	    echo "~debian6.0~0.2"
 	    ;;
 	hardy)
 	    echo "~ubuntu8.04"
