@@ -18,6 +18,11 @@ if [ ! -e $dir ]; then
 fi
 [ -e "$dir" ]
 cd "$dir"
+if fgrep -q "$suite" nobuild; then
+    touch "$stamp.done"
+    trap - EXIT
+    exit
+fi
 debathenificator=$(echo ./debathenify-*)
 if [ "$debathenificator" != "./debathenify-*" ]; then
     "$debathenificator" "${suite}-amd64" -A source binary upload
@@ -34,7 +39,7 @@ if ! [ -e "$dsc" ]; then
     if ! [ -e "${package}_$version.dsc" ]; then
         schroot -c "${psuite}-amd64-sbuild" -- apt-get source "$package"
     fi
-    if ! [ -e "${package}_${version}_source.changes" ]; then
+    if ! ([ -e "${package}_${version}_source.changes" ] || [ -e "${package}_${version}_amd64.changes" ] || [ -e "${package}_${version}_i386.changes" ]); then
         (cd "${package}-${version/-*/}" && dpkg-genchanges -S -sa >"../${package}_${version}_source.changes")
     fi
     dsc="${package}_$version.dsc"
