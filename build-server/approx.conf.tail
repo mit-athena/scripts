@@ -1,5 +1,5 @@
 debian          http://debian.lcs.mit.edu/debian
-debian-security http://debian.lcs.mit.edu/debian-security
-ubuntu          http://ubuntu.media.mit.edu/archive.ubuntu.com
-ubuntu-security http://ubuntu.media.mit.edu/archive.ubuntu.com
+debian-security http://security.us.debian.org
+ubuntu          http://archive.ubuntu.com/ubuntu
+ubuntu-security http://security.ubuntu.com/ubuntu
 debathena       http://debathena.mit.edu/apt
