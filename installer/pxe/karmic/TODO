@@ -1,0 +1,24 @@
+high:
+- Non-cluster PXE installs need post-install network munging
+  by install-debathena.sh in order to have usable net, since
+  the ubuntu installer forces a DHCP config if the installer
+  used DHCP.  So sad.
+- the entire install session *really* needs to be logged
+- increase the timeout for Ubuntu's DHCP request, since the netops
+  servers can sometimes take longer.
+
+low:
+- sometimes there's a warning dialog about lv name reuse.
+  figure out why and suppress it.
+- installer script shouldn't assume eth0
+- clean up "debathena but not cluster version" install option,
+  maybe further split it.
+- shuffle preseed stuff around; more of the .autoinstall stuff
+  should probably move to common.  (perhaps selection of
+  a default package set?)
+- hack non-cluster preseed to not prompt for cd ejection.
+
+some of what was done:
+- add hacks to install-debathena.sh for noninteractive use
+- push to MIT PXE servers
+- have a "debathena but not cluster version" install option

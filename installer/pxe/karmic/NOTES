@@ -1,0 +1,13 @@
+Notes on partman-auto:
+
+- specifying partman-auto/method of "lvm" forces the automatic creation
+  of a physical volume (of around 100GB; way too small) and forces the
+  volume group name to be the same as the DHCP hostname.  This is
+  overrideable via undo
+
+- $lvmok{ } tags are secretly required
+
+20000 50000 256000 lvm
+        $primary{ } $defaultignore{ }
+        method{ lvm } .
+
