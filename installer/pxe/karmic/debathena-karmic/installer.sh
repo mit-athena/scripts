@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /debathena-jaunty
+cd /debathena-karmic
 
 touch preseed
 
@@ -16,7 +16,7 @@ if [ "$clusteraddr" -a "$clusterforce" = yes ] ; then pxetype=cluster ; fi
 
 netconfig () {
   echo "Configuring network..."
-  mp=/debathena-jaunty
+  mp=/debathena-karmic
   export IPADDR NETMASK GATEWAY SYSTEM CONTROL
   while [ -z "$IPADDR" ] ; do
     echo -n "Enter IP address: "
@@ -92,7 +92,7 @@ while [ -z "$pxetype" ] ; do
   echo "     install prompts, and then the Athena-specific prompts, including"
   echo "     choosing which flavor of Debathena you'd like (e.g., private workstation)."
   echo
-  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 9.04${nnn} (Jaunty Jackalope)."
+  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 9.10${nnn} (Karmic Koala)."
   echo "     (Note: locale and keyboard have already been set.)"
   echo
   echo "  4: /bin/sh (for rescue purposes)"

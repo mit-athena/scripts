@@ -3,10 +3,10 @@
 # This is only invoked when the relevant preseed entry is passed in
 # during the preinstall questioning.  (Thus, not for vanilla installs.)
 
-cp /debathena-jaunty/preseed /target/root/debathena.preseed
-cp /debathena-jaunty/install-debathena.sh /target/root
-if test -f /debathena-jaunty/pxe-install-flag ; then
-  cp /debathena-jaunty/pxe-install-flag /target/root/pxe-install-flag
+cp /debathena-karmic/preseed /target/root/debathena.preseed
+cp /debathena-karmic/install-debathena.sh /target/root
+if test -f /debathena-karmic/pxe-install-flag ; then
+  cp /debathena-karmic/pxe-install-flag /target/root/pxe-install-flag
 fi
 
 . /lib/chroot-setup.sh

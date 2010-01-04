@@ -1,4 +1,4 @@
 # Minimal preseed, designed to just punt to our own network-based installer.
 # 18.92.2.195 = athena10.mit.edu
 # 18.9.60.73 = new athena10.mit.edu
-d-i preseed/include_command string wget -q http://18.9.60.73/installer/jaunty/debathena-jaunty-loader.sh ; sh debathena-jaunty-loader.sh
+d-i preseed/include_command string wget -q http://18.9.60.73/installer/karmic/debathena-karmic-loader.sh ; sh debathena-karmic-loader.sh
