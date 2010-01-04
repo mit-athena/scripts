@@ -160,21 +160,52 @@ EOF
   egrep -v '(^$|^#)' < preseed.autoinstall >> preseed
 fi
 
+if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
+
 # Set up a usable static network config, since the DHCP address is not very useful.
-netconfig
+if [ choose = $pxetype ]; then
+  if ping $mirrorsite ; then
+    if ip address | grep '    inet 18\.' >/dev/null ; then
+      echo "Your computer seems to be registered on MITnet."
+    else
+      echo "Your computer seems not to be registered on MITnet, but the mirror"
+      echo "site $mirrorsite is accessible."
+    fi
+    echo
+    echo "${ccc}You can continue the install using your existing dynamic address.${nnn}"
+    echo -n "Configure a static address anyway?  [y/N]: "
+    while : ; do
+      read r
+      case "$r" in
+        N*|n*|"") break;;
+        y*|Y*) netconfig; break;;
+      esac
+      echo -n "Choose: [y/N]: "
+    done
+  else
+    echo "The mirror site $mirrorsite is NOT accessible in your current"
+    echo "dynamic configuration."
+    echo
+    echo "${rrr}You must specify a static address for the installation.${nnn}"
+    netconfig
+  fi
+else
+  netconfig
+fi
 
 # Shovel in the generically useful preseed stuff regardless.
 egrep -v '(^$|^#)' < preseed.common >> preseed
-# ...and the specified network config.
-cat >> preseed <<EOF
+
+if [ "$IPADDR" ] ; then
+  # ...and the specified network config.
+  cat >> preseed <<EOF
 d-i netcfg/get_nameservers string 18.72.0.3
 d-i netcfg/get_ipaddress string $IPADDR
 d-i netcfg/get_netmask string $NETMASK
 d-i netcfg/get_gateway string $GATEWAY
 d-i netcfg/confirm_static boolean true
 EOF
-
-if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
+fi
 
 # Perferred hostname of mirror site
 cat >> preseed <<EOF
