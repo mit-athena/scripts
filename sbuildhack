@@ -27,7 +27,6 @@ if [ -e nobuild ] && fgrep -q "$dist" nobuild; then
   exit
 fi
 
-export NMUTAG=`gettag "$dist"`
 sbuild --append-to-version=`gettag "$dist"` \
 	-d "$dist" --arch="$arch" \
 	--apt-update --apt-distupgrade \
