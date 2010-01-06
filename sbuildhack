@@ -2,7 +2,7 @@
 
 # Wrapper around sbuild.  The main purpose is to append a
 # distribution-dependent string like "~ubuntu7.10" to the binary
-# package version, using Sbuildhack.pm.
+# package version
 
 # This script us normally run as "da sbuildhack filename.dsc".
 
@@ -28,6 +28,7 @@ if [ -e nobuild ] && fgrep -q "$dist" nobuild; then
 fi
 
 export NMUTAG=`gettag "$dist"`
-perl -I"$(dirname "$0")" -MSbuildHack \
-	/usr/bin/sbuild --binNMU=171717 --make-binNMU="Build with sbuild." \
-	-d "$dist" --arch="$arch" --apt-update -v "$@"
+sbuild --append-to-version=`gettag "$dist"` \
+	-d "$dist" --arch="$arch" \
+	--apt-update --apt-distupgrade \
+	 -v "$@"
