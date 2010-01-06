@@ -73,7 +73,7 @@ exittrap() { :; }
 ! [ -s "$CONF" ] || echo >> "$CONF"
 cat >> "$CONF" <<EOF
 [$CHROOT]
-type=device
+type=block-device
 union-type=aufs
 description=$CHROOT
 groups=root,sbuild
