@@ -24,10 +24,6 @@ dnl		Generates error if ss not found.
 dnl	ATHENA_REGEXP
 dnl		Sets REGEX_LIBS if rx library used; ensures POSIX
 dnl		regexp support.
-dnl	ATHENA_MOTIF
-dnl		Sets MOTIF_LIBS and defines HAVE_MOTIF if Motif used.
-dnl	ATHENA_MOTIF_REQUIRED
-dnl		Generates error if Motif not found.
 dnl	ATHENA_AFS
 dnl		Sets AFS_LIBS and defines HAVE_AFS if AFS used.  Pass
 dnl		in an argument giving the desired AFS libraries;
@@ -122,36 +118,6 @@ else
 		      [AC_MSG_ERROR(can't find POSIX regexp support)])
 fi
 AC_SUBST(REGEX_LIBS)])
-
-dnl ----- Motif -----
-
-AC_DEFUN([ATHENA_MOTIF_CHECK],
-[if test "$motif" != yes; then
-	CPPFLAGS="$CPPFLAGS -I$motif/include"
-	LDFLAGS="$LDFLAGS -L$motif/lib"
-fi
-AC_SEARCH_LIBS(XmStringFree, Xm, :, [AC_MSG_ERROR(Motif library not found)])])
-
-AC_DEFUN([ATHENA_MOTIF],
-[AC_ARG_WITH(motif,
-	[  --with-motif=PREFIX     Use Motif],
-	[motif="$withval"], [motif=no])
-if test "$motif" != no; then
-	ATHENA_MOTIF_CHECK
-	MOTIF_LIBS=-lXm
-	AC_DEFINE(HAVE_MOTIF)
-fi
-AC_SUBST(MOTIF_LIBS)])
-
-AC_DEFUN([ATHENA_MOTIF_REQUIRED],
-[AC_ARG_WITH(motif,
-	[  --with-motif=PREFIX     Specify location of Motif],
-	[motif="$withval"], [motif=yes])
-if test "$motif" != no; then
-	ATHENA_MOTIF_CHECK
-else
-	AC_MSG_ERROR(This package requires Motif.)
-fi])
 
 dnl ----- AFS -----
 
