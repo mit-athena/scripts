@@ -185,7 +185,7 @@ if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
 # Set up a usable static network config, since the DHCP address is not very useful.
 if [ choose = $pxetype ]; then
   if ping $mirrorsite ; then
-    if ip address | grep '    inet 18\.' >/dev/null ; then
+    if ip address show to 18/8 >/dev/null && ! ip address show to 18.2/16 >/dev/null ; then
       echo "Your computer seems to be registered on MITnet."
     else
       echo "Your computer seems not to be registered on MITnet, but the mirror"
