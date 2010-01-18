@@ -122,7 +122,7 @@ while [ -z "$pxetype" ] ; do
       echo
       echo "You probably want to set up something similar."
       echo "Press enter to continue."
-      read ;;
+      read r;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
     2a)
