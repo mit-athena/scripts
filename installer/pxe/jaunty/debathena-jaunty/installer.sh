@@ -145,9 +145,12 @@ done
 if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
 
 # Consider setting a static IP address, especially if we can't reach the mirror.
-if [ choose = $pxetype ]; then
-  if wget -q -O /dev/null http://$mirrorsite/ubuntu ; then
-    if ip address show to 18/8 >/dev/null && ! ip address show to 18.2/16 >/dev/null ; then
+if [ cluster != $pxetype ]; then
+  # We're at a point in the install process where we can be fairly sure
+  # that nothing else is happening, so "killall wget" should be safe.
+  (sleep 5; killall wget >/dev/null 2>&1) &
+  if wget -s http://$mirrorsite/ubuntu ; then
+    if ip address show to 18/8 | grep -q . && ! ip address show to 18.2/16 | grep -q . ; then
       echo "Your computer seems to be registered on MITnet."
     else
       echo "Your computer seems not to be registered on MITnet, but the mirror"
