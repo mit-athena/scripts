@@ -137,52 +137,9 @@ done
 
 ##############################################################################
 
-if [ vanilla = $pxetype ] ; then
-  echo "WARNING: if you let the system default to using a DHCP address, this"
-  echo "may not work for you, as you won't be able to reach the off-campus"
-  echo "Ubuntu repositories.  If you cancelled that and configured manually,"
-  echo "or otherwise believe you have a functional address, you can continue."
-  echo "Would you like to configure a static address before switching back to"
-  echo -n "a vanilla Ubuntu install?  [y/N]: "
-  while : ; do
-    read r
-    case "$r" in
-      N*|n*|"") break;;
-      y*|Y*) netconfig; break;;
-    esac
-    echo -n "Choose: [y/N]: "
-  done
-
-  echo "Starting normal Ubuntu install in five seconds."
-  sleep 5
-  exit 0
-fi
-
-if [ cluster = "$pxetype" ]; then
-  if [ notreally != "$destroys" ]; then
-    cat << EOF
-
-************************************************************
-               ${ddb}DESTROYS${nnn}
-${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
-               ${ddb}DESTROYS${nnn}
-
-IF YOU DO NOT WISH TO CONTINUE, REBOOT NOW.
-
-************************************************************
-
-EOF
-    echo "Installing autoinstall preseed file."
-    egrep -v '(^$|^#)' < preseed.autoinstall >> preseed
-  else
-    echo "Installing autoinstall preseed file without automated partitioning."
-    egrep -v '(^$|^#|partman)' < preseed.autoinstall >> preseed
-  fi
-fi
-
 if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
 
-# Set up a usable static network config, since the DHCP address is not very useful.
+# Consider setting a static IP address, especially if we can't reach the mirror.
 if [ choose = $pxetype ]; then
   if ping $mirrorsite ; then
     if ip address show to 18/8 >/dev/null && ! ip address show to 18.2/16 >/dev/null ; then
@@ -211,6 +168,34 @@ if [ choose = $pxetype ]; then
   fi
 else
   netconfig
+fi
+
+if [ vanilla = $pxetype ] ; then
+  echo "Starting normal Ubuntu install in five seconds."
+  sleep 5
+  exit 0
+fi
+
+if [ cluster = "$pxetype" ]; then
+  if [ notreally != "$destroys" ]; then
+    cat << EOF
+
+************************************************************
+               ${ddb}DESTROYS${nnn}
+${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
+               ${ddb}DESTROYS${nnn}
+
+IF YOU DO NOT WISH TO CONTINUE, REBOOT NOW.
+
+************************************************************
+
+EOF
+    echo "Installing autoinstall preseed file."
+    egrep -v '(^$|^#)' < preseed.autoinstall >> preseed
+  else
+    echo "Installing autoinstall preseed file without automated partitioning."
+    egrep -v '(^$|^#|partman)' < preseed.autoinstall >> preseed
+  fi
 fi
 
 # Shovel in the generically useful preseed stuff regardless.
