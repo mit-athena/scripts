@@ -146,7 +146,7 @@ if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
 
 # Consider setting a static IP address, especially if we can't reach the mirror.
 if [ choose = $pxetype ]; then
-  if ping $mirrorsite ; then
+  if wget -q -O /dev/null http://$mirrorsite/ubuntu ; then
     if ip address show to 18/8 >/dev/null && ! ip address show to 18.2/16 >/dev/null ; then
       echo "Your computer seems to be registered on MITnet."
     else
