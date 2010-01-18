@@ -125,6 +125,11 @@ while [ -z "$pxetype" ] ; do
       read ;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
+    2a)
+      echo "Normal Debathena install it is."; pxetype=choose
+      echo -n "...but choose a preferred mirror hostname, too: "
+      read mirrorsite
+      echo "Using mirror site $mirrorsite";;
     3)
       echo "Vanilla Ubuntu it is."; pxetype=vanilla;;
     4)
