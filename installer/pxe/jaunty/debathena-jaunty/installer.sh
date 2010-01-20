@@ -187,7 +187,6 @@ fi
 if [ cluster = "$pxetype" ]; then
   if [ notreally != "$destroys" ]; then
     cat << EOF
-
 ************************************************************
                ${ddb}DESTROYS${nnn}
 ${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
