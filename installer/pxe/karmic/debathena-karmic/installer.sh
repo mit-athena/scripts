@@ -108,8 +108,28 @@ while [ -z "$pxetype" ] ; do
       echo -n "...but choose a preferred mirror hostname, too: "
       read mirrorsite
       echo "Using mirror site $mirrorsite";;
+    1b)
+      # This too.
+      echo "Debathena CLUSTER it is."; pxetype=cluster
+      echo "...but you get to partition by hand. Your hard disk"
+      echo "will not be automatically reformatted."; destroys=notreally
+      echo
+      echo "The default cluster installer sets up:"
+      echo " - a 200MB ext3 /boot partition"
+      echo " - an LVM volume group named 'athena', containing"
+      echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
+      echo "   - a root LV taking up half the remaining space (at least 10 GB)"
+      echo
+      echo "You probably want to set up something similar."
+      echo "Press enter to continue."
+      read r;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
+    2a)
+      echo "Normal Debathena install it is."; pxetype=choose
+      echo -n "...but choose a preferred mirror hostname, too: "
+      read mirrorsite
+      echo "Using mirror site $mirrorsite";;
     3)
       echo "Vanilla Ubuntu it is."; pxetype=vanilla;;
     4)
@@ -122,50 +142,15 @@ done
 
 ##############################################################################
 
-if [ vanilla = $pxetype ] ; then
-  echo "WARNING: if you let the system default to using a DHCP address, this"
-  echo "may not work for you, as you won't be able to reach the off-campus"
-  echo "Ubuntu repositories.  If you cancelled that and configured manually,"
-  echo "or otherwise believe you have a functional address, you can continue."
-  echo "Would you like to configure a static address before switching back to"
-  echo -n "a vanilla Ubuntu install?  [y/N]: "
-  while : ; do
-    read r
-    case "$r" in
-      N*|n*|"") break;;
-      y*|Y*) netconfig; break;;
-    esac
-    echo -n "Choose: [y/N]: "
-  done
-
-  echo "Starting normal Ubuntu install in five seconds."
-  sleep 5
-  exit 0
-fi
-
-if [ cluster = $pxetype ] ; then
-  cat << EOF
-
-************************************************************
-               ${ddb}DESTROYS${nnn}
-${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
-               ${ddb}DESTROYS${nnn}
-
-IF YOU DO NOT WISH TO CONTINUE, REBOOT NOW.
-
-************************************************************
-
-EOF
-  echo "Installing autoinstall preseed file."
-  egrep -v '(^$|^#)' < preseed.autoinstall >> preseed
-fi
-
 if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
 
-# Set up a usable static network config, since the DHCP address is not very useful.
-if [ choose = $pxetype ]; then
-  if ping $mirrorsite ; then
-    if ip address | grep '    inet 18\.' >/dev/null ; then
+# Consider setting a static IP address, especially if we can't reach the mirror.
+if [ cluster != $pxetype ]; then
+  # We're at a point in the install process where we can be fairly sure
+  # that nothing else is happening, so "killall wget" should be safe.
+  (sleep 5; killall wget >/dev/null 2>&1) &
+  if wget -s http://$mirrorsite/ubuntu ; then
+    if ip address show to 18/8 | grep -q . && ! ip address show to 18.2/16 | grep -q . ; then
       echo "Your computer seems to be registered on MITnet."
     else
       echo "Your computer seems not to be registered on MITnet, but the mirror"
@@ -191,6 +176,33 @@ if [ choose = $pxetype ]; then
   fi
 else
   netconfig
+fi
+
+if [ vanilla = $pxetype ] ; then
+  echo "Starting normal Ubuntu install in five seconds."
+  sleep 5
+  exit 0
+fi
+
+if [ cluster = "$pxetype" ]; then
+  if [ notreally != "$destroys" ]; then
+    cat << EOF
+************************************************************
+               ${ddb}DESTROYS${nnn}
+${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
+               ${ddb}DESTROYS${nnn}
+
+IF YOU DO NOT WISH TO CONTINUE, REBOOT NOW.
+
+************************************************************
+
+EOF
+    echo "Installing autoinstall preseed file."
+    egrep -v '(^$|^#)' < preseed.autoinstall >> preseed
+  else
+    echo "Installing autoinstall preseed file without automated partitioning."
+    egrep -v '(^$|^#|partman)' < preseed.autoinstall >> preseed
+  fi
 fi
 
 # Shovel in the generically useful preseed stuff regardless.
