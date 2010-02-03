@@ -135,6 +135,18 @@ while [ -z "$pxetype" ] ; do
     4)
       echo "Here's a shell.  You'll return to this prompt when done."
       /bin/sh;;
+    9a)
+      echo "OK, configuring net and then switching to a karmic install."
+      netconfig
+      mkdir /h; cd /h
+      wget http://web.mit.edu/afs/dev/user/amb/hackboot/hackboot-karmic.sh
+      wget http://web.mit.edu/afs/dev/user/amb/hackboot/karmic/initrd.gz
+      wget http://web.mit.edu/afs/dev/user/amb/hackboot/karmic/linux
+      wget http://web.mit.edu/afs/dev/user/amb/hackboot/kexec
+      chmod 755 kexec hackboot-karmic.sh
+      ./hackboot-karmic.sh -f
+      echo "Well, that didn't work.  Here's a shell."
+      /bin/sh;;
     *)
       echo "Choose one of the above, please.";;
   esac
