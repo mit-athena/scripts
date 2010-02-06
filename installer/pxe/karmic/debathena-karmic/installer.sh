@@ -142,7 +142,7 @@ done
 
 ##############################################################################
 
-if [ -z "$mirrorsite" ] ; then mirrorsite=ubuntu.media.mit.edu ; fi
+if [ -z "$mirrorsite" ] ; then mirrorsite=mirrors.mit.edu ; fi
 
 # Consider setting a static IP address, especially if we can't reach the mirror.
 if [ cluster != $pxetype ]; then
