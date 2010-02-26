@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="etch lenny squeeze hardy intrepid jaunty karmic"
+DEBIAN_CODES="etch lenny squeeze hardy intrepid jaunty karmic lucid"
 gettag() {
     case "$1" in
 	etch)
