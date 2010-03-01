@@ -1,10 +1,7 @@
 #!/bin/sh
-DEBIAN_CODES="etch lenny squeeze hardy intrepid jaunty karmic lucid"
+DEBIAN_CODES="lenny squeeze hardy intrepid jaunty karmic lucid"
 gettag() {
     case "$1" in
-	etch)
-	    echo "~debian4.0"
-	    ;;
 	lenny)
 	    echo "~debian5.0"
 	    ;;
