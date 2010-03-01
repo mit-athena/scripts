@@ -183,7 +183,7 @@ output "Installing lsb-release to determine system type"
 aptitude -y install lsb-release
 distro=`lsb_release -cs`
 case $distro in
-etch|lenny|squeeze)
+lenny|squeeze)
   ;;
 hardy|intrepid|jaunty|karmic)
   ubuntu=yes
