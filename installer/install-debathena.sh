@@ -223,8 +223,8 @@ if ! wget -N http://debathena.mit.edu/apt/debathena-archive-keyring.asc ; then
   error "Download failed; terminating."
   exit 1
 fi
-echo "503f95f71077c03947797932d3a1c424be0eced7  ./debathena-archive-keyring.asc" | \
-  sha1sum -c
+echo "fa787714d1ea439c28458aab64962f755e2bdee7a3520919a72b641458757fa3586fd269cc1dae8d99047e00b3df88db0826f0c99a1f5a8771618b3c0be8e3bd  ./debathena-archive-keyring.asc" | \
+  sha512sum -c
 apt-key add debathena-archive-keyring.asc
 rm ./debathena-archive-keyring.asc
 
