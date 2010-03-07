@@ -1,4 +1,4 @@
-#!/usr/bin/pagsh
+#!/bin/bash
 
 # This script is intended to be run from a cron job by a local account
 # on a build machine--either debuild on debuild.mit.edu or builder on
