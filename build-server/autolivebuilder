@@ -90,12 +90,12 @@ EOF
 trap clean_up ERR
 set -e
 
-cd /home/debuild/live
+cd $HOME/live
 
 if ! [ -d debathena-live ]; then
     echo "E: The Debathena Live CD builder is not checked out."
     echo "E: Run 'git clone file:///mit/debathena/git/debathena-live.git' in"
-    echo "E: /home/debuild/live"
+    echo "E: $HOME/live"
     false
 fi
 pushd debathena-live
