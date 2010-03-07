@@ -115,6 +115,7 @@ grep "$iso" SHA1SUMS | sha1sum -c
 
 session="$(schroot -bc "${release}-${arch}-sbuild")"
 
+schroot -rc "$session" -u root -- sh -c 'apt-get update && apt-get -y dist-upgrade && apt-get -y autoremove'
 schroot -rc "$session" -u root -- dpkg -i "debathena-livecd-tools_${version}_all.deb" || :
 schroot -rc "$session" -u root -- apt-get install -y -f
 
