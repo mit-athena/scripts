@@ -67,6 +67,7 @@ clean_up () {
     set +e
 
     touch "$suppress"
+    rm "$runfile"
     /usr/sbin/sendmail -t <<EOF
 From: Autolivebuilder <$error_addr>
 To: Autolivebuilder <$error_addr>
