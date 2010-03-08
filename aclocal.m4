@@ -48,11 +48,6 @@ dnl		Sets HESIOD_LIBS and defines HAVE_HESIOD if Hesiod
 dnl		used.
 dnl	ATHENA_HESIOD_REQUIRED
 dnl		Generates error if Hesiod not found.
-dnl	ATHENA_ARES
-dnl		Sets ARES_LIBS and defines HAVE_ARES if libares
-dnl		used.
-dnl	ATHENA_ARES_REQUIRED
-dnl		Generates error if libares not found.
 dnl	ATHENA_ZEPHYR
 dnl		Sets ZEPHYR_LIBS and defines HAVE_ZEPHYR if zephyr
 dnl		used.
@@ -283,36 +278,6 @@ else
 	AC_MSG_ERROR(This package requires Hesiod.)
 fi])
 
-dnl ----- libares -----
-
-AC_DEFUN([ATHENA_ARES_CHECK],
-[AC_SEARCH_LIBS(res_send, resolv)
-if test "$ares" != yes; then
-	CPPFLAGS="$CPPFLAGS -I$ares/include"
-	LDFLAGS="$LDFLAGS -L$ares/lib"
-fi
-AC_SEARCH_LIBS(ares_init, ares, :, [AC_MSG_ERROR(libares not found)])])
-
-AC_DEFUN([ATHENA_ARES],
-[AC_ARG_WITH(ares,
-	[  --with-ares=PREFIX      Use libares],
-	[ares="$withval"], [ares=no])
-if test "$ares" != no; then
-	ATHENA_ARES_CHECK
-	ARES_LIBS="-lares"
-	AC_DEFINE(HAVE_ARES)
-fi
-AC_SUBST(ARES_LIBS)])
-
-AC_DEFUN([ATHENA_ARES_REQUIRED],
-[AC_ARG_WITH(ares,
-	[  --with-ares=PREFIX      Specify location of libares],
-	[ares="$withval"], [ares=yes])
-if test "$ares" != no; then
-	ATHENA_ARES_CHECK
-else
-	AC_MSG_ERROR(This package requires libares.)
-fi])
 dnl ----- zephyr -----
 
 AC_DEFUN([ATHENA_ZEPHYR_CHECK],
