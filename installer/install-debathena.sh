@@ -80,12 +80,12 @@ echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more)."
 echo ""
-echo "Note: by enabling this option, you hereby agree with the license terms at:"
+echo "Note: by installing this package, you hereby agree with the license terms at:"
 echo "  <http://dlc.sun.com/dlj/DLJ-v1.1.txt> Sun's Operating System Distributor"
 echo "  License for Java version 1.1."
 echo ""
-if [ cluster = $category ] ; then
-  echo "Cluster install detected, so installing extras."
+if [ cluster = $category -o workstation = $category ] ; then
+  echo "The extra-software package is required for '$category' and will be installed."
   csoft=yes
   # Not setting tsoft=yes here; -cluster will pull it in anyway.
 else
