@@ -8,6 +8,8 @@
 # This moves any source or binary package built from the source
 # package PACKAGE
 
+set -e
+
 : ${DEBATHENA_APT=/mit/debathena/apt}
 . $(dirname "$0")/debian-versions.sh
 
