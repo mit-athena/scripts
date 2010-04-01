@@ -60,6 +60,7 @@ packages=packages
 
 if [ ! -r "$packages" ]; then
     packages=/mit/debathena/packages/packages
+fi
 if [ ! -r "$packages" ]; then
   echo "Can't read packages file; create with gen-packages." >&2
   exit 1

@@ -1,5 +1,5 @@
-suite := squeeze
-psuite := lenny
+suite := lucid
+psuite := karmic
 STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
 package = $(STAMPS)/$(1).done
@@ -18,7 +18,7 @@ $(call package,%):
 		echo "screen sh -c '$(CURDIR)/do-build $* $(STAMPS)/$* $(suite) $(psuite)'" > "$$file" && \
 		echo "other" >> "$$file" && \
 		screen -X source "$$file" && \
-		sleep 1 && \
+		sleep 2 && \
 		rm -f "$$file"
 	[ -e $(STAMPS)/$*.started ]
 	while ! [ -e $(STAMPS)/$*.done ] && ! [ -e $(STAMPS)/$*.error ]; do sleep 1; done
