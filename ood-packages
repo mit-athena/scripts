@@ -56,12 +56,16 @@ else
   loc=/afs/dev.mit.edu/source/src-svn
 fi
 
-if [ ! -r packages ]; then
+packages=packages
+
+if [ ! -r "$packages" ]; then
+    packages=/mit/debathena/packages/packages
+if [ ! -r "$packages" ]; then
   echo "Can't read packages file; create with gen-packages." >&2
   exit 1
 fi
 
-exec <packages
+exec <"$packages"
 while read pkg path; do
   # Get the version from the apt repository, checking that it is
   # consistent across all dists.
