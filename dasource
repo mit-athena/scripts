@@ -116,6 +116,7 @@ fi
 if [ $# -gt 0 ]; then
   # Build specific source packages.
   for pkgname; do
+    pkgname="${pkgname%/}"
     pkgpath=$(sed -nre "s/^$pkgname[[:space:]]+//p" "$packages")
     [ -n "$pkgpath" ] || die "Can't find package $pkgname"
     do_package $pkgname $pkgpath
