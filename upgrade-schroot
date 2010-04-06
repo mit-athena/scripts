@@ -5,5 +5,7 @@
 # Updates the system packages in one or more schroots.
 
 for i in "$@"; do
-    schroot -u root -c "$i" -- sh -c 'apt-get update && apt-get -y dist-upgrade && apt-get -y autoremove && apt-get clean'
+    sbuild-update "$@"
+    sbuild-distupgrade "$@"
+    sbuild-clean -c -r "$@"
 done
