@@ -198,12 +198,7 @@ esac
 output "Adding the Debathena repository to the apt sources"
 output "(This may cause the update manager to claim new upgrades are available."
 output "Ignore them until this script is complete.)"
-if [ -d /etc/apt/sources.list.d ]; then
-  sourceslist=/etc/apt/sources.list.d/debathena.list
-else
-  # dapper is the only "current" platform that doesn't support sources.list.d
-  sourceslist=/etc/apt/sources.list
-fi
+sourceslist=/etc/apt/sources.list.d/debathena.list
 
 if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   if [ -e "$sourceslist" ]; then
