@@ -21,7 +21,7 @@ gettag() {
             echo "~ubuntu9.10"
             ;;
 	lucid)
-	    echo "~ubuntu10.04~0.1"
+	    echo "~ubuntu10.04~0.2"
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
