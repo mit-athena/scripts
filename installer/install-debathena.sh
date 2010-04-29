@@ -185,7 +185,7 @@ distro=`lsb_release -cs`
 case $distro in
 lenny|squeeze)
   ;;
-hardy|intrepid|jaunty|karmic)
+hardy|intrepid|jaunty|karmic|lucid)
   ubuntu=yes
   ;;
 *)
