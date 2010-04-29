@@ -95,17 +95,15 @@ if [ -n "$missing" ]; then
     [ "$a" = "y" ]
 fi
 
-REPREPRO="v dareprepro"
-
 for code in $DEBIAN_CODES; do
-    $REPREPRO include "${code}${release}" "$change"
+    v dareprepro include "${code}${release}" "$change"
 done
 
 if [ $S -ne 1 ]; then
     for code in $DEBIAN_CODES; do
 	tag=$(gettag "$code")
-	[ $A -eq 1 ] || $REPREPRO include "${code}${release}" "${base}${tag}_i386.changes"
-	$REPREPRO include "${code}${release}" "${base}${tag}_amd64.changes"
+	[ $A -eq 1 ] || v dareprepro include "${code}${release}" "${base}${tag}_i386.changes"
+	v dareprepro "${code}${release}" "${base}${tag}_amd64.changes"
     done
 fi
 
