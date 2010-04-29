@@ -19,7 +19,6 @@
 
 set -e
 
-: ${DEBATHENA_APT=/mit/debathena/apt}
 . $(dirname "$0")/debian-versions.sh
 
 die() {
@@ -72,7 +71,7 @@ while read pkg path; do
   # consistent across all dists.
   lastver=
   for dist in $DEBIAN_CODES; do
-    aptver=$(reprepro -Vb "$DEBATHENA_APT" list "$dist" "$pkg" \
+    aptver=$(dareprepro list "$dist" "$pkg" \
           | awk '/source:/ { print $3 }')
     if [ -n "$lastver" -a "x$aptver" != "x$lastver" ]; then
       echo -n "WARNING: Inconsistent versions for $pkg: "

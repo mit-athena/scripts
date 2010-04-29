@@ -24,7 +24,6 @@ usage() {
   die "dasource [-r repos] [packagename ...]"
 }
 
-: ${DEBATHENA_APT=/mit/debathena/apt}
 basedir=$(dirname "$0")
 repo=svn+ssh://svn.mit.edu/athena/trunk
 

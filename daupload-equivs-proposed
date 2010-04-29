@@ -10,8 +10,6 @@
 
 . $(dirname "$0")/debian-versions.sh
 
-: ${DEBATHENA_APT=/mit/debathena/apt}
-
 case "$(basename "$0")" in
     daupload-equivs)
         release=""
@@ -34,5 +32,5 @@ if [ -z "$1" ]; then
 fi
 
 for code in $DEBIAN_CODES; do
-    reprepro -Vb $DEBATHENA_APT --ignore=wrongdistribution include "${code}${release}" "$1"
+    dareprepro include "${code}${release}" "$1"
 done

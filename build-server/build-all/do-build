@@ -75,16 +75,16 @@ fi
 #    :
 #done
 
-REPREPRO="reprepro -Vb ${DEBATHENA_APT}"
+REPREPRO="dareprepro"
 
 (
     flock -x 200
     files=
     for change in $changes; do
 	if [ "$change" = "${dsc%.dsc}_source.changes" ]; then
-	    $REPREPRO --ignore=wrongdistribution include "$suite" "$change"
+	    $REPREPRO include "$suite" "$change"
 	else
-	    $REPREPRO --ignore=wrongdistribution include "$suite" "$change"
+	    $REPREPRO include "$suite" "$change"
 	    files=$files\ $change\ $(perl -0ne '$_ =~ /\nFiles: *\n(( [^\n]*\n)*)/; print $1;' "$change" | awk '{print $5}' | grep -v '\.orig\.tar\.gz$' || :)
 	fi
     done

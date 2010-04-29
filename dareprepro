@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Usage: dareprepro <reprepro args>
+
+# A wrapper around reprepro to set the Debathena-specific options that
+# should always be set
+
+: ${DEBATHENA_APT=/mit/debathena/apt}
+
+reprepro -Vb "$DEBATHENA_APT" --ignore=wrongdistribution "$@"

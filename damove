@@ -10,7 +10,6 @@
 
 set -e
 
-: ${DEBATHENA_APT=/mit/debathena/apt}
 . $(dirname "$0")/debian-versions.sh
 
 if [ "$#" -ne 3 ]; then

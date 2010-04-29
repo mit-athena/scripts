@@ -8,7 +8,6 @@
 # This removes any source or binary package built from the source
 # package PACKAGE
 
-: ${DEBATHENA_APT=/mit/debathena/apt}
 . $(dirname "$0")/debian-versions.sh
 
 if [ "$#" -ne 2 ]; then
@@ -17,5 +16,5 @@ if [ "$#" -ne 2 ]; then
 fi
 
 for code in $DEBIAN_CODES; do
-    reprepro -Vb $DEBATHENA_APT removesrc "${code}${1}" "$2"
+    dareprepro removesrc "${code}${1}" "$2"
 done

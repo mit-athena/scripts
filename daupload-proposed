@@ -17,7 +17,6 @@ set -e
 
 # This script will skip dists listed in ./nobuild.
 
-: ${DEBATHENA_APT=/mit/debathena/apt}
 . $(dirname "$0")/debian-versions.sh
 
 case "$(basename "$0")" in
@@ -96,18 +95,17 @@ if [ -n "$missing" ]; then
     [ "$a" = "y" ]
 fi
 
-REPREPRO="v reprepro -Vb $DEBATHENA_APT"
-REPREPROI="$REPREPRO --ignore=wrongdistribution"
+REPREPRO="v dareprepro"
 
 for code in $DEBIAN_CODES; do
-    $REPREPROI include "${code}${release}" "$change"
+    $REPREPRO include "${code}${release}" "$change"
 done
 
 if [ $S -ne 1 ]; then
     for code in $DEBIAN_CODES; do
 	tag=$(gettag "$code")
-	[ $A -eq 1 ] || $REPREPROI include "${code}${release}" "${base}${tag}_i386.changes"
-	$REPREPROI include "${code}${release}" "${base}${tag}_amd64.changes"
+	[ $A -eq 1 ] || $REPREPRO include "${code}${release}" "${base}${tag}_i386.changes"
+	$REPREPRO include "${code}${release}" "${base}${tag}_amd64.changes"
     done
 fi
 
