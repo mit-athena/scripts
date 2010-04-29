@@ -87,7 +87,7 @@ do_package() {
   # Add autoconf goo if it's an Athena source directory.
   case $pkgpath in
   athena/*)
-    if [ -e "$basedir/configure.in" ]; then
+    if [ -e "$dir/configure.in" ]; then
 	(cd $dir && $basedir/daconfiscate)
     fi
     ;;
