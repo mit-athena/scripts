@@ -103,7 +103,7 @@ if [ $S -ne 1 ]; then
     for code in $DEBIAN_CODES; do
 	tag=$(gettag "$code")
 	[ $A -eq 1 ] || v dareprepro include "${code}${release}" "${base}${tag}_i386.changes"
-	v dareprepro "${code}${release}" "${base}${tag}_amd64.changes"
+	v dareprepro include "${code}${release}" "${base}${tag}_amd64.changes"
     done
 fi
 
