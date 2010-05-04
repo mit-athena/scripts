@@ -71,7 +71,12 @@ while read pkg path; do
   # consistent across all dists.
   lastver=
   for dist in $DEBIAN_CODES; do
-    aptver=$(dareprepro list "$dist" "$pkg" \
+    if dareprepro list "${dist}-proposed" "$pkg" | grep -q 'source: '; then
+      release=-proposed
+    else
+      release=''
+    fi
+    aptver=$(dareprepro list "${dist}${release}" "$pkg" \
           | awk '/source:/ { print $3 }')
     if [ -n "$lastver" -a "x$aptver" != "x$lastver" ]; then
       echo -n "WARNING: Inconsistent versions for $pkg: "
