@@ -4,7 +4,3 @@ deb http://localhost:9999/ubuntu lucid-updates main restricted universe
 deb-src http://localhost:9999/ubuntu lucid-updates main restricted universe
 deb http://localhost:9999/ubuntu-security lucid-security main restricted universe
 deb-src http://localhost:9999/ubuntu-security lucid-security main restricted universe
-deb http://localhost:9999/debathena lucid debathena debathena-config
-deb-src http://localhost:9999/debathena lucid debathena debathena-config
-deb http://localhost:9999/debathena lucid-proposed debathena debathena-config
-deb-src http://localhost:9999/debathena lucid-proposed debathena debathena-config

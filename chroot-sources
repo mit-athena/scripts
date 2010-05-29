@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Usage: dasources
+
+# Adjust /etc/apt/sources.list.d/debathena.list using the
+# DEBATHENA_RELEASE environment variable (set to either "",
+# "-proposed", or "-development"),
+#
+# If DEBATHENA_RELEASE is unset, assume we're building for -proposed.
+
+: ${DEBATHENA_RELEASE=-proposed}
+: ${DEBATHENA_MIRROR:=http://debathena.mit.edu/apt}
+dist="$SBUILD_BUILD_CONF_DISTRIBUTION"
+list=/etc/apt/sources.list.d/debathena.list
+
+rm -f "$list"
+
+cat >>"$list" <<EOF
+deb $DEBATHENA_MIRROR $dist debathena debathena-config
+deb-src $DEBATHENA_MIRROR $dist debathena debathena-config
+EOF
+
+if [ "$DEBATHENA_RELEASE" = "-proposed" ] || [ "$DEBATHENA_RELEASE" = "-development" ]; then
+deb $DEBATHENA_MIRROR ${dist}-proposed debathena debathena-config
+deb-src $DEBATHENA_MIRROR ${dist}-proposed debathena debathena-config
+EOF
+fi
+
+if [ "$DEBATHENA_RELEASE" = "-development" ]; then
+    cat >>"$list" <<EOF
+deb $DEBATHENA_MIRROR ${dist}-development debathena debathena-config
+deb-src $DEBATHENA_MIRROR ${dist}-development debathena debathena-config
+EOF
+fi
+
+DEBIAN_FRONTEND=noninteractive apt-get update

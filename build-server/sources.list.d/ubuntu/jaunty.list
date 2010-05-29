@@ -4,7 +4,3 @@ deb http://localhost:9999/ubuntu jaunty-updates main restricted universe
 deb-src http://localhost:9999/ubuntu jaunty-updates main restricted universe
 deb http://localhost:9999/ubuntu-security jaunty-security main restricted universe
 deb-src http://localhost:9999/ubuntu-security jaunty-security main restricted universe
-deb http://localhost:9999/debathena jaunty debathena debathena-config
-deb-src http://localhost:9999/debathena jaunty debathena debathena-config
-deb http://localhost:9999/debathena jaunty-proposed debathena debathena-config
-deb-src http://localhost:9999/debathena jaunty-proposed debathena debathena-config

@@ -6,6 +6,8 @@ suite=$3
 psuite=$4
 : ${DEBATHENA_APT=/mit/debathena/apt}
 : ${DEBATHENA_BUILD_AREA=/afs/sipb.mit.edu/project/debathena/packages}
+: ${DEBATHENA_RELEASE=""}
+export DEBATHENA_RELEASE
 . /mit/debathena/bin/debian-versions.sh
 tag=$(gettag $suite)
 [ -n "$1" ]
