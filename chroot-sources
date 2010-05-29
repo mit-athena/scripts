@@ -3,7 +3,7 @@
 # Usage: dasources
 
 # Adjust /etc/apt/sources.list.d/debathena.list using the
-# DEBATHENA_RELEASE environment variable (set to either "",
+# DEBATHENA_RELEASE environment variable (set to either "production",
 # "-proposed", or "-development"),
 #
 # If DEBATHENA_RELEASE is unset, assume we're building for -proposed.
