@@ -30,5 +30,5 @@ fi
 sbuild --append-to-version=`gettag "$dist"` \
 	-d "$dist" --arch="$arch" \
 	--apt-update --apt-distupgrade \
-	--setup-hook="$(dirname "$0")/chroot-sources" \
+	--setup-hook="$(readlink -f "$(dirname "$0")/chroot-sources")" \
 	-v "$@"
