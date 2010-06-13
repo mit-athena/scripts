@@ -119,7 +119,16 @@ if [ $# -gt 0 ]; then
   for pkgname; do
     pkgname="${pkgname%/}"
     pkgpath=$(sed -nre "s/^$pkgname[[:space:]]+//p" "$packages")
-    [ -n "$pkgpath" ] || die "Can't find package $pkgname"
+    if ! [ -n "$pkgpath" ]; then
+	echo "Can't find package $pkgname" >&2
+	echo >&2
+	echo "This may be because the list of packages is not up to date. If" >&2
+	echo "this is a new package, and you have the bits, run gen-packages" >&2
+	echo "with /mit/debathena/packages as your working directory." >&2
+	echo "Otherwise, run gen-packages in this directory and dasource will" >&2
+	echo "use the generated file instead." >&2
+	die
+    fi
     do_package $pkgname $pkgpath
   done
 else
