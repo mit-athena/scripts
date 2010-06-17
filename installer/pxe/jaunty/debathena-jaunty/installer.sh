@@ -135,28 +135,25 @@ while [ -z "$pxetype" ] ; do
     4)
       echo "Here's a shell.  You'll return to this prompt when done."
       /bin/sh;;
-    9a)
-      echo "OK, configuring net and then switching to a karmic install."
+      
+    9) # switch to Lucid with architecture autodetect
+      if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo
+	then arch=amd64 ; else arch=i386 ; fi
+      echo "OK, configuring net and then switching to a lucid $arch cluster install."
       netconfig
       mkdir /h; cd /h
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/hackboot-karmic.sh
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/karmic/initrd.gz
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/karmic/linux
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/kexec
-      chmod 755 kexec hackboot-karmic.sh
-      ./hackboot-karmic.sh -f
-      echo "Well, that didn't work.  Here's a shell."
-      /bin/sh;;
-    9b)
-      echo "OK, configuring net and then switching to a karmic install."
-      netconfig
-      mkdir /h; cd /h
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/hackboot-karmic.sh
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/karmic64/initrd.gz
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/karmic64/linux
-      wget http://web.mit.edu/afs/dev/user/amb/hackboot/kexec
-      chmod 755 kexec hackboot-karmic.sh
-      ./hackboot-karmic.sh -f
+      wget http://debathena.mit.edu/net-install/kexec
+      wget http://debathena.mit.edu/net-install/lucid/${arch}/initrd.gz
+      wget http://debathena.mit.edu/net-install/lucid/${arch}/linux
+      chmod 755 kexec
+      # This is just the guts of the hackboot script:
+      dkargs="DEBCONF_DEBUG=5"
+      kargs="netcfg/get_hostname= locale=en_US console-setup/layoutcode=us interface=auto \
+	  url=http://18.9.60.73/installer/lucid/debathena.preseed \
+	  debathena/clusterforce=yes debathena/clusteraddr=$IPADDR --"
+      echo "Self-destruct in 5.  Bai!"
+      ./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
+	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
       echo "Well, that didn't work.  Here's a shell."
       /bin/sh;;
     *)
