@@ -160,19 +160,6 @@ if [ "$pxetype" ] ; then
     # Free up designated LVM overhead.
     lvremove -f /dev/athena/keep_2 || :
 
-    if [ "$distro" = intrepid ] ; then
-      # This makes gx755s suck less with Intrepid's slightly broken xorg modules.
-      # (It's likely we'll want some hardware-specific stuff for Jaunty as well.)
-      if lspci -n|grep -q 1002:94c1 && ! grep -q radeonhd /etc/X11/xorg.conf ; then
-        DEBIAN_FRONTEND=noninteractive aptitude -y install xserver-xorg-video-radeonhd
-        cat >> /etc/X11/xorg.conf <<EOF
-Section "Device"
-	Identifier "Configured Video Device"
-	Driver "radeonhd"
-EndSection
-EOF
-      fi
-    fi
   fi
 else
   output "Press return to begin or control-C to abort"
