@@ -57,7 +57,7 @@ d-i partman-auto/expert_recipe_file string /debathena-lucid/lvm-cluster-machine.
 # This is completely undocumented.  Sigh.
 d-i partman-auto-lvm/new_vg_name string athena
 # As reported in Trac #253
-d-i partman-auto-lvm/guided_size max
+d-i partman-auto-lvm/guided_size string max
 # Don't punt for no-method filesystems.  Another undocumented option.
 d-i partman-basicmethods/method_only boolean false
 
@@ -66,6 +66,7 @@ d-i partman-basicmethods/method_only boolean false
 d-i partman/confirm_write_new_label boolean true
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
 
 ### Base system installation
 # Select the initramfs generator used to generate the initrd for 2.6 kernels.
