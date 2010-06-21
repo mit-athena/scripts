@@ -57,7 +57,7 @@ d-i partman-auto/expert_recipe_file string /debathena-karmic/lvm-cluster-machine
 # This is completely undocumented.  Sigh.
 d-i partman-auto-lvm/new_vg_name string athena
 # As reported in Trac #253
-d-i partman-auto-lvm/guided_size max
+d-i partman-auto-lvm/guided_size string max
 # Don't punt for no-method filesystems.  Another undocumented option.
 d-i partman-basicmethods/method_only boolean false
 
