@@ -33,4 +33,4 @@ d-i clock-setup/ntp boolean true
 # packages and run commands in the target system.
 #d-i preseed/late_command string apt-install zsh; in-target chsh -s /bin/zsh
 
-d-i preseed/late_command string sh /debathena-lucid/postinstall.sh
+d-i preseed/late_command string sh /debathena/postinstall.sh
