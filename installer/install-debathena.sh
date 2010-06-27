@@ -195,6 +195,22 @@ if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   echo "deb-src http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
 fi
 
+if [ -z "$hostname" ] ; then hostname=`hostname` ; fi
+hescluster=`dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT \
+    |sed -e 's/"$//' -ne '/^"apt_release /s/"apt_release //p'`
+
+if [ development = "$hescluster" -o proposed = "$hescluster" ] ; then
+  echo "Adding $distro-proposed apt repository."
+  echo "deb http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $sourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $sourceslist
+fi
+
+if [ development = "$hescluster" ] ; then
+  echo "Adding $distro-development apt repository."
+  echo "deb http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $sourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $sourceslist
+fi
+
 if [ "$ubuntu" = "yes" ]; then
   output "Making sure the universe repository is enabled"
   sed -i 's,^# \(deb\(\-src\)* http://archive.ubuntu.com/ubuntu [[:alnum:]]* universe\)$,\1,' /etc/apt/sources.list
