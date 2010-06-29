@@ -18,7 +18,17 @@ if ! chroot_setup; then
 fi
 
 chvt 5
-chroot /target sh /root/install-debathena.sh < /dev/tty5 > /dev/tty5 2>&1
+if ! chroot /target sh /root/install-debathena.sh < /dev/tty5 > /dev/tty5 2>&1
+then
+  echo "WARNING: your debathena postinstall has returned an error;" > /dev/tty5
+  echo "see above for details." > /dev/tty5
+  echo > /dev/tty5
+  echo "This shell is provided for debugging purposes.  When you exit" > /dev/tty5
+  echo "the shell, your system will reboot into the newly-installed"  > /dev/tty5
+  echo "system, though depending on the failure you may see continuing issues." > /dev/tty5
+  /bin/sh < /dev/tty5 > /dev/tty5 2>&1
+fi
+
 # This approach fails due to lingering processes keeping the
 # pipeline open and the script hung.
 # chroot /target sh /root/install-debathena.sh < /dev/tty5 2>&1 \
