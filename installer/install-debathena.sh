@@ -76,6 +76,7 @@ mainpackage=debathena-$category
 
 csoft=no
 tsoft=no
+resolvconfhack=no
 echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more)."
@@ -85,6 +86,8 @@ echo "  <http://dlc.sun.com/dlj/DLJ-v1.1.txt> Sun's Operating System Distributor
 echo "  License for Java version 1.1."
 echo ""
 if [ cluster = $category -o workstation = $category ] ; then
+  # See Trac #648 and LP:471975
+  resolvconfhack=yes
   echo "The extra-software package is required for '$category' and will be installed."
   csoft=yes
   # Not setting tsoft=yes here; -cluster will pull it in anyway.
@@ -168,6 +171,10 @@ fi
 
 output "Installing Debathena installer dependencies: lsb-release and wget"
 aptitude -y install lsb-release wget
+if [ yes = "$resolvconfhack" ]; then
+  output "Installing resolvconf ahead of time"
+  aptitude -y install resolvconf
+fi
 distro=`lsb_release -cs`
 case $distro in
 lenny|squeeze)
