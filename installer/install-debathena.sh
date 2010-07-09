@@ -166,8 +166,8 @@ else
   read dummy
 fi
 
-output "Installing lsb-release to determine system type"
-aptitude -y install lsb-release
+output "Installing Debathena installer dependencies: lsb-release and wget"
+aptitude -y install lsb-release wget
 distro=`lsb_release -cs`
 case $distro in
 lenny|squeeze)
