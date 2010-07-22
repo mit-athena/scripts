@@ -169,8 +169,8 @@ else
   read dummy
 fi
 
-output "Installing Debathena installer dependencies: lsb-release and wget"
-aptitude -y install lsb-release wget
+output "Installing Debathena installer dependencies: lsb-release, wget, and dnsutils"
+aptitude -y install lsb-release wget dnsutils
 if [ yes = "$resolvconfhack" ]; then
   output "Installing resolvconf ahead of time"
   aptitude -y install resolvconf
@@ -193,6 +193,10 @@ output "Adding the Debathena repository to the apt sources"
 output "(This may cause the update manager to claim new upgrades are available."
 output "Ignore them until this script is complete.)"
 sourceslist=/etc/apt/sources.list.d/debathena.list
+clustersourceslist=/etc/apt/sources.list.d/debathena.clusterinfo.list
+if [ -z "$hostname" ] ; then hostname=`hostname` ; fi
+hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT \
+    |sed -e 's/"$//' -ne 's/^"apt_release //p') || hescluster=""
 
 if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   if [ -e "$sourceslist" ]; then
@@ -202,20 +206,21 @@ if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   echo "deb-src http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
 fi
 
-if [ -z "$hostname" ] ; then hostname=`hostname` ; fi
-hescluster=`dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT \
-    |sed -e 's/"$//' -ne '/^"apt_release /s/"apt_release //p'`
-
 if [ development = "$hescluster" -o proposed = "$hescluster" ] ; then
   echo "Adding $distro-proposed apt repository."
-  echo "deb http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $sourceslist
-  echo "deb-src http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $sourceslist
+  echo "# This file is automatically updated by debathena-auto-update" >> $clustersourceslist
+  echo "# based on your Hesiod cluster information. If you want to" >> $clustersourceslist
+  echo "# make changes, do so in another file." >> $clustersourceslist
+  echo "" >> $clustersourceslist
+
+  echo "deb http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $clustersourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $clustersourceslist
 fi
 
 if [ development = "$hescluster" ] ; then
   echo "Adding $distro-development apt repository."
-  echo "deb http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $sourceslist
-  echo "deb-src http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $sourceslist
+  echo "deb http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $clustersourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $clustersourceslist
 fi
 
 if [ "$ubuntu" = "yes" ]; then
