@@ -148,10 +148,24 @@ while [ -z "$pxetype" ] ; do
       chmod 755 kexec
       # This is just the guts of the hackboot script:
       dkargs="DEBCONF_DEBUG=5"
-      kargs="netcfg/get_hostname= locale=en_US console-setup/layoutcode=us interface=auto \
+      if [ "$IPADDR" = dhcp ] ; then
+        knetinfo="netcfg/get_hostname= "
+      else
+        # There's no good way to get a hostname here, but the postinstall will deal.
+	hname=install-target-host
+        knetinfo="netcfg/disable_dhcp=true \
+          netcfg/get_domain=mit.edu \
+          netcfg/get_hostname=$hname \
+          netcfg/get_nameservers=18.72.0.3 \
+          netcfg/get_ipaddress=$IPADDR \
+          netcfg/get_netmask=$NETMASK \
+          netcfg/get_gateway=$GATEWAY \
+          netcfg/confirm_static=true"
+      fi
+      kargs="$knetinfo locale=en_US console-setup/layoutcode=us interface=auto \
 	  url=http://18.9.60.73/installer/lucid/debathena.preseed \
 	  debathena/clusterforce=yes debathena/clusteraddr=$IPADDR --"
-      echo "Self-destruct in 5.  Bai!"
+      echo "Restarting into installer in five seconds."
       ./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
 	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
       echo "Well, that didn't work.  Here's a shell."
