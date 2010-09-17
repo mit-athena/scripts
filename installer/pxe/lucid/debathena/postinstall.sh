@@ -18,8 +18,15 @@ if ! chroot_setup; then
 fi
 
 chvt 5
-if ! chroot /target sh /root/install-debathena.sh < /dev/tty5 > /dev/tty5 2>&1
-then
+
+# Something like this approach was once said to fail due to lingering
+# processes keeping the pipeline open and the script hung.  According to
+# trac#225 this doesn't happen any more.
+(chroot /target sh /root/install-debathena.sh < /dev/tty5 2>&1 \
+     && touch /debathena/install-succeeded) \
+     | chroot /target tee /var/log/athena-install.log > /dev/tty5
+
+if ! [ -e /debathena/install-succeeded ]; then
   echo "WARNING: your debathena postinstall has returned an error;" > /dev/tty5
   echo "see above for details." > /dev/tty5
   echo > /dev/tty5
@@ -29,10 +36,6 @@ then
   /bin/sh < /dev/tty5 > /dev/tty5 2>&1
 fi
 
-# This approach fails due to lingering processes keeping the
-# pipeline open and the script hung.
-# chroot /target sh /root/install-debathena.sh < /dev/tty5 2>&1 \
-#     | chroot /target tee /var/log/athena-install.log > /dev/tty5
 sleep 5
 
 chroot_cleanup
