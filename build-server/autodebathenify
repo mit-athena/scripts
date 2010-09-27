@@ -36,6 +36,19 @@ fi
 
 suppress=$HOME/autodebathenify.suppress
 if [ -e "$suppress" ]; then
+  if [ $(($(date +%s) - $(stat -c %Y "$suppress"))) -ge 86400 ]; then
+    /usr/sbin/sendmail -t << EOM
+From: Autodebathenify <$error_addr>
+To: Autodebathenify <$error_addr>
+Subject: WARNING: Previous autodebathenify failure has not been addressed
+
+Autodebathenify previously experienced a failure on $(stat -c %y "$suppress")
+
+Please correct this failure immediately.
+
+Autodebathenify will stop running until $suppress is removed.
+EOM
+  fi
   echo "$suppress exists; not running."
   exit
 fi
