@@ -6,7 +6,7 @@ suite=$3
 psuite=$4
 : ${DEBATHENA_APT=/mit/debathena/apt}
 : ${DEBATHENA_BUILD_AREA=/afs/sipb.mit.edu/project/debathena/packages}
-: ${DEBATHENA_RELEASE=""}
+: ${DEBATHENA_RELEASE=-development}
 export DEBATHENA_RELEASE
 . /mit/debathena/bin/debian-versions.sh
 tag=$(gettag $suite)
@@ -82,9 +82,9 @@ fi
     files=
     for change in $changes; do
 	if [ "$change" = "${dsc%.dsc}_source.changes" ]; then
-	    dareprepro include "$suite" "$change"
+	    dareprepro include "$suite$DEBATHENA_RELEASE" "$change"
 	else
-	    dareprepro include "$suite" "$change"
+	    dareprepro include "$suite$DEBATHENA_RELEASE" "$change"
 	    files=$files\ $change\ $(perl -0ne '$_ =~ /\nFiles: *\n(( [^\n]*\n)*)/; print $1;' "$change" | awk '{print $5}' | grep -v '\.orig\.tar\.gz$' || :)
 	fi
     done
