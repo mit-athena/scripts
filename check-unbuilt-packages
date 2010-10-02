@@ -1,0 +1,9 @@
+#!/bin/sh
+
+while read package path; do
+    svnversion=$(svn cat svn+ssh://svn.mit.edu/athena/trunk/"$path"/debian/changelog | dpkg-parsechangelog -l- | sed -n 's/^Version: //p')
+    aptversion=$(apt-cache showsrc "$package" | sed -n 's/^Version: //p')
+    if [ "$svnversion" != "$aptversion" ]; then
+        echo "$package is $svnversion in svn and $aptversion in apt"
+    fi
+done < /mit/debathena/packages/packages
