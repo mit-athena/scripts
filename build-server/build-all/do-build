@@ -61,7 +61,7 @@ if [ -e "${dsc%.dsc}_amd64.changes" ] || [ -e "${dsc%.dsc}_i386.changes" ]; then
     fi
     debfile="$(dpkg-awk -f "$changes" -- Files | awk '$5 ~ /_all\.deb$/ {print $5}')"
     [ -e "$debfile" ]
-    dpkg --fsys-tarfile "$debfile" | tar xO ./usr/share/doc/"$package"/README.Debian | fgrep -q 'The special dependencies used in this package are:'
+    dpkg --fsys-tarfile "$debfile" | tar xO ./usr/share/doc/"$package"/README.Debian | egrep -q '(The special dependencies used in this package are:|This is a Debathena manual configuration package)'
 else
     # This is a normal (non-equivs) package, so we want to build it for this
     # release.
