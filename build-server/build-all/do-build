@@ -49,7 +49,7 @@ fi
 [ -e "$dsc" ]
 
 if [ -e "${dsc%.dsc}_amd64.changes" ] || [ -e "${dsc%.dsc}_i386.changes" ]; then
-    # If there is no ~debianX.Y tag in the .changes file, this should be an
+    # If there is no ~debianX.Y tag in the .changes filename, this should be an
     # equivs package. Set variables and check that it is, in fact, an equivs
     # package. Note that it should be built already (since we build equivs
     # packages once and upload them to all releases).
@@ -59,7 +59,7 @@ if [ -e "${dsc%.dsc}_amd64.changes" ] || [ -e "${dsc%.dsc}_i386.changes" ]; then
 	changes="${dsc%.dsc}_i386.changes"
 	buildlog="${dsc%.dsc}_i386.build"
     fi
-    debfile="$(dpkg-awk -f "$dsc" -- Files | awk '$5 ~ /_all\.deb$/ {print $5}')"
+    debfile="$(dpkg-awk -f "$changes" -- Files | awk '$5 ~ /_all\.deb$/ {print $5}')"
     [ -e "$debfile" ]
     dpkg --fsys-tarfile "$debfile" | tar xO ./usr/share/doc/"$package"/README.Debian | fgrep -q 'The special dependencies used in this package are:'
 else
