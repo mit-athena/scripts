@@ -49,14 +49,22 @@ fi
 [ -e "$dsc" ]
 
 if [ -e "${dsc%.dsc}_amd64.changes" ] || [ -e "${dsc%.dsc}_i386.changes" ]; then
+    # If there is no ~debianX.Y tag in the .changes file, this should be an
+    # equivs package. Set variables and check that it is, in fact, an equivs
+    # package. Note that it should be built already (since we build equivs
+    # packages once and upload them to all releases).
     changes="${dsc%.dsc}_amd64.changes"
     buildlog="${dsc%.dsc}_amd64.build"
     if [ ! -e $changes ]; then
 	changes="${dsc%.dsc}_i386.changes"
 	buildlog="${dsc%.dsc}_i386.build"
     fi
-    grep -q 'dpkg-source.* -b equivs' $buildlog
+    debfile="$(dpkg-awk -f "$dsc" -- Files | awk '$5 ~ /_all\.deb$/ {print $5}')"
+    [ -e "$debfile" ]
+    dpkg --fsys-tarfile "$debfile" | tar xO ./usr/share/doc/"$package"/README.Debian | fgrep -q 'The special dependencies used in this package are:'
 else
+    # This is a normal (non-equivs) package, so we want to build it for this
+    # release.
     [ -e "${dsc%.dsc}_source.changes" ]
     changes="${dsc%.dsc}_source.changes"
     A=1
