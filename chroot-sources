@@ -1,14 +1,14 @@
 #!/bin/bash
 
-# Usage: dasources
+# Usage (e.g.): sbuild --chroot-sources=/path/to/chroot-sources
 
 # Adjust /etc/apt/sources.list.d/debathena.list using the
 # DEBATHENA_RELEASE environment variable (set to either "production",
 # "-proposed", or "-development"),
 #
-# If DEBATHENA_RELEASE is unset, assume we're building for -proposed.
+# If DEBATHENA_RELEASE is unset, assume we're building out of -development.
 
-: ${DEBATHENA_RELEASE=-proposed}
+: ${DEBATHENA_RELEASE=-development}
 : ${DEBATHENA_MIRROR:=http://debathena.mit.edu/apt}
 dist="$SBUILD_BUILD_CONF_DISTRIBUTION"
 list=/etc/apt/sources.list.d/debathena.list
