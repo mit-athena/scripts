@@ -169,6 +169,11 @@ else
   read dummy
 fi
 
+if ! hash aptitude >/dev/null 2>&1; then
+  output "Installing Debathena installer dependency: aptitude"
+  apt-get -y install aptitude
+fi
+
 output "Installing Debathena installer dependencies: lsb-release, wget, and dnsutils"
 aptitude -y install lsb-release wget dnsutils
 if [ yes = "$resolvconfhack" ]; then
