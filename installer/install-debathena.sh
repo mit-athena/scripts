@@ -188,8 +188,9 @@ hardy|intrepid|jaunty|karmic|lucid)
   ubuntu=yes
   ;;
 *)
-  error "Your machine seems to not be running a current Debian/Ubuntu release."
-  error "If you believe you are running a current release, contact debathena@mit.edu"
+  error "Your machine seems to not be running a supported Debian/Ubuntu release."
+  error "(New releases may not be supported immediately after their release)."
+  error "If you believe you are running a supported release, contact debathena@mit.edu"
   exit 1
   ;;
 esac
