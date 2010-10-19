@@ -7,7 +7,8 @@ touch preseed
 pxetype=""
 
 # Using debconf here will hang, so parse the command line manually.
-clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
+# Commented out in the belief that hackbooting *into* the jaunty installer is now always the wrong thing.
+# clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
 clusteraddr=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusteraddr | sed -e 's/.*=//'`
 
 if [ "$clusteraddr" ] ; then IPADDR=$clusteraddr ; fi
@@ -88,11 +89,12 @@ while [ -z "$pxetype" ] ; do
   echo "     <http://dlc.sun.com/dlj/DLJ-v1.1.txt>,"
   echo "     Sun's Operating System Distributor License for Java version 1.1."
   echo
-  echo "  2: Do a ${ccc}normal Debathena install${nnn}.  You'll need to answer normal Ubuntu"
-  echo "     install prompts, and then the Athena-specific prompts, including"
-  echo "     choosing which flavor of Debathena you'd like (e.g., private workstation)."
+  echo "  2: Do a ${ccc}normal Debathena install${nnn} of Ubuntu 10.04${nnn} (Lucid Lynx)."
+  echo "     You'll need to answer normal Ubuntu install prompts, and then the"
+  echo "     Athena-specific prompts, including choosing which flavor of Debathena"
+  echo "     you'd like (e.g., private workstation)."
   echo
-  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 9.04${nnn} (Jaunty Jackalope)."
+  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 10.04${nnn} (Lucid Lynx)."
   echo "     (Note: locale and keyboard have already been set.)"
   echo
   echo "  4: /bin/sh (for rescue purposes)"
@@ -103,73 +105,16 @@ while [ -z "$pxetype" ] ; do
     1)
       echo "Debathena CLUSTER it is."; pxetype=cluster ;;
     1a)
-      # Yes, this is undocumented.
-      echo "Debathena CLUSTER it is."; pxetype=cluster
-      echo -n "...but choose a preferred mirror hostname, too: "
-      read mirrorsite
-      echo "Using mirror site $mirrorsite";;
-    1b)
-      # This too.
-      echo "Debathena CLUSTER it is."; pxetype=cluster
-      echo "...but you get to partition by hand. Your hard disk"
-      echo "will not be automatically reformatted."; destroys=notreally
-      echo
-      echo "The default cluster installer sets up:"
-      echo " - a 200MB ext3 /boot partition"
-      echo " - an LVM volume group named 'athena', containing"
-      echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
-      echo "   - a root LV taking up half the remaining space (at least 10 GB)"
-      echo
-      echo "You probably want to set up something similar."
-      echo "Press enter to continue."
-      read r;;
+      echo "Debathena CLUSTER it is, forced to 32-bit."; pxetype=cluster ; arch=i386;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
-    2a)
-      echo "Normal Debathena install it is."; pxetype=choose
-      echo -n "...but choose a preferred mirror hostname, too: "
-      read mirrorsite
-      echo "Using mirror site $mirrorsite";;
     3)
       echo "Vanilla Ubuntu it is."; pxetype=vanilla;;
     4)
       echo "Here's a shell.  You'll return to this prompt when done."
       /bin/sh;;
-      
-    9) # switch to Lucid with architecture autodetect
-      if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo
-	then arch=amd64 ; else arch=i386 ; fi
-      echo "OK, configuring net and then switching to a lucid $arch cluster install."
-      netconfig
-      mkdir /h; cd /h
-      wget http://debathena.mit.edu/net-install/kexec
-      wget http://debathena.mit.edu/net-install/lucid/${arch}/initrd.gz
-      wget http://debathena.mit.edu/net-install/lucid/${arch}/linux
-      chmod 755 kexec
-      # This is just the guts of the hackboot script:
-      dkargs="DEBCONF_DEBUG=5"
-      if [ "$IPADDR" = dhcp ] ; then
-        knetinfo="netcfg/get_hostname= "
-      else
-        # There's no good way to get a hostname here, but the postinstall will deal.
-	hname=install-target-host
-        knetinfo="netcfg/disable_dhcp=true \
-          netcfg/get_domain=mit.edu \
-          netcfg/get_hostname=$hname \
-          netcfg/get_nameservers=18.72.0.3 \
-          netcfg/get_ipaddress=$IPADDR \
-          netcfg/get_netmask=$NETMASK \
-          netcfg/get_gateway=$GATEWAY \
-          netcfg/confirm_static=true"
-      fi
-      kargs="$knetinfo locale=en_US console-setup/layoutcode=us interface=auto \
-	  url=http://18.9.60.73/installer/lucid/debathena.preseed \
-	  debathena/clusterforce=yes debathena/clusteraddr=$IPADDR --"
-      echo "Restarting into installer in five seconds."
-      ./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
-	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
-      echo "Well, that didn't work.  Here's a shell."
-      /bin/sh;;
+    9)
+      echo "There is no option 9.  Option 1 will do a Lucid cluster install.";;
     *)
       echo "Choose one of the above, please.";;
   esac
@@ -213,12 +158,6 @@ else
   netconfig
 fi
 
-if [ vanilla = $pxetype ] ; then
-  echo "Starting normal Ubuntu install in five seconds."
-  sleep 5
-  exit 0
-fi
-
 if [ cluster = "$pxetype" ]; then
   if [ notreally != "$destroys" ]; then
     cat << EOF
@@ -240,39 +179,49 @@ EOF
   fi
 fi
 
-# Shovel in the generically useful preseed stuff regardless.
-egrep -v '(^$|^#)' < preseed.common >> preseed
-
-if [ "$IPADDR" ] ; then
-  # ...and the specified network config.
-  cat >> preseed <<EOF
-d-i netcfg/get_nameservers string 18.72.0.3
-d-i netcfg/get_ipaddress string $IPADDR
-d-i netcfg/get_netmask string $NETMASK
-d-i netcfg/get_gateway string $GATEWAY
-d-i netcfg/confirm_static boolean true
-EOF
-fi
-
-# Perferred hostname of mirror site
-cat >> preseed <<EOF
-d-i apt-setup/hostname string $mirrorsite
-d-i mirror/http/hostname string $mirrorsite
-EOF
-
-# This is used by the final installer step.
-# A hardcoded number is used as DNS may still be iffy.
-echo "Fetching Debathena postinstaller."
-# 18.92.2.195 = OLD athena10.mit.edu
-# 18.9.60.73 = NEW athena10.mit.edu
-wget http://18.9.60.73/install-debathena.sh
-
-# Let the postinstall know what we are up to.
-echo "$pxetype" > $mp/pxe-install-flag
-
-echo "Initial Debathena installer complete; exiting preconfig to start main install."
+echo "Initial Debathena setup complete; ready to reboot into main installer."
 if ! [ "$clusteraddr" -a "$clusterforce" = yes ] ; then
   echo "Hit return to continue."
   read r
 fi
-exit 0
+
+# Fetch secondary (real) installer, invoking as specified above:
+if [ -z "$arch" ] ; then
+  if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo
+    then arch=amd64 ; else arch=i386
+  fi
+fi
+
+echo "Configuring network and fetching next installer phase..."
+# net already configured above
+mkdir /h; cd /h
+wget http://debathena.mit.edu/net-install/kexec
+wget http://debathena.mit.edu/net-install/lucid/${arch}/initrd.gz
+wget http://debathena.mit.edu/net-install/lucid/${arch}/linux
+chmod 755 kexec
+# This is just the guts of the hackboot script:
+dkargs="DEBCONF_DEBUG=5"
+hname=install-target-host
+if [ "$IPADDR" = dhcp ] ; then
+  knetinfo="netcfg/get_hostname=$hname "
+else
+  # There's no good way to get a hostname here, but the postinstall will deal.
+  knetinfo="netcfg/disable_dhcp=true \
+    netcfg/get_domain=mit.edu \
+    netcfg/get_hostname=$hname \
+    netcfg/get_nameservers=18.72.0.3 \
+    netcfg/get_ipaddress=$IPADDR \
+    netcfg/get_netmask=$NETMASK \
+    netcfg/get_gateway=$GATEWAY \
+    netcfg/confirm_static=true"
+fi
+kargs="$knetinfo locale=en_US console-setup/layoutcode=us interface=auto \
+	  url=http://18.9.60.73/installer/lucid/debathena.preseed \
+	  debathena/pxetype=$pxetype debathena/clusteraddr=$IPADDR --"
+echo "Continuing in five seconds..."
+./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
+	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
+echo "Secondary installed failed; please contact release-team@mit.edu"
+echo "with the circumstances of your install attempt.  Here's a shell for debugging:"
+# We don't want to let this fall through to an actual Jaunty install.
+while : ; do /bin/sh ; done
