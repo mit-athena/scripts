@@ -7,12 +7,18 @@ touch preseed
 pxetype=""
 
 # Using debconf here will hang, so parse the command line manually.
+# old options:
+#   debathena/clusterforce: implies pxetype=cluster
+#   debathena/clusteraddr: address to use with above
+# new options:
+#   debathena/pxetype: could be cluster, but could be other things
+
 clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
 clusteraddr=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusteraddr | sed -e 's/.*=//'`
+pxetype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/pxetype | sed -e 's/.*=//'`
 
 if [ "$clusteraddr" ] ; then IPADDR=$clusteraddr ; fi
-
-if [ "$clusteraddr" -a "$clusterforce" = yes ] ; then pxetype=cluster ; fi
+if [ "$clusteraddr" -a "$clusterforce" = yes -a -z "$pxetype" ] ; then pxetype=cluster ; fi
 
 netconfig () {
   echo "Configuring network..."
