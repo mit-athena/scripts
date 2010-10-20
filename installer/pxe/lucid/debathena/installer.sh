@@ -8,7 +8,7 @@ pxetype=""
 
 # Using debconf here will hang, so parse the command line manually.
 # old options:
-#   debathena/clusterforce: implies pxetype=cluster
+#   debathena/clusterforce: implies pxetype=cluster, don't recheck net
 #   debathena/clusteraddr: address to use with above
 # new options:
 #   debathena/pxetype: could be cluster, but could be other things
@@ -41,7 +41,7 @@ netconfig () {
   echo "  Broadcast: $bc"
   echo "  Gateway: $GATEWAY"
 
-  if [ "$clusterforce" != yes ] ; then
+  if [ "$pxetype" != cluster ] ; then
     echo -n "Are these OK? [Y/n]: "; read response
     case $response in
       y|Y|"") ;;
@@ -242,7 +242,7 @@ wget http://18.9.60.73/install-debathena.sh
 echo "$pxetype" > $mp/pxe-install-flag
 
 echo "Initial Debathena installer complete; exiting preconfig to start main install."
-if ! [ "$clusteraddr" -a "$clusterforce" = yes ] ; then
+if ! [ "$clusteraddr" -a "$pxetype" = cluster ] ; then
   echo "Hit return to continue."
   read r
 fi
