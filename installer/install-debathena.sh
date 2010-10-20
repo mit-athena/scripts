@@ -109,6 +109,20 @@ echo "  Extra-software package: $csoft"
 echo "  Third-party software package: $tsoft"
 echo ""
 if [ "$pxetype" ] ; then
+  # Divert the default background and install our own so that failed machines
+  # are more conspicuous
+  echo "Diverting default background..."
+  bgimage=/usr/share/backgrounds/warty-final-ubuntu.png
+  divertedbg=no
+  if dpkg-divert --divert ${bgimage}.debathena --rename $bgimage; then
+      divertedbg=yes
+      if ! wget -N -O $bgimage http://debathena.mit.edu/error-background.png; then
+	  echo "Hrm, that didn't work.  Oh well..."
+	  dpkg-divert --rename --remove $bgimage
+	  divertedbg=no
+      fi
+  fi
+
   # Setup for package installs in a chrooted immediately-postinstall environment.
   echo "Setting locale."
   export LANG
@@ -284,6 +298,13 @@ if [ yes = "$tsoft" ]; then
 fi
 
 # Post-install cleanup for cluster systems.
+if [ "$divertedbg" = "yes" ]; then
+    rm -f $bgimage
+    if ! dpkg-divert --rename --remove $bgimage; then
+	echo "Failed to remove diversion of background.  You probably don't care."
+    fi
+fi
+
 if [ cluster = "$category" ] ; then
   # Force an /etc/adjtime entry so there's no confusion about whether the
   # hardware clock is UTC or local.
