@@ -27,8 +27,8 @@ ask() {
   while [ y != "$answer" -a n != "$answer" ]; do
     printf '\033[38m'; echo -n "$1"; printf '\033[0m'
     read answer
-    [ Y = answer ] && answer=y
-    [ N = answer ] && answer=n
+    [ Y = "$answer" ] && answer=y
+    [ N = "$answer" ] && answer=n
     [ -z "$answer" ] && answer=$2
   done
   output ""
