@@ -179,21 +179,24 @@ EOF
   fi
 fi
 
+# Fetch secondary (real) installer, invoking as specified above:
+if [ -z "$arch" ] ; then
+  if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo
+    then arch=amd64 ; else arch=i386
+  fi
+  echo "Autodetected architecture: $arch."
+else
+  echo "Forced architecture: $arch."
+fi
+
 echo "Initial Debathena setup complete; ready to reboot into main installer."
 if ! [ "$clusteraddr" -a "$clusterforce" = yes ] ; then
   echo "Hit return to continue."
   read r
 fi
 
-# Fetch secondary (real) installer, invoking as specified above:
-if [ -z "$arch" ] ; then
-  if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo
-    then arch=amd64 ; else arch=i386
-  fi
-fi
-
-echo "Configuring network and fetching next installer phase..."
-# net already configured above
+echo "Fetching next installer phase..."
+# Network config now done above.
 mkdir /h; cd /h
 wget http://debathena.mit.edu/net-install/kexec
 wget http://debathena.mit.edu/net-install/lucid/${arch}/initrd.gz
