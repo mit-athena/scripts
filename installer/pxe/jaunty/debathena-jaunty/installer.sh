@@ -102,10 +102,10 @@ while [ -z "$pxetype" ] ; do
   echo -n "Choose: "
   read r
   case "$r" in
-    1)
+    1|1a)
       echo "Debathena CLUSTER it is."; pxetype=cluster ;;
-    1a)
-      echo "Debathena CLUSTER it is, forced to 32-bit."; pxetype=cluster ; arch=i386;;
+#    1a)
+#      echo "Debathena CLUSTER it is, forced to 32-bit."; pxetype=cluster ; arch=i386;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
     3)
