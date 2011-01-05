@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="lenny squeeze hardy jaunty karmic lucid maverick"
+DEBIAN_CODES="lenny squeeze hardy karmic lucid maverick"
 gettag() {
     case "$1" in
 	lenny)
@@ -10,9 +10,6 @@ gettag() {
 	    ;;
 	hardy)
 	    echo "~ubuntu8.04"
-	    ;;
-	jaunty)
-	    echo "~ubuntu9.04"
 	    ;;
         karmic)
             echo "~ubuntu9.10"
