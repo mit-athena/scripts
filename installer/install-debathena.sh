@@ -183,6 +183,18 @@ else
   read dummy
 fi
 
+apt-get update
+
+output "Verifying machine is up to date..."
+pattern='^0 upgraded, 0 newly installed, 0 to remove'
+if ! apt-get --simulate --assume-yes dist-upgrade | grep -q "$pattern"; then
+     error "Your system is not up to date.  Proceeding with an install at"
+     error "this time could render your system unusable."
+     error "Please run 'aptitude full-upgrade' or use the GUI update manager"
+     error "to ensure your system is up to date before continuing."
+     exit 1
+fi
+
 if ! hash aptitude >/dev/null 2>&1; then
   output "Installing Debathena installer dependency: aptitude"
   apt-get -y install aptitude
@@ -208,17 +220,6 @@ hardy|intrepid|jaunty|karmic|lucid|maverick)
   exit 1
   ;;
 esac
-
-
-output "Verifying machine is up to date..."
-pattern='^0 packages upgraded, 0 newly installed, 0 to remove'
-if ! aptitude --simulate --assume-yes full-upgrade | grep -q "$pattern"; then
-     error "Your system is not up to date.  Proceeding with an install at"
-     error "this time could render your system unusable."
-     error "Please run 'aptitude full-upgrade' or use the GUI update manager"
-     error "to ensure your system is up to date before continuing."
-     exit 1
-fi
 
 output "Adding the Debathena repository to the apt sources"
 output "(This may cause the update manager to claim new upgrades are available."
