@@ -81,9 +81,9 @@ echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more)."
 echo ""
-echo "Note: by installing this package, you hereby agree with the license terms at:"
-echo "  <http://dlc.sun.com/dlj/DLJ-v1.1.txt> Sun's Operating System Distributor"
-echo "  License for Java version 1.1."
+echo "Note: This package may include software with additional license terms."
+echo "      By installing it, you are agreeing to the terms of these licenses."
+echo "      For more information, please see http://debathena.mit.edu/licensing"
 echo ""
 if [ cluster = $category -o workstation = $category ] ; then
   # See Trac #648 and LP:471975
