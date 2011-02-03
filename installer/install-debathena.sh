@@ -190,7 +190,7 @@ pattern='^0 upgraded, 0 newly installed, 0 to remove'
 if ! apt-get --simulate --assume-yes dist-upgrade | grep -q "$pattern"; then
      error "Your system is not up to date.  Proceeding with an install at"
      error "this time could render your system unusable."
-     error "Please run 'aptitude full-upgrade' or use the GUI update manager"
+     error "Please run 'sudo apt-get upgrade' or use the GUI update manager"
      error "to ensure your system is up to date before continuing."
      exit 1
 fi
