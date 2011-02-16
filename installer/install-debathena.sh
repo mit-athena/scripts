@@ -188,11 +188,16 @@ apt-get update
 output "Verifying machine is up to date..."
 pattern='^0 upgraded, 0 newly installed, 0 to remove'
 if ! apt-get --simulate --assume-yes dist-upgrade | grep -q "$pattern"; then
-     error "Your system is not up to date.  Proceeding with an install at"
-     error "this time could render your system unusable."
-     error "Please run 'apt-get dist-upgrade' as root or use the GUI update"
-     error "manager to ensure your system is up to date before continuing."
-     exit 1
+    if [ -n "$pxetype" ] ; then
+	output "Forcing an upgrade"
+	apt-get --assume-yes dist-upgrade
+    else 
+	error "Your system is not up to date.  Proceeding with an install at"
+	error "this time could render your system unusable."
+	error "Please run 'apt-get dist-upgrade' as root or use the GUI update"
+	error "manager to ensure your system is up to date before continuing."
+	exit 1
+    fi
 fi
 
 if ! hash aptitude >/dev/null 2>&1; then
