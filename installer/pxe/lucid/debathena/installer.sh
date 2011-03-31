@@ -156,7 +156,7 @@ if [ cluster != $pxetype ]; then
   # that nothing else is happening, so "killall wget" should be safe.
   (sleep 5; killall wget >/dev/null 2>&1) &
   if wget -s http://$mirrorsite/ubuntu ; then
-    if ip address show to 18/8 | grep -q . && ! ip address show to 18.2/16 | grep -q . ; then
+    if ip address show to 18.0.0.0/8 | grep -q . && ! ip address show to 18.2.0.0/16 | grep -q . ; then
       echo "Your computer seems to be registered on MITnet."
     else
       echo "Your computer seems not to be registered on MITnet, but the mirror"
