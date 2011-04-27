@@ -226,6 +226,11 @@ hardy|intrepid|jaunty|karmic|lucid|maverick)
   ;;
 esac
 
+if aptitude show openafs-modules-dkms > /dev/null; then
+  openafs_component=" openafs"
+  modules="openafs-modules-dkms"
+fi
+
 output "Adding the Debathena repository to the apt sources"
 output "(This may cause the update manager to claim new upgrades are available."
 output "Ignore them until this script is complete.)"
@@ -239,8 +244,8 @@ if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   if [ -e "$sourceslist" ]; then
     echo "" >> $sourceslist
   fi
-  echo "deb http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
-  echo "deb-src http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system openafs" >> $sourceslist
+  echo "deb http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system$openafs_component" >> $sourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system$openafs_component" >> $sourceslist
 fi
 
 if [ development = "$hescluster" -o proposed = "$hescluster" ] ; then
@@ -250,14 +255,14 @@ if [ development = "$hescluster" -o proposed = "$hescluster" ] ; then
   echo "# make changes, do so in another file." >> $clustersourceslist
   echo "" >> $clustersourceslist
 
-  echo "deb http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $clustersourceslist
-  echo "deb-src http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system openafs" >> $clustersourceslist
+  echo "deb http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
 fi
 
 if [ development = "$hescluster" ] ; then
   echo "Adding $distro-development apt repository."
-  echo "deb http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $clustersourceslist
-  echo "deb-src http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system openafs" >> $clustersourceslist
+  echo "deb http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
+  echo "deb-src http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
 fi
 
 if [ "$ubuntu" = "yes" ]; then
@@ -277,12 +282,14 @@ rm ./debathena-archive-keyring.asc
 
 apt-get update
 
-modules_want=$(dpkg-query -W -f '${Source}\t${Package}\n' 'linux-image-*' | \
- sed -nre 's/^linux-(meta|latest[^\t]*)\tlinux-image-(.*)$/openafs-modules-\2/p')
-modules=
-for m in $modules_want; do
-  aptitude show $m > /dev/null && modules="$modules $m"
-done
+if [ -z "$modules" ]; then
+  modules_want=$(dpkg-query -W -f '${Source}\t${Package}\n' 'linux-image-*' | \
+   sed -nre 's/^linux-(meta|latest[^\t]*)\tlinux-image-(.*)$/openafs-modules-\2/p')
+  modules=
+  for m in $modules_want; do
+    aptitude show $m > /dev/null && modules="$modules $m"
+  done
+fi
 
 if [ -z "$modules" ]; then
   error "An OpenAFS modules metapackage for your kernel is not available."
