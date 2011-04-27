@@ -1,5 +1,5 @@
-suite := maverick
-psuite := lucid
+suite := natty
+psuite := maverick
 STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
 package = $(STAMPS)/$(1).done
