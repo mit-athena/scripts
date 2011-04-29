@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Gives you an interactive shell with Debathena repositories configured
+
+chroot=$1
+if [ -z "$chroot" ]; then
+    echo "usage: daschroot <chroot name>"
+    exit 1
+fi
+shift
+
+if schroot -c "$chroot" -i >/dev/null; then
+    exit $?
+fi
+
+session=$(schroot -c "$chroot" -b)
+schroot -c "$session" -r -u root -- "$(readlink -f "$(dirname "$0")/chroot-sources")"
+schroot -c "$session" -r "$@"
+schroot -c "$session" -e
