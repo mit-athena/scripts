@@ -9,7 +9,7 @@ if [ -z "$chroot" ]; then
 fi
 shift
 
-if schroot -c "$chroot" -i >/dev/null; then
+if ! schroot -c "$chroot" -i >/dev/null; then
     exit $?
 fi
 
