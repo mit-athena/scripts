@@ -33,7 +33,12 @@ if [ "$debathenificator" != "./debathenify-*" ]; then
     trap - EXIT
     exit
 fi
-version=$(zcat ${DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
+for suffix in "" -proposed -development; do
+    vv=$(zcat ${DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
+    if [ -n "$vv" ]; then
+        version="$vv"
+    fi
+done
 if [ -d "built/" ]; then
     dsc="built/${package}_$version.dsc"
 fi
