@@ -11,9 +11,6 @@ gettag() {
 	hardy)
 	    echo "~ubuntu8.04"
 	    ;;
-        karmic)
-            echo "~ubuntu9.10"
-            ;;
 	lucid)
 	    echo "~ubuntu10.04"
 	    ;;
