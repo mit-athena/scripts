@@ -108,7 +108,11 @@ echo "  Category: $category"
 echo "  Extra-software package: $csoft"
 echo "  Third-party software package: $tsoft"
 echo ""
-if [ "$pxetype" ] ; then
+if [ "$pxetype" = "cluster" ] ; then
+  if wget -q http://athena10.mit.edu/installer/installing.txt; then
+     cat installing.txt > /dev/tty6
+     chvt 6
+  fi
   # Divert the default background and install our own so that failed machines
   # are more conspicuous
   echo "Diverting default background..."
