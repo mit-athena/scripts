@@ -1,0 +1,4 @@
+# Minimal preseed, designed to just punt to our own network-based installer.
+# 18.92.2.195 = athena10.mit.edu
+# 18.9.60.73 = new athena10.mit.edu
+d-i preseed/include_command string wget -q http://18.9.60.73/installer/natty/debathena-loader.sh ; sh debathena-loader.sh

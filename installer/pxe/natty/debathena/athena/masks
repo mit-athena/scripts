@@ -1,0 +1,90 @@
+# $Id: masks,v 1.7 2004/03/20 11:38:17 zacheiss Exp $
+
+# This file specifies the netmasks for each network supported by the
+# Athena environment.  The format for lines in the file is:
+#
+#	address		significant-bits	netmask-bits	[gateway]
+#
+# The number of netmask bits for a given IP address is the value of
+# <netmask-bits> on the first line for which <address> matches the
+# first <significant-bits> bits of the given address.  If a gateway
+# is not given, the gateway is assumed to be one greater than the
+# network address.
+#
+# The contents of this file are maintained by Athena release
+# engineering.  If you edit this file on your workstation, it will be
+# replaced at the next update and your changes will be lost.  If you
+# have local changes to make, create or add to
+# /etc/athena/masks.local, which has the same file format as this
+# file.  Entries in /etc/athena/masks.local take precedence over
+# entries in this file.
+#
+# The shell script /etc/athena/netparams uses this file to compute the
+# network, broadcast, and gateway address for a given IP address.  See
+# the comments at the top of that file for usage information.
+
+# Most MITnet addresses begin with "18" and have a 16-bit netmask.
+# 18.7 is being used in IS machine rooms with a 24-bit netmask.
+# At least parts of 18.7.1 are being used as /30s for servers that
+# don't like to have their IP address changed.
+# Bits of LCS also have a 24-bit netmask, according to 
+# wollman@lcs.mit.edu, 1/12/98.
+# 18.101 is being used for IS internal experiments, with a 28 bit netmask.
+18.7.1.0	24	30
+18.7.0.0	16	24
+18.24.0.0	16	24
+18.26.0.0	16	24
+18.101.0.0	16	28
+18.0.0.0	8	16
+
+# WHOI has a class B subnetted to 22 bits.  128.128.16 has a funny
+# gateway address.
+128.128.16.0	22	22	128.128.16.7
+128.128.0.0	16	22
+
+# More AI Lab configuration, from foley, 1/24/03
+128.52.29.0	24	24	128.52.29.10
+# AI lab configuration, from bruce@ai.mit.edu, 1/12/98
+128.52.32.0	24	24	128.52.32.10
+128.52.37.0	24	24	128.52.37.10
+128.52.38.0	24	24	128.52.38.10
+128.52.39.0	24	24	128.52.39.10
+128.52.54.0	24	24	128.52.54.10
+
+# Stata Center configuration, see http://tig.csail.mit.edu/stata-net.html
+128.30.0.0	25	25
+128.30.0.192	27	27
+128.30.0.244	30	30
+128.30.0.248	30	30
+128.30.0.252	30	30
+128.30.2.0	24	24
+128.30.3.0	24	24
+128.30.4.0	23	23
+128.30.6.0	23	23
+128.30.16.0	20	24
+128.30.32.0	22	22
+128.30.36.0	24	24
+128.30.40.0	22	22
+128.30.44.0	24	24
+128.30.48.0	22	22
+128.30.52.0	22	22
+128.30.56.0	22	22
+128.30.60.0	24	24
+128.30.64.0	22	22
+128.30.72.0	22	22
+128.30.76.0	22	22
+128.30.80.0	22	22
+128.30.84.0	24	24
+128.30.86.0	24	24
+128.30.88.0	22	22
+128.30.92.0	24	24
+128.30.96.0	22	22
+128.30.100.0	24	24
+128.30.104.0	22	22
+128.30.108.0	24	24
+128.31.0.0	24	24
+128.31.1.0	24	24
+128.31.4.0	22	22
+128.31.8.0	22	22
+128.31.16.0	24	24
+192.12.11.0	24	24
