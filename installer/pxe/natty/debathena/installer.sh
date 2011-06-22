@@ -83,12 +83,13 @@ ddb="${esc}[1;31;47;5m" # Plus blinking
 
 mirrorsite="mirrors.mit.edu"
 installertype="production"
+suite="lucid"
 
 echo "Welcome to Athena."
 echo
 
 while [ -z "$pxetype" ] ; do
-  echo "Using $installertype installer and $mirrorsite"
+  echo "Will install $suite using $installertype installer and $mirrorsite"
   echo
   echo "Choose one:"
   echo
@@ -100,7 +101,7 @@ while [ -z "$pxetype" ] ; do
   echo "     install prompts, and then the Athena-specific prompts, including"
   echo "     choosing which flavor of Debathena you'd like (e.g., private workstation)."
   echo
-  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 11.04${nnn} (Lucid Lynx)."
+  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 10.04${nnn} (Lucid Lynx)."
   echo "     (Note: locale and keyboard have already been set.)"
   echo
   echo "  4: /bin/sh (for rescue purposes)"
@@ -108,6 +109,7 @@ while [ -z "$pxetype" ] ; do
   echo "  Advanced users only:"
   echo "    m: Select a different mirror. "
   echo "    b: Toggle between beta and production installer. "
+  echo "    s: Change the suite (version)."
   echo
   echo -n "Choose: "
   read r
@@ -138,9 +140,14 @@ while [ -z "$pxetype" ] ; do
       /bin/sh;;
     m|M)
       echo
-      echo -n "Enter a new mirror hostname:"
+      echo "NOTE: There is no data validation.  Don't make a typo."
+      echo -n "Enter a new mirror hostname: "
       read mirrorsite
-      echo "Using mirror site $mirrorsite.  Now select the installation type.";;
+    s|S)
+      echo
+      echo "NOTE: There is no data validation.  Don't make a typo."
+      echo -n "Enter a new suite: "
+      read suite
     b|B)
       if [ "$installertype" = "production" ]; then
         echo "Switching to beta installer."
@@ -149,7 +156,6 @@ while [ -z "$pxetype" ] ; do
         echo "Switching to production installer."
         installertype="production"
       fi
-      echo "Now select the installation type.";;
     *)
       echo "Choose one of the above, please.";;
   esac
@@ -235,6 +241,7 @@ fi
 
 # Perferred hostname of mirror site
 cat >> preseed <<EOF
+d-i mirror/suite string $suite
 d-i apt-setup/hostname string $mirrorsite
 d-i mirror/http/hostname string $mirrorsite
 EOF
