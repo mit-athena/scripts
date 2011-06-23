@@ -43,7 +43,8 @@ d-i partman-lvm/device_remove_lvm boolean true
 # ...and for overwriting a completely zeroed disk:
 # This doesn't work when preseeded.  It does work manually.  Yay.
 # LP:154086 covers the basic problem, though not the nonpreseedability.
-# d-i partman-lvm/confirm_nooverwrite boolean true
+# Except now it does work?
+d-i partman-lvm/confirm_nooverwrite boolean true
 
 # You can choose from any of the predefined partitioning recipes.
 # atomic: All files in one partition (recommended for new users)
