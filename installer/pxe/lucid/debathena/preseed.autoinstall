@@ -57,7 +57,7 @@ d-i partman-lvm/device_remove_lvm boolean true
 # The recipe format is documented in the file devel/partman-auto-recipe.txt.
 # If you have a way to get a recipe file into the d-i environment, you can
 # just point at it.
-d-i partman-auto/expert_recipe_file string /debathena-lucid/lvm-cluster-machine.partman
+d-i partman-auto/expert_recipe_file string /debathena/lvm-cluster-machine.partman
 # This is completely undocumented.  Sigh.
 d-i partman-auto-lvm/new_vg_name string athena
 # As reported in Trac #253

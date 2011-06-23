@@ -13,12 +13,20 @@ pxetype=""
 # new options:
 #   debathena/pxetype: could be cluster, but could be other things
 
-clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
+# Don't support this anymore
+#clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
 clusteraddr=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusteraddr | sed -e 's/.*=//'`
 pxetype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/pxetype | sed -e 's/.*=//'`
+installertype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/i= | sed -e 's/.*=//'`
+mirrorsite=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/m= | sed -e 's/.*=//'`
+
+echo "Picked up values from command line: 
+clusteraddr=$clusteraddr
+pxetype=$pxetype
+installertype=$installertype
+mirrorsite=$mirrorsite"
 
 if [ "$clusteraddr" ] ; then IPADDR=$clusteraddr ; fi
-if [ "$clusteraddr" -a "$clusterforce" = yes -a -z "$pxetype" ] ; then pxetype=cluster ; fi
 
 netconfig () {
   echo "Configuring network..."
@@ -79,89 +87,6 @@ ccc="${esc}[36m"        # Cyan
 rrr="${esc}[1;31m"      # Bold and red
 ddd="${esc}[1;31;47m"   # Plus gray background
 ddb="${esc}[1;31;47;5m" # Plus blinking
-
-
-mirrorsite="mirrors.mit.edu"
-installertype="production"
-suite="lucid"
-
-echo "Welcome to Athena."
-echo
-
-while [ -z "$pxetype" ] ; do
-  echo "Will install $suite using $installertype installer and $mirrorsite"
-  echo
-  echo "Choose one:"
-  echo
-  echo "  1: Perform an unattended ${ccc}debathena-cluster${nnn} install, ${rrr}ERASING your"
-  echo "     ENTIRE DISK${nnn}. This option is only intended for people setting up"
-  echo "     public cluster machines maintained by IS&T/Athena. "
-  echo
-  echo "  2: Do a ${ccc}normal Debathena install${nnn}.  You'll need to answer normal Ubuntu"
-  echo "     install prompts, and then the Athena-specific prompts, including"
-  echo "     choosing which flavor of Debathena you'd like (e.g., private workstation)."
-  echo
-  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 10.04${nnn} (Lucid Lynx)."
-  echo "     (Note: locale and keyboard have already been set.)"
-  echo
-  echo "  4: /bin/sh (for rescue purposes)"
-  echo
-  echo "  Advanced users only:"
-  echo "    m: Select a different mirror. "
-  echo "    b: Toggle between beta and production installer. "
-  echo "    s: Change the suite (version)."
-  echo
-  echo -n "Choose: "
-  read r
-  case "$r" in
-    1)
-      echo "Debathena CLUSTER it is."; pxetype=cluster ;;
-    1b)
-      # This too.
-      echo "Debathena CLUSTER it is."; pxetype=cluster
-      echo "...but you get to partition by hand. Your hard disk"
-      echo "will not be automatically reformatted."; destroys=notreally
-      echo
-      echo "The default cluster installer sets up:"
-      echo " - a 200MB ext3 /boot partition"
-      echo " - an LVM volume group named 'athena', containing"
-      echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
-      echo "   - a root LV taking up half the remaining space (at least 10 GB)"
-      echo
-      echo "You probably want to set up something similar."
-      echo "Press enter to continue."
-      read r;;
-    2)
-      echo "Normal Debathena install it is."; pxetype=choose ;;
-    3)
-      echo "Vanilla Ubuntu it is."; pxetype=vanilla;;
-    4)
-      echo "Here's a shell.  You'll return to this prompt when done."
-      /bin/sh;;
-    m|M)
-      echo
-      echo "NOTE: There is no data validation.  Don't make a typo."
-      echo -n "Enter a new mirror hostname: "
-      read mirrorsite
-    s|S)
-      echo
-      echo "NOTE: There is no data validation.  Don't make a typo."
-      echo -n "Enter a new suite: "
-      read suite
-    b|B)
-      if [ "$installertype" = "production" ]; then
-        echo "Switching to beta installer."
-        installertype="beta"
-      else
-        echo "Switching to production installer."
-        installertype="production"
-      fi
-    *)
-      echo "Choose one of the above, please.";;
-  esac
-done
-
-##############################################################################
 
 
 # Consider setting a static IP address, especially if we can't reach the mirror.
@@ -241,7 +166,6 @@ fi
 
 # Perferred hostname of mirror site
 cat >> preseed <<EOF
-d-i mirror/suite string $suite
 d-i apt-setup/hostname string $mirrorsite
 d-i mirror/http/hostname string $mirrorsite
 EOF

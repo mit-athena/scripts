@@ -7,8 +7,8 @@ d-i mirror/country string manual
 d-i mirror/http/directory string /ubuntu
 d-i mirror/http/proxy string
 
-# Suite to install. (Now set in installer)
-#d-i mirror/suite string natty
+# Suite to install.
+d-i mirror/suite string natty
 # Suite to use for loading installer components (optional).
 #d-i mirror/udeb/suite string intrepid
 # Components to use for loading installer components (optional).
