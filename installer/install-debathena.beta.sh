@@ -200,6 +200,9 @@ if ! apt-get --simulate --assume-yes dist-upgrade | grep -q "$pattern"; then
 	error "this time could render your system unusable."
 	error "Please run 'apt-get dist-upgrade' as root or use the GUI update"
 	error "manager to ensure your system is up to date before continuing."
+	error "NOTE: You do NOT need to upgrade to a newer release of Ubuntu",
+	error "you merely need to ensure you have the latest software updates"
+	error "for the current version."
 	exit 1
     fi
 fi
@@ -219,7 +222,7 @@ distro=`lsb_release -cs`
 case $distro in
 lenny|squeeze)
   ;;
-hardy|intrepid|jaunty|karmic|lucid|maverick)
+hardy|intrepid|jaunty|karmic|lucid|maverick|natty)
   ubuntu=yes
   ;;
 *)
