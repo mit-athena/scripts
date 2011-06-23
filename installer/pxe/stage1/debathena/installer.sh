@@ -244,7 +244,17 @@ netcfg/get_gateway=$GATEWAY \
 netcfg/confirm_static=true"
 fi
 
-kargs="$knetinfo locale=en_US console-setup/layoutcode=us interface=auto \
+case "$distro" in
+  natty)
+    # Sigh
+    kbdcode="keyboard-configuration/layoutcode=us"
+    ;;
+  *)
+    kbdcode="console-setup/layoutcode=us"
+    ;;
+esac
+
+kargs="$knetinfo $kbdcode locale=en_US interface=auto \
 url=http://18.9.60.73/installer/$distro/debathena.preseed \
 debathena/pxetype=$pxetype debathena/clusteraddr=$IPADDR \
 debathena/i=$installertype debathena/m=$mirrorsite --"
