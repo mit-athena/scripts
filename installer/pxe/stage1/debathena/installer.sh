@@ -112,7 +112,7 @@ while [ -z "$pxetype" ] ; do
   echo "  Advanced users only:"
   echo "    m: Select a different mirror. "
   echo "    b: Toggle between beta and production installer. "
-  echo "    s: Change the distro (version)."
+  echo "    d: Change the distro (version)."
   echo "    a: Change architecture."
   echo
   echo -n "Choose: "
@@ -148,7 +148,7 @@ while [ -z "$pxetype" ] ; do
       echo -n "Enter a new mirror hostname: "
       read mirrorsite
       ;;
-    s|S)
+    d|D)
       echo
       echo "NOTE: There is no data validation.  Don't make a typo."
       echo -n "Enter a new distro: "
