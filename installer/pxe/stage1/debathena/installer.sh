@@ -223,8 +223,8 @@ echo "Fetching next installer phase..."
 if [ "$test" != "test" ]; then
   mkdir /h; cd /h
   wget http://debathena.mit.edu/net-install/kexec
-  wget http://debathena.mit.edu/net-install/lucid/${arch}/initrd.gz
-  wget http://debathena.mit.edu/net-install/lucid/${arch}/linux
+  wget http://debathena.mit.edu/net-install/${distro}/${arch}/initrd.gz
+  wget http://debathena.mit.edu/net-install/${distro}/${arch}/linux
   chmod 755 kexec
 fi
 dkargs="DEBCONF_DEBUG=5"
