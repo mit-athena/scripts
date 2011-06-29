@@ -31,6 +31,11 @@ d-i netcfg/choose_interface select auto
 
 ### Partitioning
 # Use the whole disk.  Any disk.
+# No, use the first disk (via a shell script that also does sanity checking
+d-i partman/early_command string sh /debathena/check-disks.sh
+# We could also do this to just pick the first disk
+#d-i partman/early_command string debconf-set partman-auto/disk "$(list-devices disk | head -n1)"
+
 # The presently available methods are: "regular", "lvm" and "crypto"
 d-i partman-auto/method string lvm
 
