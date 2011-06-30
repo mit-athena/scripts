@@ -1,5 +1,7 @@
 #!/bin/sh
 
+dnscgi="http://18.9.60.73/website/dns.cgi"
+
 test=
 if [ "$1" = "--test" ]; then
   test="test"
@@ -16,13 +18,59 @@ netconfig () {
   echo "Configuring network..."
   mp=/debathena
   if [ "$test" = "test" ]; then
-      mp="`dirname $0`/$mp"
+      mp="`dirname $0`"
   fi
-  export IPADDR NETMASK GATEWAY SYSTEM CONTROL
+  export IPADDR NETMASK GATEWAY SYSTEM CONTROL HOSTNAME
+  # This will fail if dhreg addresses ever stop being able to reach net 18
+  # First make sure we're talking to who we think we are
+  havedns=n
+  ipprompt="Enter IP address:"
+  if [ "$(wget -qO - $dnscgi"/q")" = "Debathena DNS-CGI" ]; then
+    havedns=y
+    ipprompt="Enter IP address or hostname:"
+  fi
+
   while [ -z "$IPADDR" ] ; do
-    echo -n "Enter IP address: "
+    HOSTNAME=
+    echo -n "$ipprompt "
     read IPADDR
+    # RFC1123 does permit hostnames to start with digits, moira doesn't
+    # If you do that, suck it up and type the IP
+    if echo "$IPADDR" | grep -q '[a-zA-Z]'; then
+      HOSTNAME="$IPADDR"
+      IPADDR=
+      if [ "$havedns" != "y" ]; then
+	echo "Enter a valid IP address.  (DNS not available)".
+	continue
+      fi
+      echo "Looking up IP for $HOSTNAME..."
+      dig="$(wget -qO - $dnscgi"/a/$HOSTNAME")"
+      if echo $dig | grep -q '^OK:'; then
+	IPADDR="$(echo "$dig" | sed 's/^OK: //')"
+	echo "Found $IPADDR..."
+      else
+	echo $dig
+	echo "Could not look up IP address for $HOSTNAME.  Try again."
+      fi
+    fi
   done
+
+  if [ -z "$HOSTNAME" ] && [ "$havedns" = "y" ]; then
+    dig="$(wget -qO - $dnscgi"/ptr/$IPADDR")"
+    if echo $dig | grep -q '^OK:'; then
+      HOSTNAME="$(echo "$dig" | sed 's/^OK: //')"
+      echo "$IPADDR reverse-resolves to $HOSTNAME..."
+    else
+      echo $dig
+      echo "Could not look up hostname for $IPADDR.  Oh well..."
+    fi
+  fi
+  if [ -z "$HOSTNAME" ]; then
+      HOSTNAME=install-target-host
+  fi
+  
+  HOSTNAME="$(echo $HOSTNAME | sed 's/\.MIT\.EDU$//i')"
+
   NETMASK=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 1`
   net=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 2`
   bc=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 3`
@@ -229,11 +277,12 @@ if [ "$test" != "test" ]; then
 fi
 dkargs="DEBCONF_DEBUG=5"
 
-hname=install-target-host
+hname="$HOSTNAME"
 if [ "$IPADDR" = dhcp ] ; then
   knetinfo="netcfg/get_hostname=$hname "
 else
   # There's no good way to get a hostname here, but the postinstall will deal.
+  # True, but thanks to wget, there's a bad way to get a hostname
   knetinfo="netcfg/disable_dhcp=true \
 netcfg/get_domain=mit.edu \
 netcfg/get_hostname=$hname \
