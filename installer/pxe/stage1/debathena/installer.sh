@@ -135,8 +135,11 @@ if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo;  then
   arch="amd64"
 fi
 
+if [ -f "/debathena/version" ]; then
+  echo -n "SVN version: " && cat /debathena/version
+fi
 
-echo "Welcome to Athena."
+echo "Welcome to Athena, Stage 1 Installer"
 echo
 
 while [ -z "$pxetype" ] ; do
