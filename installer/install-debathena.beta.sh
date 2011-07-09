@@ -244,8 +244,11 @@ output "Ignore them until this script is complete.)"
 sourceslist=/etc/apt/sources.list.d/debathena.list
 clustersourceslist=/etc/apt/sources.list.d/debathena.clusterinfo.list
 if [ -z "$hostname" ] ; then hostname=`hostname` ; fi
+
+# Note that hesiod may contain multiple apt_release lines.  We want, in order
+# of priority, just one of "bleeding" (maybe), "development", or "proposed".
 hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT \
-    |sed -e 's/"$//' -ne 's/^"apt_release //p') || hescluster=""
+    |sed -e 's/"$//' -ne 's/^"apt_release //p'|sort|head -1) || hescluster=""
 
 if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   if [ -e "$sourceslist" ]; then
