@@ -13,18 +13,36 @@ pxetype=""
 # new options:
 #   debathena/pxetype: could be cluster, but could be other things
 
-# Don't support this anymore
-#clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
+# Don't support this anymore.  
+# Except yes, we do, for old auto-upgrade
+clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
 clusteraddr=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusteraddr | sed -e 's/.*=//'`
 pxetype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/pxetype | sed -e 's/.*=//'`
 installertype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/i= | sed -e 's/.*=//'`
 mirrorsite=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/m= | sed -e 's/.*=//'`
+
+if [ "$clusterforce" = "yes" ]; then
+  [ "$pxetype" != "cluster" ] && echo "WARNING: Replacing pxetype '$pxetype' with 'cluster' because clusterforce=yes"
+  pxetype=cluster
+fi
 
 echo "Picked up values from command line: 
 clusteraddr=$clusteraddr
 pxetype=$pxetype
 installertype=$installertype
 mirrorsite=$mirrorsite"
+
+# Apply some sane defaults
+if [ -z "$installertype" ]; then installertype=production ; fi
+if [ -z "$mirrorsite" ]; then mirrorsite="mirrors.mit.edu" ; fi
+
+# Sanity check
+if [ -z "$pxetype" ]; then 
+  echo "ERROR: No clusterforce=yes and no pxetype on the command line."
+  echo "Cannot proceed.  Reboot now, please."
+  read dummy
+fi
+
 
 if [ "$clusteraddr" ] ; then IPADDR=$clusteraddr ; fi
 
@@ -90,7 +108,7 @@ ddb="${esc}[1;31;47;5m" # Plus blinking
 
 
 # Consider setting a static IP address, especially if we can't reach the mirror.
-if [ cluster != $pxetype ]; then
+if [ cluster != "$pxetype" ]; then
   # We're at a point in the install process where we can be fairly sure
   # that nothing else is happening, so "killall wget" should be safe.
   (sleep 5; killall wget >/dev/null 2>&1) &
@@ -123,7 +141,7 @@ else
   netconfig
 fi
 
-if [ vanilla = $pxetype ] ; then
+if [ vanilla = "$pxetype" ] ; then
   echo "Starting normal Ubuntu install in five seconds."
   sleep 5
   exit 0
