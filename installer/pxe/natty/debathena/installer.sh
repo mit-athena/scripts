@@ -20,6 +20,8 @@ clusteraddr=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusteraddr | se
 pxetype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/pxetype | sed -e 's/.*=//'`
 installertype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/i= | sed -e 's/.*=//'`
 mirrorsite=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/m= | sed -e 's/.*=//'`
+nodhcp=`sed -e 's/ /\n/g' < /proc/cmdline | grep netcfg/disable_dhcp= | sed -e 's/.*=//'`
+
 
 if [ "$clusterforce" = "yes" ]; then
   [ "$pxetype" != "cluster" ] && echo "WARNING: Replacing pxetype '$pxetype' with 'cluster' because clusterforce=yes"
@@ -44,8 +46,6 @@ if [ -z "$pxetype" ]; then
 fi
 
 
-if [ "$clusteraddr" ] ; then IPADDR=$clusteraddr ; fi
-
 netconfig () {
   echo "Configuring network..."
   mp=/debathena
@@ -67,20 +67,6 @@ netconfig () {
   echo "  Broadcast: $bc"
   echo "  Gateway: $GATEWAY"
 
-  if [ "$pxetype" != cluster ] ; then
-    echo -n "Are these OK? [Y/n]: "; read response
-    case $response in
-      y|Y|"") ;;
-      *) 
-      echo -n "Netmask bits [$maskbits]: "; read r; if [ "$r" ] ; then maskbits=$r ; fi
-      echo -n "Broadcast [$bc]: "; read r; if [ "$r" ] ; then bc=$r ; fi
-      echo -n "Gateway [$GATEWAY]: "; read r; if [ "$r" ] ; then GATEWAY=$r ; fi
-    esac
-  fi
-
-  # We can not set the hostname here; running "debconf-set netcfg/get_hostname"
-  # causes fatal reentry problems.  Setting values directly with preseeding
-  # also fails, as the DHCP values override it.
   echo "Killing dhcp client."
   killall dhclient
   echo "Running: ip addr flush dev eth0"
@@ -96,6 +82,15 @@ netconfig () {
   echo "nameserver	18.70.0.160" >> /etc/resolv.conf.new
   echo "nameserver	18.71.0.151" >> /etc/resolv.conf.new
   mv -f /etc/resolv.conf.new /etc/resolv.conf
+  echo "Saving preseed netcfg values"
+  cat >> preseed <<EOF
+d-i netcfg/get_nameservers string 18.72.0.3
+d-i netcfg/get_ipaddress string $IPADDR
+d-i netcfg/get_netmask string $NETMASK
+d-i netcfg/get_gateway string $GATEWAY
+d-i netcfg/confirm_static boolean true
+EOF
+fi
 }
 
 # Color strings. I'd like to use tput, but the installer doesn't have it.
@@ -106,40 +101,41 @@ rrr="${esc}[1;31m"      # Bold and red
 ddd="${esc}[1;31;47m"   # Plus gray background
 ddb="${esc}[1;31;47;5m" # Plus blinking
 
+# OK, we can arrive at this point in the installer through two
+# ways:  from the stage1 installer or from athena-auto-upgrade
+# Anything else is an error and will not be supported.
+# The stage1 installer takes care of sanity-checking networking
+# so if we have a DHCP address here, it's either valid, or we got here
+# from an old athena-auto-upgrade that doesn't do full networking.
 
-# Consider setting a static IP address, especially if we can't reach the mirror.
-if [ cluster != "$pxetype" ]; then
-  # We're at a point in the install process where we can be fairly sure
-  # that nothing else is happening, so "killall wget" should be safe.
-  (sleep 5; killall wget >/dev/null 2>&1) &
-  if wget -s http://$mirrorsite/ubuntu ; then
-    if ip address show to 18.0.0.0/8 | grep -q . && ! ip address show to 18.2.0.0/16 | grep -q . ; then
-      echo "Your computer seems to be registered on MITnet."
-    else
-      echo "Your computer seems not to be registered on MITnet, but the mirror"
-      echo "site $mirrorsite is accessible."
-    fi
-    echo
-    echo "${ccc}You can continue the install using your existing dynamic address.${nnn}"
-    echo -n "Configure a static address anyway?  [y/N]: "
-    while : ; do
-      read r
-      case "$r" in
-        N*|n*|"") break;;
-        y*|Y*) netconfig; break;;
-      esac
-      echo -n "Choose: [y/N]: "
-    done
-  else
-    echo "The mirror site $mirrorsite is NOT accessible in your current"
-    echo "dynamic configuration."
-    echo
-    echo "${rrr}You must specify a static address for the installation.${nnn}"
-    netconfig
-  fi
-else
+if [ -n "$clusteraddr" ] && [ "$nodhcp" != "true" ]; then
+  IPADDR=$clusteraddr
   netconfig
 fi
+
+# We're at a point in the install process where we can be fairly sure
+# that nothing else is happening, so "killall wget" should be safe.
+(sleep 5; killall wget >/dev/null 2>&1) &
+if wget -s http://$mirrorsite/ubuntu ; then
+  if ip address show to 18.0.0.0/8 | grep -q . && ! ip address show to 18.2.0.0/16 | grep -q . ; then
+    echo "Network config checks out.  Proceeding..."
+  else
+    echo "Your computer seems not to be registered on MITnet, but the mirror"
+    echo "site $mirrorsite is accessible. Continuing anyway."
+  fi
+else
+  echo "${rrr}The mirror site $mirrorsite is NOT accessible in your current"
+  echo "network configuration.  Cannot continue."
+  echo "Reboot now."
+  read dummy
+fi
+
+# Perferred hostname of mirror site
+# We want this here even for vanilla installs
+cat >> preseed <<EOF
+d-i apt-setup/hostname string $mirrorsite
+d-i mirror/http/hostname string $mirrorsite
+EOF
 
 if [ vanilla = "$pxetype" ] ; then
   echo "Starting normal Ubuntu install in five seconds."
@@ -171,22 +167,6 @@ fi
 # Shovel in the generically useful preseed stuff regardless.
 egrep -v '(^$|^#)' < preseed.common >> preseed
 
-if [ "$IPADDR" ] ; then
-  # ...and the specified network config.
-  cat >> preseed <<EOF
-d-i netcfg/get_nameservers string 18.72.0.3
-d-i netcfg/get_ipaddress string $IPADDR
-d-i netcfg/get_netmask string $NETMASK
-d-i netcfg/get_gateway string $GATEWAY
-d-i netcfg/confirm_static boolean true
-EOF
-fi
-
-# Perferred hostname of mirror site
-cat >> preseed <<EOF
-d-i apt-setup/hostname string $mirrorsite
-d-i mirror/http/hostname string $mirrorsite
-EOF
 
 # This is used by the final installer step.
 # A hardcoded number is used as DNS may still be iffy.
@@ -204,7 +184,7 @@ fi
 echo "$pxetype" > $mp/pxe-install-flag
 
 echo "Initial Debathena installer complete; exiting preconfig to start main install."
-if ! [ "$clusteraddr" -a "$pxetype" = cluster ] ; then
+if [ "$pxetype" != cluster ] ; then
   echo "Hit return to continue."
   read r
 fi
