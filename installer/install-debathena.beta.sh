@@ -245,11 +245,6 @@ sourceslist=/etc/apt/sources.list.d/debathena.list
 clustersourceslist=/etc/apt/sources.list.d/debathena.clusterinfo.list
 if [ -z "$hostname" ] ; then hostname=`hostname` ; fi
 
-# Note that hesiod may contain multiple apt_release lines.  We want, in order
-# of priority, just one of "bleeding" (maybe), "development", or "proposed".
-hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT \
-    |sed -e 's/"$//' -ne 's/^"apt_release //p'|sort|head -1) || hescluster=""
-
 if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   if [ -e "$sourceslist" ]; then
     echo "" >> $sourceslist
@@ -258,22 +253,29 @@ if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
   echo "deb-src http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system$openafs_component" >> $sourceslist
 fi
 
-if [ development = "$hescluster" -o proposed = "$hescluster" ] ; then
-  echo "Adding $distro-proposed apt repository."
-  echo "# This file is automatically updated by debathena-auto-update" >> $clustersourceslist
-  echo "# based on your Hesiod cluster information. If you want to" >> $clustersourceslist
-  echo "# make changes, do so in another file." >> $clustersourceslist
-  echo "" >> $clustersourceslist
+# Note that hesiod may contain multiple apt_release tokens.  We want to
+# include known repositories but make no assumptions about wanting
+# others.  (For instances, "development" does @i{not} automatically
+# infer "proposed".)
+hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT \
+    |sed -e 's/"$//' -ne 's/^"apt_release //p') || hescluster=""
 
-  echo "deb http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
-  echo "deb-src http://debathena.mit.edu/apt $distro-proposed debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
-fi
-
-if [ development = "$hescluster" ] ; then
-  echo "Adding $distro-development apt repository."
-  echo "deb http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
-  echo "deb-src http://debathena.mit.edu/apt $distro-development debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
-fi
+aptexplained=false
+for hc in proposed development bleeding; do
+  if echo " $hesclusters " | grep -q " $hc "; then
+    echo "Adding $distro-$hc apt repository."
+    if [ "${aptexplained}" = false ] ; then
+      echo "" >> $clustersourceslist
+      echo "# This file is automatically updated by debathena-auto-update" >> $clustersourceslist
+      echo "# based on your Hesiod cluster information. If you want to" >> $clustersourceslist
+      echo "# make changes, do so in another file." >> $clustersourceslist
+      aptexplained=true
+    fi
+    echo "" >> $clustersourceslist
+    echo "deb http://debathena.mit.edu/apt $distro-${hc} debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
+    echo "deb-src http://debathena.mit.edu/apt $distro-${hc} debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
+  fi
+done
 
 if [ "$ubuntu" = "yes" ]; then
   output "Making sure the universe repository is enabled"
