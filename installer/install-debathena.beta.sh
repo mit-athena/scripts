@@ -262,7 +262,7 @@ hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT 
 
 aptexplained=false
 for hc in proposed development bleeding; do
-  if echo " $hesclusters " | grep -q " $hc "; then
+  if echo " $hescluster " | grep -q " $hc "; then
     echo "Adding $distro-$hc apt repository."
     if [ "${aptexplained}" = false ] ; then
       echo "" >> $clustersourceslist

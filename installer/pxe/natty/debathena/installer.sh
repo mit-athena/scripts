@@ -90,7 +90,6 @@ d-i netcfg/get_netmask string $NETMASK
 d-i netcfg/get_gateway string $GATEWAY
 d-i netcfg/confirm_static boolean true
 EOF
-fi
 }
 
 # Color strings. I'd like to use tput, but the installer doesn't have it.
@@ -107,6 +106,9 @@ ddb="${esc}[1;31;47;5m" # Plus blinking
 # The stage1 installer takes care of sanity-checking networking
 # so if we have a DHCP address here, it's either valid, or we got here
 # from an old athena-auto-upgrade that doesn't do full networking.
+
+echo "Pausing..."
+read dummy
 
 if [ -n "$clusteraddr" ] && [ "$nodhcp" != "true" ]; then
   IPADDR=$clusteraddr
@@ -184,8 +186,8 @@ fi
 echo "$pxetype" > $mp/pxe-install-flag
 
 echo "Initial Debathena installer complete; exiting preconfig to start main install."
-if [ "$pxetype" != cluster ] ; then
+#if [ "$pxetype" != cluster ] ; then
   echo "Hit return to continue."
   read r
-fi
+#fi
 exit 0
