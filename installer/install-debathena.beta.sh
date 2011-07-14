@@ -257,12 +257,11 @@ fi
 # include known repositories but make no assumptions about wanting
 # others.  (For instances, "development" does @i{not} automatically
 # infer "proposed".)
-hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT \
-    |sed -e 's/"$//' -ne 's/^"apt_release //p') || hescluster=""
+hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT) || hescluster=""
 
 aptexplained=false
 for hc in proposed development bleeding; do
-  if echo " $hescluster " | grep -q " $hc "; then
+  if echo "$hescluster" | grep -Fxq "\"apt_release $hc\""; then
     echo "Adding $distro-$hc apt repository."
     if [ "${aptexplained}" = false ] ; then
       echo "" >> $clustersourceslist
