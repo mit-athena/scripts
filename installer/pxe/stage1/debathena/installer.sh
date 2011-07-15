@@ -172,20 +172,21 @@ while [ -z "$pxetype" ] ; do
     1)
       echo "Debathena CLUSTER it is."; pxetype=cluster ;;
     1b)
-      # This too.
-      echo "Debathena CLUSTER it is."; pxetype=cluster
-      echo "...but you get to partition by hand. Your hard disk"
-      echo "will not be automatically reformatted."; destroys=notreally
-      echo
-      echo "The default cluster installer sets up:"
-      echo " - a 200MB ext3 /boot partition"
-      echo " - an LVM volume group named 'athena', containing"
-      echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
-      echo "   - a root LV taking up half the remaining space (at least 10 GB)"
-      echo
-      echo "You probably want to set up something similar."
-      echo "Press enter to continue."
-      read r;;
+      echo "Your princess is in another castle."
+      ;;
+      # echo "Debathena CLUSTER it is."; pxetype=cluster
+      # echo "...but you get to partition by hand. Your hard disk"
+      # echo "will not be automatically reformatted."; destroys=notreally
+      # echo
+      # echo "The default cluster installer sets up:"
+      # echo " - a 200MB ext3 /boot partition"
+      # echo " - an LVM volume group named 'athena', containing"
+      # echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
+      # echo "   - a root LV taking up half the remaining space (at least 10 GB)"
+      # echo
+      # echo "You probably want to set up something similar."
+      # echo "Press enter to continue."
+      # read r;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
     3)
