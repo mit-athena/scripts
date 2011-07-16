@@ -111,6 +111,7 @@ echo ""
 if [ "$pxetype" = "cluster" ] ; then
   if wget -q http://athena10.mit.edu/installer/installing.txt; then
      cat installing.txt > /dev/tty6
+     date > /dev/tty6
      chvt 6
   fi
   # Divert the default background and install our own so that failed machines
