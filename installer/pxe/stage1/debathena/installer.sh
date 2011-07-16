@@ -69,7 +69,7 @@ netconfig () {
       HOSTNAME=install-target-host
   fi
   
-  HOSTNAME="$(echo $HOSTNAME | sed 's/\.MIT\.EDU$//i')"
+  HOSTNAME="$(echo $HOSTNAME | tr A-Z a-z | sed 's/\.MIT\.EDU$//')"
 
   NETMASK=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 1`
   net=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 2`
