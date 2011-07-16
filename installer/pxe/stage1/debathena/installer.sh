@@ -25,7 +25,7 @@ netconfig () {
   # First make sure we're talking to who we think we are
   havedns=n
   ipprompt="Enter IP address:"
-  if [ "$(wget -qO - $dnscgi"/q")" = "Debathena DNS-CGI" ]; then
+  if [ "$(wget -qO - "$dnscgi/q")" = "Debathena DNS-CGI" ]; then
     havedns=y
     ipprompt="Enter IP address or hostname:"
   fi
@@ -44,24 +44,24 @@ netconfig () {
 	continue
       fi
       echo "Looking up IP for $HOSTNAME..."
-      dig="$(wget -qO - $dnscgi"/a/$HOSTNAME")"
-      if echo $dig | grep -q '^OK:'; then
+      dig="$(wget -qO - "$dnscgi/a/$HOSTNAME")"
+      if echo "$dig" | grep -q '^OK:'; then
 	IPADDR="$(echo "$dig" | sed 's/^OK: //')"
 	echo "Found $IPADDR..."
       else
-	echo $dig
+	echo "$dig"
 	echo "Could not look up IP address for $HOSTNAME.  Try again."
       fi
     fi
   done
 
   if [ -z "$HOSTNAME" ] && [ "$havedns" = "y" ]; then
-    dig="$(wget -qO - $dnscgi"/ptr/$IPADDR")"
-    if echo $dig | grep -q '^OK:'; then
+    dig="$(wget -qO - "$dnscgi/ptr/$IPADDR")"
+    if echo "$dig" | grep -q '^OK:'; then
       HOSTNAME="$(echo "$dig" | sed 's/^OK: //')"
       echo "$IPADDR reverse-resolves to $HOSTNAME..."
     else
-      echo $dig
+      echo "$dig"
       echo "Could not look up hostname for $IPADDR.  Oh well..."
     fi
   fi
@@ -69,13 +69,13 @@ netconfig () {
       HOSTNAME=install-target-host
   fi
   
-  HOSTNAME="$(echo $HOSTNAME | tr A-Z a-z | sed 's/\.MIT\.EDU$//')"
+  HOSTNAME="$(echo "$HOSTNAME" | tr A-Z a-z | sed 's/\.MIT\.EDU$//')"
 
-  NETMASK=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 1`
-  net=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 2`
-  bc=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 3`
-  GATEWAY=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 4`
-  maskbits=`$mp/athena/netparams -f $mp/athena/masks $IPADDR|cut -d\  -f 5`
+  NETMASK=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 1`
+  net=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 2`
+  bc=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 3`
+  GATEWAY=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 4`
+  maskbits=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 5`
 
   echo "Address: $IPADDR"
   echo
@@ -89,9 +89,9 @@ netconfig () {
     case $response in
       y|Y|"") ;;
       *) 
-      echo -n "Netmask bits [$maskbits]: "; read r; if [ "$r" ] ; then maskbits=$r ; fi
-      echo -n "Broadcast [$bc]: "; read r; if [ "$r" ] ; then bc=$r ; fi
-      echo -n "Gateway [$GATEWAY]: "; read r; if [ "$r" ] ; then GATEWAY=$r ; fi
+      echo -n "Netmask bits [$maskbits]: "; read r; if [ -n "$r" ] ; then maskbits=$r ; fi
+      echo -n "Broadcast [$bc]: "; read r; if [ -n "$r" ] ; then bc=$r ; fi
+      echo -n "Gateway [$GATEWAY]: "; read r; if [ -n "$r" ] ; then GATEWAY=$r ; fi
     esac
   fi
 
@@ -104,11 +104,11 @@ netconfig () {
   echo "Running: ip addr flush dev eth0"
   ip addr flush dev eth0
   echo "Running: ip addr add $IPADDR/$maskbits broadcast $bc dev eth0"
-  ip addr add $IPADDR/$maskbits broadcast $bc dev eth0
+  ip addr add "$IPADDR/$maskbits" broadcast "$bc" dev eth0
   echo "Flushing old default route."
   route delete default 2> /dev/null
   echo "Running: route add default gw $GATEWAY"
-  route add default gw $GATEWAY
+  route add default gw "$GATEWAY"
   echo "Replacing installer DHCP nameserver with MIT nameservers."
   sed -e '/nameserver/s/ .*/ 18.72.0.3/' < /etc/resolv.conf > /etc/resolv.conf.new
   echo "nameserver	18.70.0.160" >> /etc/resolv.conf.new
@@ -235,7 +235,7 @@ done
 
 
 # Consider setting a static IP address, especially if we can't reach the mirror.
-if [ cluster != $pxetype ]; then
+if [ cluster != "$pxetype" ]; then
   # We're at a point in the install process where we can be fairly sure
   # that nothing else is happening, so "killall wget" should be safe.
   (sleep 5; killall wget >/dev/null 2>&1) &
@@ -274,9 +274,9 @@ echo "Fetching next installer phase..."
 # Network config now done above.
 if [ "$test" != "test" ]; then
   mkdir /h; cd /h
-  wget http://debathena.mit.edu/net-install/kexec
-  wget http://debathena.mit.edu/net-install/${distro}/${arch}/initrd.gz
-  wget http://debathena.mit.edu/net-install/${distro}/${arch}/linux
+  wget "http://debathena.mit.edu/net-install/kexec"
+  wget "http://debathena.mit.edu/net-install/${distro}/${arch}/initrd.gz"
+  wget "http://debathena.mit.edu/net-install/${distro}/${arch}/linux"
   chmod 755 kexec
 fi
 dkargs="DEBCONF_DEBUG=5"
