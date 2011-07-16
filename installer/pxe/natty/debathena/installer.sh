@@ -82,14 +82,6 @@ netconfig () {
   echo "nameserver	18.70.0.160" >> /etc/resolv.conf.new
   echo "nameserver	18.71.0.151" >> /etc/resolv.conf.new
   mv -f /etc/resolv.conf.new /etc/resolv.conf
-  echo "Saving preseed netcfg values"
-  cat >> preseed <<EOF
-d-i netcfg/get_nameservers string 18.72.0.3
-d-i netcfg/get_ipaddress string $IPADDR
-d-i netcfg/get_netmask string $NETMASK
-d-i netcfg/get_gateway string $GATEWAY
-d-i netcfg/confirm_static boolean true
-EOF
 }
 
 # Color strings. I'd like to use tput, but the installer doesn't have it.
@@ -110,6 +102,14 @@ ddb="${esc}[1;31;47;5m" # Plus blinking
 if [ -n "$clusteraddr" ] && [ "$nodhcp" != "true" ]; then
   IPADDR=$clusteraddr
   netconfig
+  echo "Saving preseed netcfg values"
+  cat >> preseed <<EOF
+d-i netcfg/get_nameservers string 18.72.0.3
+d-i netcfg/get_ipaddress string $IPADDR
+d-i netcfg/get_netmask string $NETMASK
+d-i netcfg/get_gateway string $GATEWAY
+d-i netcfg/confirm_static boolean true
+EOF
 fi
 
 # We're at a point in the install process where we can be fairly sure
