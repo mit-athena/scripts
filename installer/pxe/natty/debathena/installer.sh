@@ -90,7 +90,6 @@ d-i netcfg/get_netmask string $NETMASK
 d-i netcfg/get_gateway string $GATEWAY
 d-i netcfg/confirm_static boolean true
 EOF
-fi
 }
 
 # Color strings. I'd like to use tput, but the installer doesn't have it.
