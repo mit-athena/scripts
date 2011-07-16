@@ -181,7 +181,7 @@ else
 fi
 
 # Let the postinstall know what we are up to.
-echo "$pxetype" > $mp/pxe-install-flag
+echo "$pxetype" > pxe-install-flag
 
 echo "Initial Debathena installer complete; exiting preconfig to start main install."
 if [ "$pxetype" != cluster ] ; then
