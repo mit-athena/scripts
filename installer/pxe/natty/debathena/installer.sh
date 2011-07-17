@@ -188,8 +188,8 @@ fi
 echo "$pxetype" > pxe-install-flag
 
 echo "Initial Debathena installer complete; exiting preconfig to start main install."
-if [ "$pxetype" != cluster ] ; then
+#if [ "$pxetype" != cluster ] ; then
   echo "Hit return to continue."
   read r
-fi
+#fi
 exit 0
