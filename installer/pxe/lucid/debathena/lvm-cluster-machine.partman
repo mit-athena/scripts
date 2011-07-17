@@ -16,6 +16,3 @@ cluster ::
         $lvmok{ }
 	method{ swap } format{ } .
 
-10000 100000 1000000000 ext3
-        $lvmok{ }
-	method{ keep } .

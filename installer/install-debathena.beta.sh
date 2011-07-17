@@ -179,9 +179,6 @@ if [ "$pxetype" = "cluster" ] ; then
       hostname ${hostname%%.*}
     fi
 
-    # Free up designated LVM overhead.
-    lvremove -f /dev/athena/keep_2 || :
-
   fi
 else
   output "Press return to begin or control-C to abort"
