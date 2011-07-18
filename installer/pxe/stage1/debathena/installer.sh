@@ -268,6 +268,23 @@ else
   netconfig
 fi
 
+if [ "$pxetype" = "cluster" ]; then
+    cat << EOF
+************************************************************
+               ${ddb}DESTROYS${nnn}
+${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
+               ${ddb}DESTROYS${nnn}
+
+IF YOU DO NOT WISH TO CONTINUE, REBOOT NOW.
+
+************************************************************
+EOF
+fi
+echo
+echo "Installer configuration complete.  Press Enter to begin"
+echo "or reboot your workstation now to abort installation."
+read r
+
 # Fetch secondary (real) installer, invoking as specified above:
 
 echo "Fetching next installer phase..."
