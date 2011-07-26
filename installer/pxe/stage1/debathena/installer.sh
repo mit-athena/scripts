@@ -12,6 +12,14 @@ if [ "$test" != "test" ]; then
     cd /debathena
 fi
 
+debug () {
+  if [ "$test" != "test" ]; then
+    echo "$@" > /debathena/debug.log
+  else
+    echo "DEBUG: $@"
+  fi
+}
+
 pxetype=""
 
 netconfig () {
@@ -34,6 +42,7 @@ netconfig () {
     HOSTNAME=
     echo -n "$ipprompt "
     read IPADDR
+    debug "In netconfig, user entered '$IPADDR'"
     # RFC1123 does permit hostnames to start with digits, moira doesn't
     # If you do that, suck it up and type the IP
     if echo "$IPADDR" | grep -q '[a-zA-Z]'; then
@@ -83,6 +92,8 @@ netconfig () {
   echo "  Netmask bits: $maskbits"
   echo "  Broadcast: $bc"
   echo "  Gateway: $GATEWAY"
+
+  debug "Calculated values: $HOSTNAME $NETMASK $GATEWAY $bc"
 
   if [ "$pxetype" != cluster ] ; then
     echo -n "Are these OK? [Y/n]: "; read response
@@ -135,9 +146,17 @@ if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo;  then
   arch="amd64"
 fi
 
+# Of course the installer doesn't have `date`
+# time.mit.edu/kerberos.mit.edu is 18.7.21.144
+# This will probably break eventually
+debug "** Install begins at $(nc -w1 18.7.21.144 13)"
+
 if [ -f "/debathena/version" ]; then
   echo -n "SVN version: " && cat /debathena/version
+  debug "SVN: " "$(cat /debathena/version)"
 fi
+
+debug "Mirror $mirrorsite Type $installertype Arch $arch"
 
 echo "Welcome to Athena, Stage 1 Installer"
 echo
@@ -230,6 +249,16 @@ while [ -z "$pxetype" ] ; do
       echo "Choose one of the above, please.";;
   esac
 done
+
+debug "*** Main menu complete"
+debug "Mirror: $mirrorsite Type $installertype "
+debug "Arch $arch Distro $distro Pxetype $pxetype"
+debug "eth0:"
+debug "$(ip address show eth0)"
+debug "routing:"
+debug "$(route)"
+debug "resolv.conf:"
+debug "$(cat /etc/resolv.conf)"
 
 ##############################################################################
 
@@ -335,10 +364,12 @@ if [ "$test" = "test" ]; then
     echo "$dkargs $kargs"
     exit 0
 fi
+debug "About to run kexec with these args: $dkargs $kargs"
 ./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
 	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
 echo "Secondary installed failed; please contact release-team@mit.edu"
 echo "with the circumstances of your install attempt.  Here's a shell for debugging:"
+echo "(You might try running this command: /debathena/sendlog )"
 # We don't want to let this fall through to an actual install of whatever
 # kernel we're using.
 while : ; do /bin/sh ; done
