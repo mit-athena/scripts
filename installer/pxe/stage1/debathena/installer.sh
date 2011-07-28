@@ -14,7 +14,7 @@ fi
 
 debug () {
   if [ "$test" != "test" ]; then
-    echo "$@" > /debathena/debug.log
+    logger -t install.debug "$@"
   else
     echo "DEBUG: $@"
   fi
@@ -367,9 +367,11 @@ fi
 debug "About to run kexec with these args: $dkargs $kargs"
 ./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
 	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
+curaddr="$(ip address show eth0 | grep inet | sed -e 's/^[ ]*inet //' | cut -d/ -f 1)"
 echo "Secondary installed failed; please contact release-team@mit.edu"
-echo "with the circumstances of your install attempt.  Here's a shell for debugging:"
-echo "(You might try running this command: /debathena/sendlog )"
+echo "with the circumstances of your install attempt.  Here's a shell for debugging."
+echo "You can type 'httpd' to start an HTTP server which will make"
+echo "the system log available if you connect to http://$curaddr"
 # We don't want to let this fall through to an actual install of whatever
 # kernel we're using.
 while : ; do /bin/sh ; done
