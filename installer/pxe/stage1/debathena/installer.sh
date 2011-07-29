@@ -139,7 +139,7 @@ ddb="${esc}[1;31;47;5m" # Plus blinking
 
 mirrorsite="mirrors.mit.edu"
 installertype="production"
-distro="lucid"
+distro="natty"
 arch="i386"
 # That is a space and a tab
 if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo;  then 
@@ -162,7 +162,8 @@ echo "Welcome to Athena, Stage 1 Installer"
 echo
 
 while [ -z "$pxetype" ] ; do
-  echo "Will install $distro ($arch) using $installertype installer and $mirrorsite"
+  echo
+  echo "Will install ${ccc}$distro${nnn} ($arch) using $installertype installer and $mirrorsite"
   echo
   echo "Choose one:"
   echo
@@ -174,7 +175,7 @@ while [ -z "$pxetype" ] ; do
   echo "     install prompts, and then the Athena-specific prompts, including"
   echo "     choosing which flavor of Debathena you'd like (e.g., private workstation)."
   echo
-  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu 10.04${nnn} (Lucid Lynx)."
+  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu${nnn}."
   echo "     (Note: locale and keyboard have already been set.)"
   echo
   echo "  4: /bin/sh (for rescue purposes)"
