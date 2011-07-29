@@ -1,4 +1,4 @@
-suite := natty
+suite := oneiric
 psuite := natty
 STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
