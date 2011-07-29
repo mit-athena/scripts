@@ -20,6 +20,9 @@ gettag() {
 	natty)
 	    echo "~ubuntu11.04"
 	    ;;
+	oneiric)
+	    echo "~ubuntu11.10~0.1"
+	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
 	    ;;
