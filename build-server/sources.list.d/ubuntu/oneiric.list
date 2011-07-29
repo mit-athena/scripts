@@ -1,0 +1,6 @@
+deb http://localhost:9999/ubuntu oneiric main restricted universe
+deb-src http://localhost:9999/ubuntu oneiric main restricted universe
+deb http://localhost:9999/ubuntu oneiric-updates main restricted universe
+deb-src http://localhost:9999/ubuntu oneiric-updates main restricted universe
+deb http://localhost:9999/ubuntu-security oneiric-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security oneiric-security main restricted universe
