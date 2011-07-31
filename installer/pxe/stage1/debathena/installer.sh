@@ -354,7 +354,14 @@ case "$distro" in
     ;;
 esac
 
-kargs="$knetinfo $kbdcode locale=en_US interface=auto \
+
+# SIGH
+acpi=""
+if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
+    acpi="acpi=off"
+fi
+
+kargs="$knetinfo $kbdcode $acpi locale=en_US interface=auto \
 url=http://18.9.60.73/installer/$distro/debathena.preseed \
 debathena/pxetype=$pxetype debathena/clusteraddr=$IPADDR \
 debathena/i=$installertype debathena/m=$mirrorsite --"
