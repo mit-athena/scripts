@@ -103,6 +103,23 @@ if [ yes = "$csoft" ]; then
     echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" |debconf-set-selections
 fi
 
+if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
+    noacpi=y
+    if [ "$category" != "cluster" ]; then
+	echo "The Dell 790 sometimes has problems rebooting.  The best way to"
+	echo "workaround this is to disable ACPI at boot time."
+	ask "Is it ok to do this now? [Y/n] " y
+	if [ y != "$answer" ]; then
+	    noacpi=n
+	fi
+    fi
+    if [ "$noacpi" = "y" ]; then
+	if sed -i -e 's/^GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="acpi=off /' /etc/default/grub; then
+	    update-grub
+	fi
+    fi
+fi
+
 echo "A summary of your choices:"
 echo "  Category: $category"
 echo "  Extra-software package: $csoft"
