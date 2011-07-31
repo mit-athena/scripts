@@ -329,6 +329,11 @@ fi
 output "Installing OpenAFS kernel metapackage"
 apt-get -y install $modules
 
+if [ "cluster" = "$category" ] || [ "workstation" = "$category" ] ; then
+    output "Installing debathena-license-config"
+    apt-get -y install debathena-license-config
+fi
+
 # Use the noninteractive frontend to install the main package.  This
 # is so that AFS and Zephyr don't ask questions of the user which
 # debathena packages will later stomp on anyway.
