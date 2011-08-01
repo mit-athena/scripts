@@ -358,7 +358,7 @@ esac
 # SIGH
 acpi=""
 if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
-    acpi="acpi=off"
+    acpi="reboot=pci"
 fi
 
 kargs="$knetinfo $kbdcode $acpi locale=en_US interface=auto \

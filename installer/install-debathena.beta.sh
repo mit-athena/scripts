@@ -108,7 +108,7 @@ if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
     if [ "$category" != "cluster" ]; then
 	echo
 	echo "The Dell 790 sometimes has problems rebooting.  The best way to"
-	echo "workaround this is to disable ACPI at boot time."
+	echo "workaround this is to pass a 'reboot=pci' at boot time."
 	ask "Is it ok to do this now? [Y/n] " y
 	if [ y != "$answer" ]; then
 	    noacpi=n
@@ -118,7 +118,7 @@ if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
 	cat >> /etc/default/grub << 'EOF'
 
 # Added by install-debathena.sh to address reboot issues on the Dell 790
-GRUB_CMDLINE_LINUX="acpi=off $GRUB_CMDLINE_LINUX"
+GRUB_CMDLINE_LINUX="reboot=pci $GRUB_CMDLINE_LINUX"
 EOF
 	update-grub
     fi
