@@ -139,6 +139,9 @@ fi
 cat >> preseed <<EOF
 d-i apt-setup/hostname string $mirrorsite
 d-i mirror/http/hostname string $mirrorsite
+d-i mirror/country string manual
+d-i mirror/http/directory string /ubuntu
+d-i mirror/http/proxy string
 EOF
 
 if [ vanilla = "$pxetype" ] ; then

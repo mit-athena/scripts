@@ -1,11 +1,11 @@
 # This contains only things which interactive installers are still likely to want.
 
 ### Mirror settings
-d-i mirror/country string manual
-# Now set explicitly by install script.
+# All of these are now set by installer.sh
+# d-i mirror/country string manual
 # d-i mirror/http/hostname string mirrors.mit.edu
-d-i mirror/http/directory string /ubuntu
-d-i mirror/http/proxy string
+# d-i mirror/http/directory string /ubuntu
+# d-i mirror/http/proxy string
 
 # Suite to install.
 d-i mirror/suite string natty
