@@ -114,7 +114,7 @@ if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
 	    noacpi=n
 	fi
     fi
-    if [ "$noacpi" = "y" ]; then
+    if [ "$noacpi" = "y" ] && ! grep -q "Added by install-debathena.sh to address reboot issues on the Dell 790" /etc/default/grub; then
 	cat >> /etc/default/grub << 'EOF'
 
 # Added by install-debathena.sh to address reboot issues on the Dell 790
