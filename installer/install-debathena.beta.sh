@@ -108,7 +108,8 @@ if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
     if [ "$category" != "cluster" ]; then
 	echo
 	echo "The Dell 790 sometimes has problems rebooting.  The best way to"
-	echo "workaround this is to pass a 'reboot=pci' at boot time."
+	echo "work around this is to pass 'reboot=pci' at boot time."
+	echo "This change will be made in your GRUB (bootloader) configuration."
 	ask "Is it ok to do this now? [Y/n] " y
 	if [ y != "$answer" ]; then
 	    noacpi=n
