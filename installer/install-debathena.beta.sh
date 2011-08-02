@@ -42,6 +42,38 @@ if [ `id -u` != "0" ]; then
   exit 1
 fi
 
+have_lsbrelease="$(dpkg-query -W -f '${Status}' lsb-release 2>/dev/null)"
+if [ "$have_lsbrelease" != "install ok installed" ]; then
+  echo "The installer requires the 'lsb-release' package to determine"
+  echo "whether or not installation can proceed."
+  ask "Is it ok to install this package now? [Y/n] " y
+  if [ y = "$answer" ]; then
+    if ! apt-get -qq update && apt-get -qqy install lsb-release; then
+	error "Could not install lsb-release.  Try installing it manually."
+	exit 1
+    fi
+  else
+    error "Sorry, lsb-release is required.  Cannot continue."
+    exit 1
+  fi
+fi
+distro=`lsb_release -cs`
+case $distro in
+  lenny|squeeze)
+    ;;
+  hardy|intrepid|jaunty|karmic|lucid|maverick|natty)
+    ubuntu=yes
+    ;;
+  *)
+    error "Unsupported release codename: $distro"
+    error "Sorry, Debathena does not support installation on this release at this time."
+    error "(New releases may not be supported immediately after their release)."
+    error "If you believe you are running a supported release or have questions,"
+    error "please contact debathena@mit.edu"
+    exit 1
+    ;;
+esac
+
 echo "Welcome to the Debathena installer."
 echo ""
 echo "Please choose the category which best suits your needs.  Each category"
@@ -232,26 +264,12 @@ if ! hash aptitude >/dev/null 2>&1; then
   apt-get -y install aptitude
 fi
 
-output "Installing Debathena installer dependencies: lsb-release, wget, and dnsutils"
-aptitude -y install lsb-release wget dnsutils
+output "Installing Debathena installer dependencies: wget and dnsutils"
+aptitude -y install wget dnsutils
 if [ yes = "$resolvconfhack" ]; then
   output "Installing resolvconf ahead of time"
   aptitude -y install resolvconf
 fi
-distro=`lsb_release -cs`
-case $distro in
-lenny|squeeze)
-  ;;
-hardy|intrepid|jaunty|karmic|lucid|maverick|natty)
-  ubuntu=yes
-  ;;
-*)
-  error "Your machine seems to not be running a supported Debian/Ubuntu release."
-  error "(New releases may not be supported immediately after their release)."
-  error "If you believe you are running a supported release, contact debathena@mit.edu"
-  exit 1
-  ;;
-esac
 
 if aptitude show openafs-modules-dkms > /dev/null; then
   openafs_component=" openafs"
