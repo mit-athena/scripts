@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Live Poultry Fresh Killed
+if grep -q "^Vostro 320" /sys/class/dmi/id/product_name; then
+    echo "Scribbling over check-missing-firmware"
+    echo > /bin/check-missing-firmware
+fi
+
 cd /debathena
 
 touch preseed
