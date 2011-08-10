@@ -1,0 +1,59 @@
+#!/bin/sh 
+# 
+# This is largely inspired by/stolen from the "httpd" script in
+# "save-logs" in the "installation-report" package, which is licensed
+# under GPLv2 (as of installation-report-2.44ubuntu1, which was
+# current when this was written).  This script is, therefore, licensed
+# under GPLv2.
+# 
+PORT=49155
+DOCROOT=/var/log
+
+run_nc () {
+	nc -p $PORT -l -e $1 </dev/null >/dev/null 2>/dev/null &
+}
+
+if [ -z "$ATHINFOD_STARTED" ]; then
+	[ -f /var/lib/athinfod_stop ] && exit
+	ATHINFOD_STARTED=1
+	export ATHINFOD_STARTED
+	# daemonize
+	run_nc $0
+	exit
+else
+	# start up the next listener process
+	[ -f /var/lib/athinfod_stop ] || run_nc $0
+fi
+
+read query
+query="$(echo "$query" | sed 's/[^-.A-Za-z0-9_]//g')" # untaint
+
+case "$query" in
+    version)
+	echo "Installation in progress:" && cat /debathena/install-info ;;
+    uname)
+	uname -a ;;
+    preseed)
+	grep -v "^d-i passwd/root-password" /debathena/preseed ;;
+    syslog)
+	tail -20 /var/log/syslog ;;
+    syslog-full)
+	cat /var/log/syslog ;;
+    hardware)
+	cat /sys/class/dmi/id/product_name ;;
+    uptime)
+        uptime ;;
+    
+    *)
+	[ "$query" != "queries" ] && echo "Unknown query"
+	cat <<EOF
+version       echo "Installation in progress"
+uname         uname -a
+preseed       grep -v "^d-i passwd/root-password" /debathena/preseed
+syslog        tail -20 /var/log/syslog
+syslog-full   cat /var/log/syslog
+hardware      cat /sys/class/dmi/id/product_name 
+uptime        uptime
+EOF
+esac
+exit 0
