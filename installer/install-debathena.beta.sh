@@ -74,6 +74,16 @@ case $distro in
     ;;
 esac
 
+laptop=no
+wifi=no
+if [ -x /usr/sbin/laptop-detect ] && /usr/sbin/laptop-detect 2>/dev/null; then
+    laptop=yes
+fi
+
+if [ -x /usr/bin/nmcli ] && /usr/bin/nmcli dev status 2>/dev/null | awk '{print $2}' | grep -q 802-11-wireless; then
+    wifi=yes
+fi
+
 echo "Welcome to the Debathena installer."
 echo ""
 echo "Please choose the category which best suits your needs.  Each category"
@@ -89,6 +99,14 @@ echo "                   Recommended for private multi-user desktops."
 echo "  workstation:     Graphical workstation with automatic updates"
 echo "                   Recommended for auto-managed cluster-like systems."
 echo ""
+
+if [ "$laptop" = "yes" ] || [ "$wifi" = "yes" ]; then
+    cat <<EOF 
+This machine appears to be a laptop or has at least one wireless
+network device.  You probably want to choose "standard" unless this
+device will have an uninterrupted network connection.
+EOF
+fi
 
 category=""
 if test -f /root/pxe-install-flag ; then
