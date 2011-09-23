@@ -140,6 +140,7 @@ ddb="${esc}[1;31;47;5m" # Plus blinking
 mirrorsite="mirrors.mit.edu"
 installertype="production"
 distro="natty"
+partitioning="auto"
 arch="i386"
 # That is a space and a tab
 if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo;  then 
@@ -163,7 +164,8 @@ echo
 
 while [ -z "$pxetype" ] ; do
   echo
-  echo "Will install ${ccc}$distro${nnn} ($arch) using $installertype installer and $mirrorsite"
+  echo "Will install ${ccc}$distro${nnn} ($arch) using $installertype installer"
+  echo "from $mirrorsite using $partitioning partitioning"
   echo
   echo "Choose one:"
   echo
@@ -185,28 +187,13 @@ while [ -z "$pxetype" ] ; do
   echo "    b: Toggle between beta and production installer. "
   echo "    d: Change the distro (version)."
   echo "    a: Change architecture."
+  echo "    p: Toggle between manual and auto partitioning. "
   echo
   echo -n "Choose: "
   read r
   case "$r" in
     1)
       echo "Debathena CLUSTER it is."; pxetype=cluster ;;
-    1b)
-      echo "Your princess is in another castle."
-      ;;
-      # echo "Debathena CLUSTER it is."; pxetype=cluster
-      # echo "...but you get to partition by hand. Your hard disk"
-      # echo "will not be automatically reformatted."; destroys=notreally
-      # echo
-      # echo "The default cluster installer sets up:"
-      # echo " - a 200MB ext3 /boot partition"
-      # echo " - an LVM volume group named 'athena', containing"
-      # echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
-      # echo "   - a root LV taking up half the remaining space (at least 10 GB)"
-      # echo
-      # echo "You probably want to set up something similar."
-      # echo "Press enter to continue."
-      # read r;;
     2)
       echo "Normal Debathena install it is."; pxetype=choose ;;
     3)
@@ -235,6 +222,27 @@ while [ -z "$pxetype" ] ; do
         installertype="production"
       fi
       ;;
+    p|P)
+      if [ "$partitioning" = "auto" ]; then
+        echo "Switching to manual partitioning."
+	echo "Your disk will (probably) not be erased."
+        partitioning="manual"
+	echo "Normally, cluster machines get:"
+	echo " - a 200MB ext3 /boot partition"
+	echo " - an LVM volume group named 'athena', containing"
+	echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
+	echo "   - a root LV taking up half the remaining space (at least 10 GB)"
+	echo
+	echo "You probably want to set up something similar."
+	echo
+	echo "Backups are ALWAYS a good idea.  Stop and make one now."
+	echo "Press Enter to continue."
+	read dummy
+      else
+        echo "Switching to auto partitioning."
+        partitioning="auto"
+      fi
+      ;;
     a|A)
       echo
       oldarch="$arch"
@@ -252,8 +260,8 @@ while [ -z "$pxetype" ] ; do
 done
 
 debug "*** Main menu complete"
-debug "Mirror: $mirrorsite Type $installertype "
-debug "Arch $arch Distro $distro Pxetype $pxetype"
+debug "Mirror: $mirrorsite Type: $installertype Part: $partitioning"
+debug "Arch: $arch Distro: $distro Pxetype: $pxetype"
 debug "eth0:"
 debug "$(ip address show eth0)"
 debug "routing:"
@@ -298,7 +306,7 @@ else
   netconfig
 fi
 
-if [ "$pxetype" = "cluster" ]; then
+if [ "$pxetype" = "cluster" ] && [ "$partitioning" = "auto" ]; then
     cat << EOF
 ************************************************************
                ${ddb}DESTROYS${nnn}
@@ -355,7 +363,9 @@ case "$distro" in
 esac
 
 
-# SIGH
+# SIGH  See LP #818933
+# This is fixed in Oneiric's kernel, but the PXE server is still serving
+# natty (and will continue to do so until we have hardware that fails)
 acpi=""
 if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
     acpi="reboot=pci"
@@ -363,8 +373,8 @@ fi
 
 kargs="$knetinfo $kbdcode $acpi locale=en_US interface=auto \
 url=http://18.9.60.73/installer/$distro/debathena.preseed \
-debathena/pxetype=$pxetype debathena/clusteraddr=$IPADDR \
-debathena/i=$installertype debathena/m=$mirrorsite --"
+da/pxe=$pxetype da/i=$installertype da/m=$mirrorsite \
+da/part=$partitioning --"
 
 echo "Continuing in five seconds..."
 if [ "$test" = "test" ]; then

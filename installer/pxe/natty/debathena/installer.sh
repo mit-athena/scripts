@@ -19,20 +19,20 @@ pxetype=""
 # new options:
 #   debathena/pxetype: could be cluster, but could be other things
 
-# Don't support this anymore.  
-# Except yes, we do, for old auto-upgrade
-clusterforce=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusterforce | sed -e 's/.*=//'`
+# support for clusteraddr should be removed sometime in Spring 2012
+# Be sure to remove the conditional around line 115 too.
 clusteraddr=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/clusteraddr | sed -e 's/.*=//'`
-pxetype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/pxetype | sed -e 's/.*=//'`
-installertype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/i= | sed -e 's/.*=//'`
-mirrorsite=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/m= | sed -e 's/.*=//'`
+pxetype=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/pxe= | sed -e 's/.*=//'`
+if [ -z "$pxetype" ]; then
+    # Fallback to old-style option for very old machines that haven't
+    # updated.  This conditional should be removed sometime in Spring 2012
+    pxetype=`sed -e 's/ /\n/g' < /proc/cmdline | grep debathena/pxetype | sed -e 's/.*=//'`
+fi
+installertype=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/i= | sed -e 's/.*=//'`
+mirrorsite=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/m= | sed -e 's/.*=//'`
+partitioning=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/part= | sed -e 's/.*=//'`
 nodhcp=`sed -e 's/ /\n/g' < /proc/cmdline | grep netcfg/disable_dhcp= | sed -e 's/.*=//'`
 
-
-if [ "$clusterforce" = "yes" ]; then
-  [ "$pxetype" != "cluster" ] && echo "WARNING: Replacing pxetype '$pxetype' with 'cluster' because clusterforce=yes"
-  pxetype=cluster
-fi
 
 echo "Picked up values from command line: 
 clusteraddr=$clusteraddr
@@ -46,7 +46,7 @@ if [ -z "$mirrorsite" ]; then mirrorsite="mirrors.mit.edu" ; fi
 
 # Sanity check
 if [ -z "$pxetype" ]; then 
-  echo "ERROR: No clusterforce=yes and no pxetype on the command line."
+  echo "ERROR: No pxetype on the command line."
   echo "Cannot proceed.  Reboot now, please."
   read dummy
 fi
@@ -157,7 +157,7 @@ if [ vanilla = "$pxetype" ] ; then
 fi
 
 if [ cluster = "$pxetype" ]; then
-  if [ notreally != "$destroys" ]; then
+  if [ "$partitioning" != "manual" ]; then
     cat << EOF
 ************************************************************
                ${ddb}DESTROYS${nnn}
