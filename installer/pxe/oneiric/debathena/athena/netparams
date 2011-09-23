@@ -1,0 +1,261 @@
+#!/bin/sh
+# $Id: netparams.sh,v 1.2 1998/05/17 03:25:03 ghudson Exp $
+
+# Usage: netparams [-d defaultbits] [-e] [-f file] address ...
+#
+# Computes the netmask for each address and outputs the netmask,
+# network, broadcast address, and gateway address.  Options are:
+#
+#	-d defaultbits	Give the default number of bits to use if an
+#			IP address is not located on the file.  The
+#			default is 24.
+#
+#	-e		Error if an IP address is not located in the
+#			file.
+#
+#	-f file		Give the masks filename to use.  The default
+#			is the concatenation of /etc/athena/masks.local
+#			(if it exists) and /etc/athena/masks.
+#
+# The format of each line of the masks file is:
+#
+#	address		significant-bits	mask-bits	[gateway]
+#
+# The first <significant-bits> of <address> are compared against the
+# given IP address.  If they match, <mask-bits> is the number of bits
+# in the netmask, and <gateway> is the gateway address if given.  (If
+# gateway is not given, it is assumed to be one greater than the
+# network address.) The first match in the file is taken.  Blank lines
+# and lines beginning with a '#' are ignored.
+
+# This script may want to run before /usr is mounted on BSD-ish
+# systems, so it uses a very limited set of external commands (expr,
+# test, echo).  If you want to use a command not in that set, make
+# sure it lives in /bin or /sbin in BSD 4.4.
+
+# Regular expression to match things that looklike IP addresss.
+ipreg='[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$'
+
+# Usage message
+usage="$0 [-f file] [-d defaultbits] [-e] address ..."
+
+# octet <ip address> sets o1..o4 to the octets of the address.
+octets() {
+	OLDIFS="$IFS"
+	IFS=.
+	set -- $1
+	o1=$1 o2=$2 o3=$3 o4=$4
+	IFS="$OLDIFS"
+}
+
+# octetbits <n> splits <n> up into four values b1..b4 each between 0
+# and 8.  If you want the first n bits of a 32-bit value, then you
+# want the first b1..b4 bits of the corresponding octets.
+octetbits() {
+	case "$1" in
+	 0) b1=0; b2=0; b3=0; b4=0 ;;
+	 1) b1=1; b2=0; b3=0; b4=0 ;;
+	 2) b1=2; b2=0; b3=0; b4=0 ;;
+	 3) b1=3; b2=0; b3=0; b4=0 ;;
+	 4) b1=4; b2=0; b3=0; b4=0 ;;
+	 5) b1=5; b2=0; b3=0; b4=0 ;;
+	 6) b1=6; b2=0; b3=0; b4=0 ;;
+	 7) b1=7; b2=0; b3=0; b4=0 ;;
+	 8) b1=8; b2=0; b3=0; b4=0 ;;
+	 9) b1=8; b2=1; b3=0; b4=0 ;;
+	10) b1=8; b2=2; b3=0; b4=0 ;;
+	11) b1=8; b2=3; b3=0; b4=0 ;;
+	12) b1=8; b2=4; b3=0; b4=0 ;;
+	13) b1=8; b2=5; b3=0; b4=0 ;;
+	14) b1=8; b2=6; b3=0; b4=0 ;;
+	15) b1=8; b2=7; b3=0; b4=0 ;;
+	16) b1=8; b2=8; b3=0; b4=0 ;;
+	17) b1=8; b2=8; b3=1; b4=0 ;;
+	18) b1=8; b2=8; b3=2; b4=0 ;;
+	19) b1=8; b2=8; b3=3; b4=0 ;;
+	20) b1=8; b2=8; b3=4; b4=0 ;;
+	21) b1=8; b2=8; b3=5; b4=0 ;;
+	22) b1=8; b2=8; b3=6; b4=0 ;;
+	23) b1=8; b2=8; b3=7; b4=0 ;;
+	24) b1=8; b2=8; b3=8; b4=0 ;;
+	25) b1=8; b2=8; b3=8; b4=1 ;;
+	26) b1=8; b2=8; b3=8; b4=2 ;;
+	27) b1=8; b2=8; b3=8; b4=3 ;;
+	28) b1=8; b2=8; b3=8; b4=4 ;;
+	29) b1=8; b2=8; b3=8; b4=5 ;;
+	30) b1=8; b2=8; b3=8; b4=6 ;;
+	31) b1=8; b2=8; b3=8; b4=7 ;;
+	32) b1=8; b2=8; b3=8; b4=8 ;;
+	esac
+}
+
+# mask8 <o> <b> sets a8 to the first <b> bits of <o>.
+mask8() {
+	case "$2" in
+	0) a8=0 ;;
+	1) a8=`expr "$1" - "$1" % 128` ;;
+	2) a8=`expr "$1" - "$1" % 64` ;;
+	3) a8=`expr "$1" - "$1" % 32` ;;
+	4) a8=`expr "$1" - "$1" % 16` ;;
+	5) a8=`expr "$1" - "$1" % 8` ;;
+	6) a8=`expr "$1" - "$1" % 4` ;;
+	7) a8=`expr "$1" - "$1" % 2` ;;
+	8) a8=$1 ;;
+	esac
+}
+
+# fill8 <o> <b> sets a8 to <o> with the last 8-<b> bits set to 1.
+fill8() {
+	case "$2" in
+	0) a8=255 ;;
+	1) a8=`expr "$1" - "$1" % 128 + 127` ;;
+	2) a8=`expr "$1" - "$1" % 64 + 63` ;;
+	3) a8=`expr "$1" - "$1" % 32 + 31` ;;
+	4) a8=`expr "$1" - "$1" % 16 + 15` ;;
+	5) a8=`expr "$1" - "$1" % 8 + 7` ;;
+	6) a8=`expr "$1" - "$1" % 4 + 3` ;;
+	7) a8=`expr "$1" - "$1" % 2 + 1` ;;
+	8) a8=$1 ;;
+	esac
+}
+
+# mask <ip address> <n> sets a to the first <n> bits of <ip address>.
+# If a third parameter is given, add 1 to the last octet (to get the
+# gateway address).
+mask() {
+	a=""
+	octets "$1"
+	octetbits "$2"
+	mask8 "$o1" "$b1"
+	a=$a8
+	mask8 "$o2" "$b2"
+	a=$a.$a8
+	mask8 "$o3" "$b3"
+	a=$a.$a8
+	mask8 "$o4" "$b4"
+	if [ -n "$3" ]; then
+		a8=`expr "$a8" + 1`
+	fi
+	a=$a.$a8
+}
+
+# fill <ip address> <n> sets a to <ip address> with the last 32-<n> bits
+# set to 1.
+fill() {
+	a=""
+	octets "$1"
+	octetbits "$2"
+	fill8 "$o1" "$b1"
+	a=$a8
+	fill8 "$o2" "$b2"
+	a=$a.$a8
+	fill8 "$o3" "$b3"
+	a=$a.$a8
+	fill8 "$o4" "$b4"
+	a=$a.$a8
+}
+
+# getnetmask <ip address> <file> sets maskbits to the number of netmask
+# bits for <ip address> according to <file>.  Also sets gateway to the
+# gateway field on the matching line, if one was specified.
+getnetmask() {
+	exec < $2
+	maskbits=""
+	while read addr sigbits mbits gw; do
+		# Ignore blank lines and comments.
+		if [ -z "$addr" -o `expr "$addr" : '#'` -ne 0 ]; then
+			continue
+		fi
+
+		# Make sure the line is in the proper form.
+		if [ `expr "$addr" : "$ipreg"` -eq 0 \
+		     -o `expr "$sigbits" : '[0-9][0-9]*$'` -eq 0 \
+		     -o `expr "$mbits" : '[0-9][0-9]*$'` -eq 0 ]; then
+			echo "Bad line in $2: $addr $sigbits $mbits $gw" 1>&2
+			exit 1
+		fi
+		if [ -n "$gw" -a `expr "$gw" : "$ipreg"` -eq 0 ]; then
+			echo "Bad gateway in $2: $gw" 1>&2
+			exit 1
+		fi
+
+		mask "$1" "$sigbits"
+		if [ "$a" = "$addr" ]; then
+			maskbits=$mbits
+			gateway=$gw
+			break
+		fi
+	done
+}
+
+# Process arguments.
+defaultbits=24
+errornf=false
+maskfile=""
+while getopts d:ef: opt; do
+	case "$opt" in
+	d)
+		defaultbits=$OPTARG
+		;;
+	e)
+		errornf=true
+		;;
+	f)
+		maskfile=$OPTARG
+		;;
+	\?)
+		echo "$usage"
+		exit 1
+		;;
+	esac
+done
+shift `expr $OPTIND - 1`
+
+# Make sure we have some addresses.
+if [ $# -eq 0 ]; then
+	echo "Usage: $0 ip-address ..." 1>&2
+	exit 1
+fi
+
+# Make sure our addresses are in something like the proper format.
+for ip in "$@"; do
+	if [ `expr "$ip" : "$ipreg"` -eq 0 ]; then
+		echo "Bad address: $ip" 1>&2
+		echo "Usage: $0 ip-address ..." 1>&2
+		exit 1
+	fi
+done
+
+for ip in "$@"; do
+	if [ -n "$maskfile" ]; then
+		getnetmask "$ip" "$maskfile"
+	elif [ -f /etc/athena/masks.local ]; then
+		getnetmask "$ip" /etc/athena/masks.local
+		if [ -z "$maskbits" ]; then
+			getnetmask "$ip" /etc/athena/masks
+		fi
+	else
+		getnetmask "$ip" /etc/athena/masks
+	fi
+	if [ -z "$maskbits" ]; then
+		# Error out if we were told to, or guess.
+		if [ "$errornf" = true ]; then
+			echo "$ip not matched." 1>&2
+			exit 1
+		fi
+		maskbits=$defaultbits
+	fi
+
+	mask 255.255.255.255 "$maskbits"
+	netmask=$a
+	mask "$ip" "$maskbits"
+	network=$a
+	fill "$ip" "$maskbits"
+	broadcast=$a
+	if [ -z "$gateway" ]; then
+		mask "$ip" "$maskbits" 1
+		gateway=$a
+	fi
+
+	echo "$netmask $network $broadcast $gateway $maskbits"
+done

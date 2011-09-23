@@ -353,7 +353,7 @@ netcfg/confirm_static=true"
 fi
 
 case "$distro" in
-  natty)
+  natty|oneiric)
     # Sigh
     kbdcode="keyboard-configuration/layoutcode=us"
     ;;
@@ -382,6 +382,14 @@ if [ "$test" = "test" ]; then
     echo "$dkargs $kargs"
     exit 0
 fi
+if hash wc > /dev/null 2>&1; then
+    if [ $(echo "$dkargs $kargs" | wc -c) -gt 512 ]; then
+	echo "Kernel arguments exceed 512 bytes.  This will probably"
+	echo "end badly.  If this install fails, be sure to mention"
+	echo "this specific message in your bug report."
+    fi
+fi
+
 debug "About to run kexec with these args: $dkargs $kargs"
 ./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
 	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
