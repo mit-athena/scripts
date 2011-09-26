@@ -301,7 +301,7 @@ sourceslist=/etc/apt/sources.list.d/debathena.list
 clustersourceslist=/etc/apt/sources.list.d/debathena.clusterinfo.list
 if [ -z "$hostname" ] ; then hostname=`hostname` ; fi
 
-if [ ! -e "$sourceslist" ] || ! grep -q debathena "$sourceslist"; then
+if [ ! -e "$sourceslist" ] || ! grep -v ^# "$sourceslist" | grep -q debathena; then
   if [ -e "$sourceslist" ]; then
     echo "" >> $sourceslist
   fi
