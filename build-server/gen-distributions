@@ -1,0 +1,44 @@
+#!/usr/bin/python
+
+#key = '997D6B23'
+key = '0D8A9E8F'
+
+release_info = {'lenny': ('Debian', '5.0'),
+                'squeeze': ('Debian', '6.0'),
+                'hardy': ('Ubuntu', '8.04'),
+                'jaunty': ('Ubuntu', '9.04'),
+                'karmic': ('Ubuntu', '9.10'),
+                'lucid': ('Ubuntu', '10.04'),
+                'maverick': ('Ubuntu', '10.10'),
+                'natty': ('Ubuntu', '11.04'),
+                'oneiric': ('Ubuntu', '11.10')}
+
+codenames = ['lenny', 'squeeze',
+             'hardy', 'jaunty', 'karmic', 'lucid', 'maverick', 'natty', 'oneiric']
+
+releases = ['', '-proposed', '-development']
+
+architectures = ['amd64', 'i386']
+
+components = ['debathena',
+              'debathena-config',
+              'debathena-manual-config',
+              'debathena-system',
+              'openafs']
+
+for codename in codenames:
+    distro, version = release_info[codename]
+    for release in releases:
+        print 'Origin: Debathena'
+        print 'Label: Debathena'
+        print 'Suite: %s%s' % (codename, release)
+        print 'Codename: %s%s' % (codename, release)
+        print 'Version: %s' % version
+        print 'Architectures: %s source' % ' '.join(architectures)
+        print 'Components: %s' % ' '.join(components)
+        print 'Description: Debathena packages for %s %s %s' % (distro, version, codename)
+        print 'SignWith: 0x%s' % key
+        print 'Contents: . .gz'
+        print 'DebIndices: Packages Release . .gz .bz2'
+        print 'DscIndices: Sources Release . .gz .bz2'
+        print
