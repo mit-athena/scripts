@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="lenny squeeze hardy lucid maverick natty"
+DEBIAN_CODES="lenny squeeze hardy lucid maverick natty oneiric"
 gettag() {
     case "$1" in
 	lenny)
@@ -21,7 +21,10 @@ gettag() {
 	    echo "~ubuntu11.04"
 	    ;;
 	oneiric)
-	    echo "~ubuntu11.10~0.1"
+	    echo "~ubuntu11.10"
+	    ;;
+	precise)
+	    echo "~ubuntu12.04~0.1"
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
