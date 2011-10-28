@@ -1,0 +1,6 @@
+deb http://localhost:9999/ubuntu precise main restricted universe
+deb-src http://localhost:9999/ubuntu precise main restricted universe
+deb http://localhost:9999/ubuntu precise-updates main restricted universe
+deb-src http://localhost:9999/ubuntu precise-updates main restricted universe
+deb http://localhost:9999/ubuntu-security precise-security main restricted universe
+deb-src http://localhost:9999/ubuntu-security precise-security main restricted universe
