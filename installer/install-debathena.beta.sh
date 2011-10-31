@@ -13,6 +13,7 @@ set -e
 # seen, so you don't see all the suppressed questions next time you
 # upgrade that package, or worse, upgrade releases.
 export DEBCONF_NONINTERACTIVE_SEEN=true
+export DEBIAN_FRONTEND=noninteractive
 
 output() {
   printf '\033[38m'; echo "$@"; printf '\033[0m'
@@ -61,7 +62,7 @@ distro=`lsb_release -cs`
 case $distro in
   lenny|squeeze)
     ;;
-  hardy|intrepid|jaunty|karmic|lucid|maverick|natty)
+  hardy|intrepid|jaunty|karmic|lucid|maverick|natty|oneiric)
     ubuntu=yes
     ;;
   *)
@@ -380,7 +381,7 @@ fi
 # debathena packages will later stomp on anyway.
 output "Installing main Debathena metapackage $mainpackage"
 
-DEBIAN_FRONTEND=noninteractive aptitude -y install "$mainpackage"
+aptitude -y install "$mainpackage"
 
 # Use the default front end and allow questions to be asked; otherwise
 # Java will fail to install since it has to present its license.
