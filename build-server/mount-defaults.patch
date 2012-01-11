@@ -4,7 +4,5 @@
  proc		/proc		proc	defaults	0	0
  /dev/pts	/dev/pts	none	rw,bind		0	0
  tmpfs		/dev/shm	tmpfs	defaults	0	0
--/home		/home		none	rw,bind		0	0
-+#/home		/home		none	rw,bind		0	0
  /tmp		/tmp		none	rw,bind		0	0
 +/afs		/afs		none	rw,bind		0	0
