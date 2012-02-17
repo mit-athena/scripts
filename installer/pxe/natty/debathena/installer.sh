@@ -9,7 +9,11 @@
 # because check-missing-firmware still insists on reloading the module
 # and we lose the network configuration.
 if grep -q "^Vostro 320" /sys/class/dmi/id/product_name || lsmod | grep -q r8169; then
-    rm -f /dev/.udev/firmware-missing/*
+    # This will break if the firmware eventually wants to live somewhere else
+    # This is possibly a bad idea if there are r8169-based cards that do need 
+    # firmware, but if they do, it's not likely they made it this far in the 
+    # installation process.
+    rm -f /dev/.udev/firmware-missing/rtl_nic*
 fi
 
 cd /debathena
