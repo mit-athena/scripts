@@ -2,9 +2,6 @@
 DEBIAN_CODES="lenny squeeze hardy lucid maverick natty oneiric"
 gettag() {
     case "$1" in
-	lenny)
-	    echo "~debian5.0"
-	    ;;
 	squeeze)
 	    echo "~debian6.0~0.3"
 	    ;;
