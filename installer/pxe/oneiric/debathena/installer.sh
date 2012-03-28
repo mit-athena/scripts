@@ -1,9 +1,19 @@
 #!/bin/sh
 
-# Live Poultry Fresh Killed
-if grep -q "^Vostro 320" /sys/class/dmi/id/product_name; then
-    echo "Scribbling over check-missing-firmware"
-    echo > /bin/check-missing-firmware
+# Sigh.  check-missing-firmware is too stupid to reconfigure the NIC after
+# removing and reloading the module.  So we lose network in the middle
+# of the install.  The card works just fine without firmware, so we
+# just convince hwdetect and friends that there is no missing firmware.
+# NOTE: Although the nic-firmware udeb does not include the Realtek
+# firmware, shipping the firmware ourselves does not fix the problem, 
+# because check-missing-firmware still insists on reloading the module
+# and we lose the network configuration.
+if grep -q "^Vostro 320" /sys/class/dmi/id/product_name || lsmod | grep -q r8169; then
+    # This will break if the firmware eventually wants to live somewhere else
+    # This is possibly a bad idea if there are r8169-based cards that do need 
+    # firmware, but if they do, it's not likely they made it this far in the 
+    # installation process.
+    rm -f /dev/.udev/firmware-missing/rtl_nic*
 fi
 
 cd /debathena
