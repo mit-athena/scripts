@@ -60,7 +60,7 @@ if [ "$have_lsbrelease" != "install ok installed" ]; then
 fi
 distro=`lsb_release -cs`
 case $distro in
-  lenny|squeeze)
+  squeeze)
     ;;
   hardy|intrepid|jaunty|karmic|lucid|maverick|natty|oneiric)
     ubuntu=yes
