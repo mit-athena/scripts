@@ -1,5 +1,5 @@
-suite := oneiric
-psuite := natty
+suite := precise
+psuite := oneiric
 STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
 package = $(STAMPS)/$(1).done
