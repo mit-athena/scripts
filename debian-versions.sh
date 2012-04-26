@@ -24,7 +24,7 @@ gettag() {
 	    echo "~ubuntu11.10"
 	    ;;
 	precise)
-	    echo "~ubuntu12.04~0.1"
+	    echo "~ubuntu12.04"
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
