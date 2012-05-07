@@ -1,6 +1,6 @@
-deb http://localhost:9999/ubuntu maverick main restricted universe
-deb-src http://localhost:9999/ubuntu maverick main restricted universe
-deb http://localhost:9999/ubuntu maverick-updates main restricted universe
-deb-src http://localhost:9999/ubuntu maverick-updates main restricted universe
-deb http://localhost:9999/ubuntu-security maverick-security main restricted universe
-deb-src http://localhost:9999/ubuntu-security maverick-security main restricted universe
+deb http://MIRROR/ubuntu maverick main restricted universe
+deb-src http://MIRROR/ubuntu maverick main restricted universe
+deb http://MIRROR/ubuntu maverick-updates main restricted universe
+deb-src http://MIRROR/ubuntu maverick-updates main restricted universe
+deb http://MIRROR/ubuntu-security maverick-security main restricted universe
+deb-src http://MIRROR/ubuntu-security maverick-security main restricted universe

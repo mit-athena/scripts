@@ -1,6 +1,6 @@
-deb http://localhost:9999/ubuntu precise main restricted universe
-deb-src http://localhost:9999/ubuntu precise main restricted universe
-deb http://localhost:9999/ubuntu precise-updates main restricted universe
-deb-src http://localhost:9999/ubuntu precise-updates main restricted universe
-deb http://localhost:9999/ubuntu-security precise-security main restricted universe
-deb-src http://localhost:9999/ubuntu-security precise-security main restricted universe
+deb http://MIRROR/ubuntu precise main restricted universe
+deb-src http://MIRROR/ubuntu precise main restricted universe
+deb http://MIRROR/ubuntu precise-updates main restricted universe
+deb-src http://MIRROR/ubuntu precise-updates main restricted universe
+deb http://MIRROR/ubuntu-security precise-security main restricted universe
+deb-src http://MIRROR/ubuntu-security precise-security main restricted universe

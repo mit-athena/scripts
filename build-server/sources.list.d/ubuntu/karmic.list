@@ -1,6 +1,6 @@
-deb http://localhost:9999/ubuntu karmic main restricted universe
-deb-src http://localhost:9999/ubuntu karmic main restricted universe
-deb http://localhost:9999/ubuntu karmic-updates main restricted universe
-deb-src http://localhost:9999/ubuntu karmic-updates main restricted universe
-deb http://localhost:9999/ubuntu-security karmic-security main restricted universe
-deb-src http://localhost:9999/ubuntu-security karmic-security main restricted universe
+deb http://MIRROR/ubuntu karmic main restricted universe
+deb-src http://MIRROR/ubuntu karmic main restricted universe
+deb http://MIRROR/ubuntu karmic-updates main restricted universe
+deb-src http://MIRROR/ubuntu karmic-updates main restricted universe
+deb http://MIRROR/ubuntu-security karmic-security main restricted universe
+deb-src http://MIRROR/ubuntu-security karmic-security main restricted universe

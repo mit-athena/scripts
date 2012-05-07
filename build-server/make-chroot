@@ -80,7 +80,7 @@ groups=root,sbuild
 root-groups=root,sbuild
 source-groups=root
 file=$FILE
-location=root
+location=/root
 personality=$PERSONALITY
 EOF
 
@@ -94,7 +94,7 @@ ln -s /bin/true /sbin/initctl
 debconf-set-selections <<SELECTIONS
 debconf	debconf/frontend	select	Noninteractive
 SELECTIONS
-cat <&8 > /etc/apt/sources.list
+sed "s|MIRROR|$MIRROR|" <&8 > /etc/apt/sources.list
 ! type apt-key >/dev/null || apt-key add - <&9
 apt-get -q -y update
 apt-get -q -y dist-upgrade

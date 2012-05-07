@@ -1,6 +1,6 @@
-deb http://localhost:9999/ubuntu jaunty main restricted universe
-deb-src http://localhost:9999/ubuntu jaunty main restricted universe
-deb http://localhost:9999/ubuntu jaunty-updates main restricted universe
-deb-src http://localhost:9999/ubuntu jaunty-updates main restricted universe
-deb http://localhost:9999/ubuntu-security jaunty-security main restricted universe
-deb-src http://localhost:9999/ubuntu-security jaunty-security main restricted universe
+deb http://MIRROR/ubuntu jaunty main restricted universe
+deb-src http://MIRROR/ubuntu jaunty main restricted universe
+deb http://MIRROR/ubuntu jaunty-updates main restricted universe
+deb-src http://MIRROR/ubuntu jaunty-updates main restricted universe
+deb http://MIRROR/ubuntu-security jaunty-security main restricted universe
+deb-src http://MIRROR/ubuntu-security jaunty-security main restricted universe

@@ -1,6 +1,6 @@
-deb http://localhost:9999/ubuntu lucid main restricted universe
-deb-src http://localhost:9999/ubuntu lucid main restricted universe
-deb http://localhost:9999/ubuntu lucid-updates main restricted universe
-deb-src http://localhost:9999/ubuntu lucid-updates main restricted universe
-deb http://localhost:9999/ubuntu-security lucid-security main restricted universe
-deb-src http://localhost:9999/ubuntu-security lucid-security main restricted universe
+deb http://MIRROR/ubuntu lucid main restricted universe
+deb-src http://MIRROR/ubuntu lucid main restricted universe
+deb http://MIRROR/ubuntu lucid-updates main restricted universe
+deb-src http://MIRROR/ubuntu lucid-updates main restricted universe
+deb http://MIRROR/ubuntu-security lucid-security main restricted universe
+deb-src http://MIRROR/ubuntu-security lucid-security main restricted universe
