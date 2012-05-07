@@ -8,9 +8,12 @@
 
 set -xe
 
+: ${CHROOTDIR=/srv}
+: ${MIRROR=localhost:9999}
 SUITE=$1
 ARCH=$2
 CHROOT="${SUITE}-${ARCH}-sbuild"
+FILE="$CHROOTDIR"/"$CHROOT".tar.bz2
 SIZE=4G
 
 exittrap() { :; }
@@ -19,6 +22,10 @@ trap 'exittrap' EXIT
 
 if fgrep -qxRs "[$CHROOT]" /etc/schroot/schroot.conf /etc/schroot/chroot.d; then
 	echo "Chroot $CHROOT already exists." >&2
+	exit 1
+fi
+if [ -e "$FILE" ]; then
+	echo "Chroot tarball $FILE already exists." >&2
 	exit 1
 fi
 
@@ -42,25 +49,26 @@ DATA="$(dirname "$0")"
 SOURCESD="$DATA/sources.list.d"
 if [ -e "$SOURCESD/debian/$SUITE.list" ]; then
 	SOURCES="$SOURCESD/debian/$SUITE.list"
-	MIRROR=http://localhost:9999/debian
+	MIRROR="http://$MIRROR/debian"
 elif [ -e "$SOURCESD/ubuntu/$SUITE.list" ]; then
 	SOURCES="$SOURCESD/ubuntu/$SUITE.list"
-	MIRROR=http://localhost:9999/ubuntu
+	MIRROR="http://$MIRROR/ubuntu"
 else
 	echo "Unrecognized suite $SUITE." >&2
 	exit 1
 fi
 
-exittrap() { umount "$TARGET" || :; rmdir "$TARGET" || :; }
-TARGET=$(mktemp -dt make-chroot.XXXXXX)
+exittrap() { rm -rf "$TMPDIR" || :; }
+TMPDIR=$(mktemp -d /var/tmp/make-chroot.XXXXXX)
+TARGET="$TMPDIR/root"
 debootstrap --variant=buildd --include=apt,apt-utils,gnupg,build-essential,fakeroot --arch "$ARCH" "$SUITE" "$TARGET" "$MIRROR"
 install -m a=rx,u+w "$DATA/policy-rc.d" "$TARGET/usr/sbin/"
 mkdir -p "$TARGET/dev/pts"
 mkdir -p "$TARGET/dev/shm"
 mkdir -p "$TARGET/afs"
 mkdir -p "$TARGET/mit"
-tar cjf /srv/"$CHROOT".tar.bz2 "$TARGET"
-rm -rf "$TARGET"
+(cd "$TMPDIR" && tar cjf "$FILE" --numeric-owner root)
+rm -rf "$TMPDIR"
 exittrap() { :; }
 
 ! [ -s "$CONF" ] || echo >> "$CONF"
@@ -71,8 +79,8 @@ description=$CHROOT
 groups=root,sbuild
 root-groups=root,sbuild
 source-groups=root
-file=/srv/$CHROOT.tar.bz2
-location=$TARGET
+file=$FILE
+location=root
 personality=$PERSONALITY
 EOF
 
