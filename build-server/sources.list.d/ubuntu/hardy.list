@@ -1,6 +1,6 @@
-deb http://MIRROR/ubuntu hardy main restricted universe
-deb-src http://MIRROR/ubuntu hardy main restricted universe
-deb http://MIRROR/ubuntu hardy-updates main restricted universe
-deb-src http://MIRROR/ubuntu hardy-updates main restricted universe
-deb http://MIRROR/ubuntu-security hardy-security main restricted universe
-deb-src http://MIRROR/ubuntu-security hardy-security main restricted universe
+deb http://MIRRORHOST/ubuntu hardy main restricted universe
+deb-src http://MIRRORHOST/ubuntu hardy main restricted universe
+deb http://MIRRORHOST/ubuntu hardy-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu hardy-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security hardy-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security hardy-security main restricted universe

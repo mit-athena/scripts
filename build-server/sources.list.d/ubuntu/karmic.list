@@ -1,6 +1,6 @@
-deb http://MIRROR/ubuntu karmic main restricted universe
-deb-src http://MIRROR/ubuntu karmic main restricted universe
-deb http://MIRROR/ubuntu karmic-updates main restricted universe
-deb-src http://MIRROR/ubuntu karmic-updates main restricted universe
-deb http://MIRROR/ubuntu-security karmic-security main restricted universe
-deb-src http://MIRROR/ubuntu-security karmic-security main restricted universe
+deb http://MIRRORHOST/ubuntu karmic main restricted universe
+deb-src http://MIRRORHOST/ubuntu karmic main restricted universe
+deb http://MIRRORHOST/ubuntu karmic-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu karmic-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security karmic-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security karmic-security main restricted universe

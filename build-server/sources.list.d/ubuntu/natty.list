@@ -1,6 +1,6 @@
-deb http://MIRROR/ubuntu natty main restricted universe
-deb-src http://MIRROR/ubuntu natty main restricted universe
-deb http://MIRROR/ubuntu natty-updates main restricted universe
-deb-src http://MIRROR/ubuntu natty-updates main restricted universe
-deb http://MIRROR/ubuntu-security natty-security main restricted universe
-deb-src http://MIRROR/ubuntu-security natty-security main restricted universe
+deb http://MIRRORHOST/ubuntu natty main restricted universe
+deb-src http://MIRRORHOST/ubuntu natty main restricted universe
+deb http://MIRRORHOST/ubuntu natty-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu natty-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security natty-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security natty-security main restricted universe

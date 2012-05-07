@@ -1,6 +1,6 @@
-deb http://MIRROR/ubuntu lucid main restricted universe
-deb-src http://MIRROR/ubuntu lucid main restricted universe
-deb http://MIRROR/ubuntu lucid-updates main restricted universe
-deb-src http://MIRROR/ubuntu lucid-updates main restricted universe
-deb http://MIRROR/ubuntu-security lucid-security main restricted universe
-deb-src http://MIRROR/ubuntu-security lucid-security main restricted universe
+deb http://MIRRORHOST/ubuntu lucid main restricted universe
+deb-src http://MIRRORHOST/ubuntu lucid main restricted universe
+deb http://MIRRORHOST/ubuntu lucid-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu lucid-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security lucid-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security lucid-security main restricted universe

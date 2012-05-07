@@ -1,6 +1,6 @@
-deb http://MIRROR/ubuntu precise main restricted universe
-deb-src http://MIRROR/ubuntu precise main restricted universe
-deb http://MIRROR/ubuntu precise-updates main restricted universe
-deb-src http://MIRROR/ubuntu precise-updates main restricted universe
-deb http://MIRROR/ubuntu-security precise-security main restricted universe
-deb-src http://MIRROR/ubuntu-security precise-security main restricted universe
+deb http://MIRRORHOST/ubuntu precise main restricted universe
+deb-src http://MIRRORHOST/ubuntu precise main restricted universe
+deb http://MIRRORHOST/ubuntu precise-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu precise-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security precise-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security precise-security main restricted universe

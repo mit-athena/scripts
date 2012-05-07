@@ -9,7 +9,7 @@
 set -xe
 
 : ${CHROOTDIR=/srv}
-: ${MIRROR=localhost:9999}
+: ${MIRRORHOST=localhost:9999}
 SUITE=$1
 ARCH=$2
 CHROOT="${SUITE}-${ARCH}-sbuild"
@@ -49,10 +49,10 @@ DATA="$(dirname "$0")"
 SOURCESD="$DATA/sources.list.d"
 if [ -e "$SOURCESD/debian/$SUITE.list" ]; then
 	SOURCES="$SOURCESD/debian/$SUITE.list"
-	MIRROR="http://$MIRROR/debian"
+	MIRROR="http://$MIRRORHOST/debian"
 elif [ -e "$SOURCESD/ubuntu/$SUITE.list" ]; then
 	SOURCES="$SOURCESD/ubuntu/$SUITE.list"
-	MIRROR="http://$MIRROR/ubuntu"
+	MIRROR="http://$MIRRORHOST/ubuntu"
 else
 	echo "Unrecognized suite $SUITE." >&2
 	exit 1
@@ -94,7 +94,7 @@ ln -s /bin/true /sbin/initctl
 debconf-set-selections <<SELECTIONS
 debconf	debconf/frontend	select	Noninteractive
 SELECTIONS
-sed "s|MIRROR|$MIRROR|" <&8 > /etc/apt/sources.list
+sed "s|MIRRORHOST|$MIRRORHOST|" <&8 > /etc/apt/sources.list
 ! type apt-key >/dev/null || apt-key add - <&9
 apt-get -q -y update
 apt-get -q -y dist-upgrade
