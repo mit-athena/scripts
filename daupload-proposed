@@ -78,7 +78,7 @@ if [ -n "$BUILDFOR" ]; then
 elif [ -n "$NOBUILD" ]; then
     newcodes=
     for code in $DEBIAN_CODES; do
-	if ! echo $NOBUILD | fgrep -q "$code"; then
+	if ! echo "$NOBUILD" | fgrep -q "$code"; then
 	    newcodes="$newcodes $code"
 	fi
     done

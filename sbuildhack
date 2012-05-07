@@ -23,11 +23,13 @@ EOF
 if [ -z "$dist" ] || [ -z "$arch" ]; then usage; fi
 
 dscfile=
-for i in $@; do
-  if echo $i | grep -q '\.dsc$'; then
+for i in "$@"; do
+  if echo "$i" | grep -q '\.dsc$'; then
     dscfile=$i
   fi
 done
+
+[ -n "$dscfile" ] || usage
 
 NOBUILD=$(grep-dctrl -n -s Debathena-No-Build -F Debathena-No-Build -e . "$dscfile")
 BUILDFOR=$(grep-dctrl -n -s Debathena-Build-For -F Debathena-Build-For -e . "$dscfile")
