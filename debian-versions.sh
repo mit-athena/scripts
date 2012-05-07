@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="squeeze hardy lucid maverick natty oneiric"
+DEBIAN_CODES="squeeze hardy lucid natty oneiric"
 gettag() {
     case "$1" in
 	squeeze)
@@ -13,9 +13,6 @@ gettag() {
 	    ;;
 	lucid)
 	    echo "~ubuntu10.04"
-	    ;;
-	maverick)
-	    echo "~ubuntu10.10"
 	    ;;
 	natty)
 	    echo "~ubuntu11.04"
