@@ -43,6 +43,11 @@ if [ `id -u` != "0" ]; then
   exit 1
 fi
 
+pxetype=
+if test -f /root/pxe-install-flag ; then
+  pxetype=`head -1 /root/pxe-install-flag`
+fi
+
 have_lsbrelease="$(dpkg-query -W -f '${Status}' lsb-release 2>/dev/null)"
 if [ "$have_lsbrelease" != "install ok installed" ]; then
   echo "The installer requires the 'lsb-release' package to determine"
@@ -67,11 +72,11 @@ case $distro in
     ;;
   precise)
     ubuntu=yes
-    output "The release you have selected is not fully supported"
+    output "The release you are running ($distro) is not fully supported"
     output "and installing Debathena on it is probably a bad idea."
-    ask "Are you sure you want to proceed? [y/N] " n
-    if [ y != "$answer" ]; then
-	exit 1
+    if ! test -f /root/pxe-install-flag; then
+	ask "Are you sure you want to proceed? [y/N] " n
+	[ y != "$answer" ] && exit 1
     fi
     ;;
   lenny|intrepid|jaunty|karmic|maverick)
@@ -126,12 +131,9 @@ EOF
 fi
 
 category=""
-if test -f /root/pxe-install-flag ; then
-  pxetype=`head -1 /root/pxe-install-flag`
-  if [ cluster = "$pxetype" ] ; then
-    category=cluster ;
-    echo "PXE cluster install detected, so installing \"cluster\"."
-  fi
+if [ cluster = "$pxetype" ] ; then
+  category=cluster ;
+  echo "PXE cluster install detected, so installing \"cluster\"."
 fi
 while [ standard != "$category" -a login != "$category" -a \
         login-graphical != "$category" -a workstation != "$category" -a \
