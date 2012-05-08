@@ -6,6 +6,12 @@
 # and architecture ARCH, and sets up schroot configuration for it.
 # Assumes an approx cache is running at localhost:9999.
 
+BZ2=0
+if [ "$1" = "-z" ]; then
+    BZ2=1
+    shift
+fi
+
 set -xe
 
 : ${CHROOTDIR=/srv}
@@ -13,7 +19,8 @@ set -xe
 SUITE=$1
 ARCH=$2
 CHROOT="${SUITE}-${ARCH}-sbuild"
-FILE="$CHROOTDIR"/"$CHROOT".tar.bz2
+FILE="$CHROOTDIR"/"$CHROOT".tar
+[ $BZ2 -eq 1 ] && FILE="${FILE}.bz2"
 SIZE=4G
 
 exittrap() { :; }
@@ -67,7 +74,9 @@ mkdir -p "$TARGET/dev/pts"
 mkdir -p "$TARGET/dev/shm"
 mkdir -p "$TARGET/afs"
 mkdir -p "$TARGET/mit"
-(cd "$TMPDIR" && tar cjf "$FILE" --numeric-owner root)
+TAROPTS="cf"
+[ $BZ2 -eq 1 ] && TAROPTS="cjf"
+(cd "$TMPDIR" && tar "$TAROPTS" "$FILE" --numeric-owner root)
 rm -rf "$TMPDIR"
 exittrap() { :; }
 
