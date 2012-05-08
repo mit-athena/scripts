@@ -62,8 +62,24 @@ distro=`lsb_release -cs`
 case $distro in
   squeeze)
     ;;
-  hardy|intrepid|jaunty|karmic|lucid|maverick|natty|oneiric)
+  hardy|lucid|natty|oneiric)
     ubuntu=yes
+    ;;
+  precise)
+    ubuntu=yes
+    output "The release you have selected is not fully supported"
+    output "and installing Debathena on it is probably a bad idea."
+    ask "Are you sure you want to proceed? [y/N] " n
+    if [ y != "$answer" ]; then
+	exit 1
+    fi
+    ;;
+  lenny|intrepid|jaunty|karmic|maverick)
+    error "The release you are running is no longer supported."
+    error "Generally, Debathena de-supports releases when they are no longer"
+    error "supported by upstream.  If you believe you received this message"
+    error "in error, please contact debathena@mit.edu."
+    exit 1
     ;;
   *)
     error "Unsupported release codename: $distro"
