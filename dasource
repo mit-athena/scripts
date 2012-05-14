@@ -97,6 +97,30 @@ do_package() {
   ([ -f "$dir/debian/control.in" ] && cd $dir && DEB_AUTO_UPDATE_DEBIAN_CONTROL=yes debian/rules debian/control || :)
   [ -f "$dir/debian/control" ] || die "Can't find or generate debian/control!"
 
+  # Read in debian-versions
+  . $basedir/debian-versions.sh
+
+  NOBUILD=$(grep-dctrl -n -s Debathena-No-Build -F Debathena-No-Build -e . "$dir/debian/control")
+  BUILDFOR=$(grep-dctrl -n -s Debathena-Build-For -F Debathena-Build-For -e . "$dir/debian/control")
+  if [ -n "$NOBUILD" ] && [ -n "$BUILDFOR" ]; then
+      echo "It is an error to specify both X-Debathena-Build-For and"
+      echo "X-Debathena-No-Build.  Pick one and try again."
+      die
+  elif [ -z "$NOBUILD" ] && [ -z "$BUILDFOR" ]; then
+      [ -f "$pkgname/nobuild" ] && echo "NOTE: Please migrate legacy ./nobuild to X-Debathena-No-Build!"
+  else
+      [ -f "$pkgname/nobuild" ] && rm "$pkgname/nobuild"
+      if [ -n "$BUILDFOR" ]; then
+	  NOBUILD=
+	  for code in $DEBIAN_CODES; do
+	      if ! echo "$BUILDFOR" | fgrep -q "$code"; then
+		  NOBUILD="$NOBUILD $code"
+	      fi
+	  done
+      fi
+      echo "$NOBUILD" > "$pkgname/nobuild"
+  fi
+
   # Create a suitable orig tarball if necessary.
   (cd $dir && $basedir/daorig)
 

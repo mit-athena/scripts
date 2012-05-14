@@ -22,36 +22,8 @@ $dist_arch
 EOF
 if [ -z "$dist" ] || [ -z "$arch" ]; then usage; fi
 
-dscfile=
-for i in "$@"; do
-  if echo "$i" | grep -q '\.dsc$'; then
-    dscfile=$i
-  fi
-done
-
-[ -n "$dscfile" ] || usage
-
-NOBUILD=$(grep-dctrl -n -s Debathena-No-Build -F Debathena-No-Build -e . "$dscfile")
-BUILDFOR=$(grep-dctrl -n -s Debathena-Build-For -F Debathena-Build-For -e . "$dscfile")
-
-if [ -n "$NOBUILD" ] && [ -n "$BUILDFOR" ]; then
-    echo "It is an error to specify both Debathena-Build-For and Debathena-No-Build fields."
-    echo "Pick one and try again."
-    exit 1
-fi
-
-if [ -z "$NOBUILD" ] && [ -z "$BUILDFOR" ] && [ -e nobuild ]; then
-    NOBUILD="$(cat nobuild)"
-    echo "NOTE: Please migrate ./nobuild to XSC-Debathena-No-Build!"
-fi
-
-if [ -n "$NOBUILD" ] && echo "$NOBUILD" | fgrep -q "$dist"; then
-  echo "Skipping $dist since it is listed in the Debathena-No-Build field"
-  exit
-fi
-
-if [ -n "$BUILDFOR" ] && ! echo "$BUILDFOR" | fgrep -q "$dist"; then
-  echo "Skipping $dist since it is not listed in the Debathena-Build-For field"
+if [ -e nobuild ] && fgrep -q "$dist" nobuild; then
+  echo "Skipping $dist since it is listed in ./nobuild."
   exit
 fi
 
