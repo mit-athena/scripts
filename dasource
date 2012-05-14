@@ -100,8 +100,8 @@ do_package() {
   # Read in debian-versions
   . $basedir/debian-versions.sh
 
-  NOBUILD=$(grep-dctrl -n -s Debathena-No-Build -F Debathena-No-Build -e . "$dir/debian/control")
-  BUILDFOR=$(grep-dctrl -n -s Debathena-Build-For -F Debathena-Build-For -e . "$dir/debian/control")
+  NOBUILD=$(grep-dctrl -n -s X-Debathena-No-Build -F X-Debathena-No-Build -e . "$dir/debian/control")
+  BUILDFOR=$(grep-dctrl -n -s X-Debathena-Build-For -F X-Debathena-Build-For -e . "$dir/debian/control")
   if [ -n "$NOBUILD" ] && [ -n "$BUILDFOR" ]; then
       echo "It is an error to specify both X-Debathena-Build-For and"
       echo "X-Debathena-No-Build.  Pick one and try again."
