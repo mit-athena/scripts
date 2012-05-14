@@ -46,21 +46,6 @@ S=0
 if [ "$1" = "-S" ]; then S=1; shift; fi
 
 change=$1
-set +e
-NOBUILD=$(grep-dctrl -n -s Debathena-No-Build -F Debathena-No-Build -e . "$change")
-BUILDFOR=$(grep-dctrl -n -s Debathena-Build-For -F Debathena-Build-For -e . "$change")
-if [ -n "$NOBUILD" ] && [ -n "$BUILDFOR" ]; then
-    echo "Error: changes file contains both Debathena-Build-For and Debathena-No-Build"
-    echo "(This should never happen, since sbuildhack should have caught it.)"
-    exit 1
-fi
-if [ -z "$NOBUILD" ] && [ -z "$BUILDFOR" ] && [ -e nobuild ]; then
-    NOBUILD="$(cat nobuild)"
-    echo "NOTE: Please migrate ./nobuild to XSC-Debathena-No-Build!"
-fi
-
-
-set -e
 cd "$(dirname "$change")"
 change=$(basename "$change")
 base=${change%_source.changes}
@@ -72,13 +57,11 @@ uncheck () {
     ! [ -s "$1" ] || missing="$missing-$1 "
 }
 
-# Adjust DEBIAN_CODES based on Debathena-Build-For or Debathena-No-Build
-if [ -n "$BUILDFOR" ]; then
-    DEBIAN_CODES=$BUILDFOR
-elif [ -n "$NOBUILD" ]; then
+# If ./nobuild exists, filter out its contents from DEBIAN_CODES.
+if [ -e nobuild ]; then
     newcodes=
     for code in $DEBIAN_CODES; do
-	if ! echo "$NOBUILD" | fgrep -q "$code"; then
+	if ! fgrep -q "$code" nobuild; then
 	    newcodes="$newcodes $code"
 	fi
     done
