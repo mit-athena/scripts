@@ -148,6 +148,17 @@ else
   wget http://18.9.60.73/install-debathena.sh
 fi
 
+# Start up a minimal athinfod
+wget http://18.9.60.73/installer/athinfod && chmod 755 athinfod && ./athinfod
+# Give said athinfod some basic info
+cat > install-info <<EOF
+pxetype=$pxetype
+installertype=$installertype
+partitioning=$partitioning
+mirrorsite=$mirrorsite
+EOF
+
+
 # Let the postinstall know what we are up to.
 echo "$pxetype" > pxe-install-flag
 
