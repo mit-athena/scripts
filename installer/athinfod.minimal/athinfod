@@ -30,7 +30,7 @@ query="$(echo "$query" | sed 's/[^-.A-Za-z0-9_]//g')" # untaint
 
 case "$query" in
     version)
-	echo "Installation in progress:" && cat /debathena/install-info ;;
+	echo "Installation in progress" && test -f /debathena/install-info && cat /debathena/install-info ;;
     uname)
 	uname -a ;;
     preseed)
@@ -47,7 +47,7 @@ case "$query" in
     *)
 	[ "$query" != "queries" ] && echo "Unknown query"
 	cat <<EOF
-version       echo "Installation in progress"
+version       echo "Installation in progress" && test -f /debathena/install-info && cat /debathena/install-info
 uname         uname -a
 preseed       grep -v "^d-i passwd/root-password" /debathena/preseed
 syslog        tail -20 /var/log/syslog
