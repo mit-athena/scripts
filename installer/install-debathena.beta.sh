@@ -308,9 +308,12 @@ if [ yes = "$resolvconfhack" ]; then
   aptitude -y install resolvconf
 fi
 
+# Only add our openafs component if DKMS isn't available
+openafs_component=""
 if aptitude show openafs-modules-dkms > /dev/null; then
-  openafs_component=" openafs"
   modules="openafs-modules-dkms"
+else
+  openafs_component=" openafs"
 fi
 
 output "Adding the Debathena repository to the apt sources"
