@@ -172,3 +172,5 @@ else
     do_package $pkgname $pkgpath
   done
 fi
+# Unset trap
+trap - EXIT
