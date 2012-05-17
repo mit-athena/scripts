@@ -336,13 +336,28 @@ if [ "$test" != "test" ]; then
 fi
 dkargs="DEBCONF_DEBUG=5"
 
+nodhcp="netcfg/disable_dhcp=true"
+case "$UBUNTU_RELEASE" in
+    oneiric|precise)
+        kbdcode="keyboard-configuration/layoutcode=us"
+        # "Yay"
+        nodhcp="netcfg/disable_autoconfig=true"
+    natty)
+        # Sigh
+        kbdcode="keyboard-configuration/layoutcode=us"
+        ;;
+    *)
+        kbdcode="console-setup/layoutcode=us"
+        ;;
+esac
+
 hname="$HOSTNAME"
 if [ "$IPADDR" = dhcp ] ; then
   knetinfo="netcfg/get_hostname=$hname "
 else
   # There's no good way to get a hostname here, but the postinstall will deal.
   # True, but thanks to wget, there's a bad way to get a hostname
-  knetinfo="netcfg/disable_dhcp=true \
+  knetinfo="$nodhcp \
 netcfg/get_domain=mit.edu \
 netcfg/get_hostname=$hname \
 netcfg/get_nameservers=18.72.0.3 \
@@ -351,17 +366,6 @@ netcfg/get_netmask=$NETMASK \
 netcfg/get_gateway=$GATEWAY \
 netcfg/confirm_static=true"
 fi
-
-case "$distro" in
-  natty|oneiric)
-    # Sigh
-    kbdcode="keyboard-configuration/layoutcode=us"
-    ;;
-  *)
-    kbdcode="console-setup/layoutcode=us"
-    ;;
-esac
-
 
 # SIGH  See LP #818933
 # This is fixed in Oneiric's kernel, but the PXE server is still serving
