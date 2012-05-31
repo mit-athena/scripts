@@ -71,7 +71,20 @@ netconfig () {
       echo "$IPADDR reverse-resolves to $HOSTNAME..."
     else
       echo "$dig"
-      echo "Could not look up hostname for $IPADDR.  Oh well..."
+      echo "Could not look up hostname for $IPADDR."
+      echo "Cannot continue without a valid hostname."
+      echo "Please note that if this address was newly requested,"
+      echo "or its hostname was changed, it can take up to 2 business days"
+      echo "before DNS information is correct."
+      echo 
+      echo "Please try again once DNS has been updated or use a different"
+      echo "IP address.  You may now restart or shut down this workstation."
+      while true; do
+	  read foo
+	  if [ "$foo" = "xyzzy" ]; then 
+	      break
+	  fi
+      done
     fi
   fi
   if [ -z "$HOSTNAME" ]; then
