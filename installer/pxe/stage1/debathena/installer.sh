@@ -350,11 +350,12 @@ fi
 dkargs="DEBCONF_DEBUG=5"
 
 nodhcp="netcfg/disable_dhcp=true"
-case "$UBUNTU_RELEASE" in
+case "$distro" in
     oneiric|precise)
         kbdcode="keyboard-configuration/layoutcode=us"
         # "Yay"
         nodhcp="netcfg/disable_autoconfig=true"
+	;;
     natty)
         # Sigh
         kbdcode="keyboard-configuration/layoutcode=us"
