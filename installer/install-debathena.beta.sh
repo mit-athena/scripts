@@ -235,7 +235,7 @@ if [ "$pxetype" = "cluster" ] ; then
     # assumed that this config has already happened and shouldn't be stomped on.
 
     # Configure network based on the preseed file settings, if present.
-    if test -f /root/debathena.preseed ; then
+    if test -f /root/debathena.preseed && ! grep -q netcfg/get_ipaddress /proc/cmdline; then
       # Switch to canonical hostname.
       ohostname=`cat /etc/hostname`
       # Hack to avoid installing debconf-get for just this.
