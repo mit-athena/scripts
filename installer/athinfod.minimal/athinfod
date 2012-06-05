@@ -54,6 +54,8 @@ syslog        tail -20 /var/log/syslog
 syslog-full   cat /var/log/syslog
 hardware      cat /sys/class/dmi/id/product_name 
 uptime        uptime
+install.log   tail -20 /target/var/log/athena-install.log
+install.log-full   cat /target/var/log/athena-install.log
 EOF
 esac
 exit 0
