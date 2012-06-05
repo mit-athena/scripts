@@ -29,6 +29,9 @@ case "$(basename "$0")" in
     daupload-dev)
         release="-development"
         ;;
+    daupload-bleeding)
+	release="-bleeding"
+	;;
     *)
 	echo "Unknown release." >&2
 	exit 1

@@ -15,6 +15,13 @@ if [ "$#" -lt 3 ]; then
     exit 1
 fi
 
+if [ "$1" = "-bleeding" ] || [ "$2" = "-bleeding" ]; then
+    echo "You're not supposed to move or copy things to or from -bleeding."
+    echo "Exiting..."
+    exit 1
+fi
+
+
 case "${1}/${2}" in
   /-proposed) ;;
   /-development) ;;
