@@ -73,6 +73,13 @@ do_package() {
     svn co $repo/$pkgpath $dir
   fi
 
+  # Ensure that we're not trying to do something stupid
+  distribution=$(cd $dir && dpkg-parsechangelog | sed -n 's/Distribution: //p')
+  if [ "$distribution" = "UNRELEASED" ]; then
+    echo "You can't/shouldn't build a package marked as UNRELEASED."
+    exit 1
+  fi
+
   # Extract the changelog version and strip off the epoch and Debian component.
   changever=$(cd $dir && dpkg-parsechangelog | sed -n 's/Version: //p')
   sver=$(echo $changever | sed -re 's/^[0-9]+://p')
