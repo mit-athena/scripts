@@ -18,6 +18,7 @@ sub list {
 	return @a;
 }
 
+# For each source package, add its build-deps to the list
 open(DPKG, '-|', "zcat $ENV{DEBATHENA_APT}/dists/$psuite/*/source/Sources.gz | dpkg-awk -f - -- Package Build-Depends") or die;
 my %src_deps = ();
 while (<DPKG>) {
@@ -34,25 +35,35 @@ while (<DPKG>) {
 	}
 }
 close DPKG;
-open(DPKG, '-|', "zcat $ENV{DEBATHENA_APT}/dists/$psuite/debathena/binary-amd64/Packages.gz | dpkg-awk -f - -- Package Source Provides") or die;
+
+# For each binary package, add itself as a source and provider.  If
+# there are actually different Sources and Provides for the package,
+# use them instead.  Note: This will fail miserably if we ever build
+# packages only for one architecture.
+open(DPKG, '-|', "zcat $ENV{DEBATHENA_APT}/dists/$psuite/debathena/binary-amd64/Packages.gz | dpkg-awk -f - -- Package Source Provides Depends") or die;
 my %pkg_src = ();
 my %pkg_provider = ();
+my %pkg_deps=();
 while (<DPKG>) {
 	last if /^$/;
 	my ($package) = /^Package: (.*)$/ or die;
 	$pkg_src{$package} = $package;
 	$pkg_provider{$package} = $package;
+	@{$pkg_deps{$package}} = ();
 	while (<DPKG>) {
 		last if ($_ eq "\n");
 		if (my ($source) = /^Source: (.*)$/) {
 			$pkg_src{$package} = $source;
 		} elsif (my ($provides) = /^Provides: (.*)$/) {
 			$pkg_provider{$_} = $package for (list($provides));
+		} elsif (my ($depends) = /^Depends: (.*)$/) {
+			push @{$pkg_deps{$package}}, $_ for (list($depends));
 		} else {
 			die;
 		}
 	}
 }
+
 for my $source (keys %src_deps) {
 	print "build-all: \$(call package,$source)\n";
 	if ($source ne "debathena-build-depends") {
@@ -60,5 +71,8 @@ for my $source (keys %src_deps) {
 	}
 	for (@{$src_deps{$source}}) {
 		print "\$(call package,$source): \$(call package,$pkg_src{$pkg_provider{$_}})\n" if (defined $pkg_provider{$_});
+		foreach my $dep (@{$pkg_deps{$_}}) {
+		    print "\$(call package,$source): \$(call package,$pkg_src{$dep})\n" if (defined $pkg_provider{$dep});
+		}
 	}
 }
