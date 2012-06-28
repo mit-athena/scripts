@@ -6,6 +6,7 @@ suite=$3
 psuite=$4
 : ${DEBATHENA_APT=/mit/debathena/apt}
 : ${DEBATHENA_BUILD_AREA=/afs/sipb.mit.edu/project/debathena/packages}
+# Release to upload to
 : ${DEBATHENA_RELEASE=-staging}
 export DEBATHENA_RELEASE
 . /mit/debathena/bin/debian-versions.sh
@@ -20,11 +21,13 @@ if [ ! -e $dir ]; then
 fi
 [ -e "$dir" ]
 cd "$dir"
+# Skip the package if it's listed in nobuild
 if fgrep -q "$suite" nobuild; then
     touch "$stamp.done"
     trap - EXIT
     exit
 fi
+# Deal with debathenified packges
 debathenificator=$(echo ./debathenify-*)
 if [ "$debathenificator" != "./debathenify-*" ]; then
     "$debathenificator" "${suite}-amd64" -A source binary upload
@@ -33,15 +36,21 @@ if [ "$debathenificator" != "./debathenify-*" ]; then
     trap - EXIT
     exit
 fi
-for suffix in "" -proposed -development -staging; do
+# For each of the releases in the previous suite, look for the source
+# package versions and accept the last one we find.  Due to the
+# current repo layout, this also happens to be the highest version.
+# We may wish to explicitly select the highest version in the code.
+for suffix in "" -proposed -development; do
     vv=$(zcat ${DEBATHENA_APT}/dists/$psuite$suffix/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
     if [ -n "$vv" ]; then
         version="$vv"
     fi
 done
+# Find the .dsc in the built/ directory for the package
 if [ -d "built/" ]; then
     dsc="built/${package}_$version.dsc"
 fi
+# Build the .dsc if necessary.
 if ! [ -e "$dsc" ]; then
     if ! [ -e "${package}_$version.dsc" ]; then
         schroot -c "${psuite}-amd64-sbuild" -u root -- sh -ec "SBUILD_BUILD_CONF_DISTRIBUTION=$psuite $(readlink -f /mit/debathena/bin/chroot-sources) && apt-get update && apt-get source $package"
