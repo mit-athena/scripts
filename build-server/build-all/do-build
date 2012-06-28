@@ -6,7 +6,7 @@ suite=$3
 psuite=$4
 : ${DEBATHENA_APT=/mit/debathena/apt}
 : ${DEBATHENA_BUILD_AREA=/afs/sipb.mit.edu/project/debathena/packages}
-: ${DEBATHENA_RELEASE=-development}
+: ${DEBATHENA_RELEASE=-staging}
 export DEBATHENA_RELEASE
 . /mit/debathena/bin/debian-versions.sh
 tag=$(gettag $suite)
@@ -33,7 +33,7 @@ if [ "$debathenificator" != "./debathenify-*" ]; then
     trap - EXIT
     exit
 fi
-for suffix in "" -proposed -development; do
+for suffix in "" -proposed -development -staging; do
     vv=$(zcat ${DEBATHENA_APT}/dists/$psuite$suffix/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
     if [ -n "$vv" ]; then
         version="$vv"
