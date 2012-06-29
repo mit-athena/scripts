@@ -40,7 +40,11 @@ fi
 # package versions and accept the last one we find.  Due to the
 # current repo layout, this also happens to be the highest version.
 # We may wish to explicitly select the highest version in the code.
-for suffix in "" -proposed -development; do
+extra=
+if [ "$psuite" = "$suite" ]; then
+    extra="-staging"
+fi
+for suffix in "" -proposed -development $extra; do
     vv=$(zcat ${DEBATHENA_APT}/dists/$psuite$suffix/*/source/Sources.gz | dpkg-awk -f - "Package:^$package\$" -- Version | sed -n 's/Version: // p')
     if [ -n "$vv" ]; then
         version="$vv"
