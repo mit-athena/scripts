@@ -3,7 +3,7 @@ DEBIAN_CODES="squeeze hardy lucid natty oneiric precise"
 gettag() {
     case "$1" in
 	squeeze)
-	    echo "~debian6.0~0.3"
+	    echo "~debian6.0"
 	    ;;
 	wheezy)
 	    echo "~debian7.0~0.3"
