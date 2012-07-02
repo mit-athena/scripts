@@ -9,6 +9,9 @@
 
 set -e
 
+# The user's umask will sometimes carry over; don't let that happen.
+umask 022
+
 # If we run with the noninteractive frontend, mark Debconf questions as
 # seen, so you don't see all the suppressed questions next time you
 # upgrade that package, or worse, upgrade releases.
