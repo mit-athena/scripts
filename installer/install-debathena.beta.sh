@@ -175,7 +175,8 @@ if [ yes = "$csoft" ]; then
     echo "sun-java6-bin shared/accepted-sun-dlj-v1-1 boolean true" |debconf-set-selections
 fi
 
-if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
+if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ] && \
+    dpkg --compare-versions "$(uname -r)" ge 3.2~; then
     noacpi=y
     if [ "$category" != "cluster" ]; then
 	echo
@@ -419,6 +420,7 @@ if [ yes = "$tsoft" ]; then
 fi
 
 # Post-install cleanup for cluster systems.
+rm installing.txt
 if [ "$divertedbg" = "yes" ]; then
     rm -f $bgimage
     if ! dpkg-divert --rename --remove $bgimage; then
