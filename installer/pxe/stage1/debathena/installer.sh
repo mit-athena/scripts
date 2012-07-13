@@ -213,6 +213,12 @@ while [ -z "$pxetype" ] ; do
       echo "Vanilla Ubuntu it is."; pxetype=vanilla;;
     4)
       echo "Here's a shell.  You'll return to this prompt when done."
+      echo
+      echo "Note: This shell has no job control, and unless you know"
+      echo "what you're doing, you almost certainly want to switch to"
+      echo "VT2 (by pressing Ctrl-Alt-F2), and use the shell there."
+      echo "You can return to this screen (VT5) by pressing Ctrl-Alt-F5."
+      echo
       /bin/sh;;
     m|M)
       echo
