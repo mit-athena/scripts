@@ -70,12 +70,12 @@ distro=`lsb_release -cs`
 case $distro in
   squeeze)
     ;;
-  hardy|lucid|natty|oneiric)
+  hardy|lucid|natty|oneiric|precise)
     ubuntu=yes
     ;;
-  precise)
+  quantal)
     ubuntu=yes
-    output "The release you are running ($distro) is not fully supported"
+    output "The release you are running ($distro) is not supported"
     output "and installing Debathena on it is probably a bad idea."
     if ! test -f /root/pxe-install-flag; then
 	ask "Are you sure you want to proceed? [y/N] " n
@@ -83,7 +83,7 @@ case $distro in
     fi
     ;;
   lenny|intrepid|jaunty|karmic|maverick)
-    error "The release you are running is no longer supported."
+    error "The release you are running ($distro) is no longer supported."
     error "Generally, Debathena de-supports releases when they are no longer"
     error "supported by upstream.  If you believe you received this message"
     error "in error, please contact debathena@mit.edu."
