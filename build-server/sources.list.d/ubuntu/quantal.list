@@ -1,0 +1,6 @@
+deb http://MIRRORHOST/ubuntu quantal main restricted universe
+deb-src http://MIRRORHOST/ubuntu quantal main restricted universe
+deb http://MIRRORHOST/ubuntu quantal-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu quantal-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security quantal-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security quantal-security main restricted universe
