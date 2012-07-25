@@ -176,7 +176,7 @@ if [ yes = "$csoft" ]; then
 fi
 
 if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ] && \
-    dpkg --compare-versions "$(uname -r)" ge 3.2~; then
+    dpkg --compare-versions "$(uname -r)" lt 3.2~; then
     noacpi=y
     if [ "$category" != "cluster" ]; then
 	echo
