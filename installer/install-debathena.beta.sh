@@ -208,6 +208,7 @@ if [ "$pxetype" = "cluster" ] ; then
      cat installing.txt > /dev/tty6
      date > /dev/tty6
      chvt 6
+     rm installing.txt
   fi
   # Divert the default background and install our own so that failed machines
   # are more conspicuous
@@ -420,7 +421,6 @@ if [ yes = "$tsoft" ]; then
 fi
 
 # Post-install cleanup for cluster systems.
-rm installing.txt
 if [ "$divertedbg" = "yes" ]; then
     rm -f $bgimage
     if ! dpkg-divert --rename --remove $bgimage; then
