@@ -20,7 +20,9 @@ fi
 new_suffix="$1"; shift
 old_suffix="$1"; shift
 
-dacopy "$new_suffix" "$old_suffix" "$@"
-if [ "$new_suffix" != "$old_suffix" ]; then
-    daremove "$old_suffix" "$@"
-fi
+for pkg in "$@"; do
+    dacopy "$new_suffix" "$old_suffix" "$pkg"
+    if [ "$new_suffix" != "$old_suffix" ]; then
+	daremove "$old_suffix" "$pkg"
+    fi
+done
