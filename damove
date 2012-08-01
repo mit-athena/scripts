@@ -25,4 +25,7 @@ for pkg in "$@"; do
     if [ "$new_suffix" != "$old_suffix" ]; then
 	daremove "$old_suffix" "$pkg"
     fi
+    if hash zwrite 2>/dev/null; then
+	zwrite -d -c debathena -i apt -m "Moved $pkg from $old_suffix to ${new_suffix:-production}"
+    then
 done
