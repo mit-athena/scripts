@@ -380,7 +380,7 @@ else
   knetinfo="$nodhcp \
 netcfg/get_domain=mit.edu \
 netcfg/get_hostname=$hname \
-netcfg/get_nameservers=18.72.0.3 \
+netcfg/get_nameservers=\"18.72.0.3 18.70.0.160 18.71.0.151\" \
 netcfg/get_ipaddress=$IPADDR \
 netcfg/get_netmask=$NETMASK \
 netcfg/get_gateway=$GATEWAY \
