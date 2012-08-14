@@ -67,14 +67,20 @@ if [ "$have_lsbrelease" != "install ok installed" ]; then
   fi
 fi
 distro=`lsb_release -cs`
+aptitude=aptitude
 case $distro in
   squeeze)
     ;;
-  hardy|lucid|natty|oneiric|precise)
+  hardy|lucid)
     ubuntu=yes
+    ;;
+  natty|oneiric|precise)
+    ubuntu=yes
+    aptitude=apt-get
     ;;
   quantal)
     ubuntu=yes
+    aptitude=apt-get
     output "The release you are running ($distro) is not supported"
     output "and installing Debathena on it is probably a bad idea."
     if ! test -f /root/pxe-install-flag; then
@@ -374,7 +380,7 @@ echo "fa787714d1ea439c28458aab64962f755e2bdee7a3520919a72b641458757fa3586fd269cc
 apt-key add debathena-archive-keyring.asc
 rm ./debathena-archive-keyring.asc
 
-apt-get update
+$aptitude update
 
 if [ -z "$modules" ]; then
   modules_want=$(dpkg-query -W -f '${Source}\t${Package}\n' 'linux-image-*' | \
@@ -407,17 +413,17 @@ fi
 # debathena packages will later stomp on anyway.
 output "Installing main Debathena metapackage $mainpackage"
 
-apt-get -y install "$mainpackage"
+$aptitude -y install "$mainpackage"
 
 # Use the default front end and allow questions to be asked; otherwise
 # Java will fail to install since it has to present its license.
 if [ yes = "$csoft" ]; then
   output "Installing debathena-extra-software"
-  DEBIAN_PRIORITY=critical apt-get -y install debathena-extra-software
+  DEBIAN_PRIORITY=critical $aptitude -y install debathena-extra-software
 fi
 if [ yes = "$tsoft" ]; then
   output "Installing debathena-thirdparty"
-  DEBIAN_PRIORITY=critical apt-get -y install debathena-thirdparty
+  DEBIAN_PRIORITY=critical $aptitude -y install debathena-thirdparty
 fi
 
 # Post-install cleanup for cluster systems.
