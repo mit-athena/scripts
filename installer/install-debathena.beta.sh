@@ -307,10 +307,10 @@ if ! hash aptitude >/dev/null 2>&1; then
 fi
 
 output "Installing Debathena installer dependencies: wget and dnsutils"
-aptitude -y install wget dnsutils
+apt-get -y install wget dnsutils
 if [ yes = "$resolvconfhack" ]; then
   output "Installing resolvconf ahead of time"
-  aptitude -y install resolvconf
+  apt-get -y install resolvconf
 fi
 
 # Only add our openafs component if DKMS isn't available
@@ -407,17 +407,17 @@ fi
 # debathena packages will later stomp on anyway.
 output "Installing main Debathena metapackage $mainpackage"
 
-aptitude -y install "$mainpackage"
+apt-get -y install "$mainpackage"
 
 # Use the default front end and allow questions to be asked; otherwise
 # Java will fail to install since it has to present its license.
 if [ yes = "$csoft" ]; then
   output "Installing debathena-extra-software"
-  DEBIAN_PRIORITY=critical aptitude -y install debathena-extra-software
+  DEBIAN_PRIORITY=critical apt-get -y install debathena-extra-software
 fi
 if [ yes = "$tsoft" ]; then
   output "Installing debathena-thirdparty"
-  DEBIAN_PRIORITY=critical aptitude -y install debathena-thirdparty
+  DEBIAN_PRIORITY=critical apt-get -y install debathena-thirdparty
 fi
 
 # Post-install cleanup for cluster systems.
