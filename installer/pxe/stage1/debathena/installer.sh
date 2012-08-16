@@ -152,7 +152,7 @@ ddb="${esc}[1;31;47;5m" # Plus blinking
 
 mirrorsite="mirrors.mit.edu"
 installertype="production"
-distro="natty"
+distro="precise"
 partitioning="auto"
 arch="i386"
 # That is a space and a tab
