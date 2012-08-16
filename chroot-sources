@@ -20,6 +20,14 @@ deb $DEBATHENA_MIRROR $dist debathena debathena-config
 deb-src $DEBATHENA_MIRROR $dist debathena debathena-config
 EOF
 
+if [ "$DEBATHENA_RELEASE" = "-staging" ]; then
+    cat >>"$list" <<EOF
+deb $DEBATHENA_MIRROR ${dist}-staging debathena debathena-config
+deb-src $DEBATHENA_MIRROR ${dist}-staging debathena debathena-config
+EOF
+    DEBATHENA_RELEASE="-development"
+fi
+
 if [ "$DEBATHENA_RELEASE" = "-proposed" ] || [ "$DEBATHENA_RELEASE" = "-development" ]; then
     cat >>"$list" <<EOF
 deb $DEBATHENA_MIRROR ${dist}-proposed debathena debathena-config
