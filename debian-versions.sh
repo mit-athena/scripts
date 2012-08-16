@@ -6,7 +6,7 @@ gettag() {
 	    echo "~debian6.0"
 	    ;;
 	wheezy)
-	    echo "~debian7.0~0.3"
+	    echo "~debian7.0~0.4"
 	    ;;
 	hardy)
 	    echo "~ubuntu8.04"
