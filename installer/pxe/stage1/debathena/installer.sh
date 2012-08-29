@@ -125,10 +125,11 @@ netconfig () {
   # also fails, as the DHCP values override it.
   echo "Killing dhcp client."
   killall dhclient
-  echo "Running: ip addr flush dev eth0"
-  ip addr flush dev eth0
-  echo "Running: ip addr add $IPADDR/$maskbits broadcast $bc dev eth0"
-  ip addr add "$IPADDR/$maskbits" broadcast "$bc" dev eth0
+  ETH0="$(ip -o link show | grep -v loopback | cut -d: -f 2 | tr -d ' ')"
+  echo "Running: ip addr flush dev $ETH0"
+  ip addr flush dev $ETH0
+  echo "Running: ip addr add $IPADDR/$maskbits broadcast $bc dev $ETH0"
+  ip addr add "$IPADDR/$maskbits" broadcast "$bc" dev $ETH0
   echo "Flushing old default route."
   route delete default 2> /dev/null
   echo "Running: route add default gw $GATEWAY"
@@ -281,8 +282,8 @@ done
 debug "*** Main menu complete"
 debug "Mirror: $mirrorsite Type: $installertype Part: $partitioning"
 debug "Arch: $arch Distro: $distro Pxetype: $pxetype"
-debug "eth0:"
-debug "$(ip address show eth0)"
+debug "$ETH0:"
+debug "$(ip address show $ETH0)"
 debug "routing:"
 debug "$(route)"
 debug "resolv.conf:"
@@ -417,7 +418,7 @@ fi
 debug "About to run kexec with these args: $dkargs $kargs"
 ./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
 	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
-curaddr="$(ip address show eth0 | grep inet | sed -e 's/^[ ]*inet //' | cut -d/ -f 1)"
+curaddr="$(ip address show $ETH0 | grep inet | sed -e 's/^[ ]*inet //' | cut -d/ -f 1)"
 echo "Secondary installed failed; please contact release-team@mit.edu"
 echo "with the circumstances of your install attempt.  Here's a shell for debugging."
 echo "You can type 'httpd' to start an HTTP server which will make"
