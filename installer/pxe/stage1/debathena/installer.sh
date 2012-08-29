@@ -358,7 +358,7 @@ dkargs="DEBCONF_DEBUG=5"
 
 nodhcp="netcfg/disable_dhcp=true"
 case "$distro" in
-    oneiric|precise)
+    oneiric|precise|quantal)
         kbdcode="keyboard-configuration/layoutcode=us"
         # "Yay"
         nodhcp="netcfg/disable_autoconfig=true"
