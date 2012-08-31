@@ -25,8 +25,8 @@ die() {
 usage() {
   die "dasource [-r repos] [packagename ...]"
 }
-
-basedir=$(dirname "$(readlink -f "$0")")
+: ${DA_SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")"}
+basedir="$DA_SCRIPTS_DIR"
 repo=svn+ssh://svn.mit.edu/athena/trunk
 
 while getopts r: opt; do

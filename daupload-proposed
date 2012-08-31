@@ -17,7 +17,8 @@ set -e
 
 # This script will skip dists listed in ./nobuild.
 
-. $(dirname "$0")/debian-versions.sh
+: ${DA_SCRIPTS_DIR="$(dirname "$0")"}
+. "$DA_SCRIPTS_DIR"/debian-versions.sh
 
 case "$(basename "$0")" in
     daupload-release)

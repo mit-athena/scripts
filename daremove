@@ -8,7 +8,8 @@
 # This removes any source or binary package built from the source
 # package PACKAGE
 
-. $(dirname "$0")/debian-versions.sh
+: ${DA_SCRIPTS_DIR="$(dirname "$0")"}
+. "$DA_SCRIPTS_DIR"/debian-versions.sh
 
 if [ "$#" -ne 2 ]; then
     echo "Usage: daremove SUFFIX SOURCE_PACKAGE" >&2

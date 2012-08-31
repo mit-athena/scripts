@@ -8,7 +8,8 @@
 # packages are very simple, there is no need to build them separately
 # for each dist.
 
-. $(dirname "$0")/debian-versions.sh
+: ${DA_SCRIPTS_DIR="$(dirname "$0")"}
+. "$DA_SCRIPTS_DIR"/debian-versions.sh
 
 case "$(basename "$0")" in
     daupload-equivs)

@@ -15,7 +15,8 @@
 # Typically this script is used to build Debathena packages, in which
 # case PROGRAM is sbuildhack and ARGUMENTS is a path to a .dsc file.
 
-. $(dirname "$0")/debian-versions.sh
+: ${DA_SCRIPTS_DIR="$(dirname "$0")"}
+. "$DA_SCRIPTS_DIR"/debian-versions.sh
 
 A=0
 if [ "$1" = -A ]; then A=1; shift; fi

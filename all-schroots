@@ -11,7 +11,8 @@
 # Debian/Ubuntu version, and ephemeral session chroots are used
 # instead of source chroots.
 
-. $(dirname "$0")/debian-versions.sh
+: ${DA_SCRIPTS_DIR="$(dirname "$0")"}
+. "$DA_SCRIPTS_DIR"/debian-versions.sh
 
 if [ "$1" = "-A" ]; then
 
