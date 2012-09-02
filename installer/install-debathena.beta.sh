@@ -12,11 +12,19 @@ set -e
 # The user's umask will sometimes carry over; don't let that happen.
 umask 022
 
-# If we run with the noninteractive frontend, mark Debconf questions as
-# seen, so you don't see all the suppressed questions next time you
-# upgrade that package, or worse, upgrade releases.
-export DEBCONF_NONINTERACTIVE_SEEN=true
-export DEBIAN_FRONTEND=noninteractive
+# Set the "seen" flag for all debconf questions that we configure
+# (Note: cluster installs still run noninteractively)
+cat <<EOF | debconf-set-selections
+openafs-client  openafs-client/thiscell seen true
+openafs-client  openafs-client/cachesize seen true
+krb5-config     krb5-config/default_realm seen true
+zephyr-clients  zephyr-clients/servers seen true
+# These are also questions asked by default, but 
+# the user should probably see them anyway.
+#gdm     shared/default-x-display-manager seen true
+#cyrus-common    cyrus-common/removespool seen true
+#hddtemp hddtemp/daemon seen true
+EOF
 
 output() {
   printf '\033[38m'; echo "$@"; printf '\033[0m'
@@ -150,6 +158,13 @@ while [ standard != "$category" -a login != "$category" -a \
   output -n "Please choose a category or press control-C to abort: "
   read category
 done
+if [ cluster = "$category" ]; then
+  # We still want these set for cluster installs, which should be truly
+  # noninteractive
+  export DEBCONF_NONINTERACTIVE_SEEN=true
+  export DEBIAN_FRONTEND=noninteractive
+fi
+
 mainpackage=debathena-$category
 
 csoft=no
