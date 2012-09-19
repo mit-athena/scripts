@@ -34,7 +34,7 @@ if [ $A -eq 1 ] && \
 	fi
     done
 fi
-exit 0
+
 
 # Display a horizontal rule on stderr.
 hr () {
