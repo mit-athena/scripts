@@ -8,24 +8,35 @@
 
 DEBUG=0
 BZ2=0
-while getopts 'dz' opt; do
+TYPE=tar
+while getopts 'dzot' opt; do
     case "$opt" in
 	d)
 	    DEBUG=1;;
 	z)
 	    BZ2=1;;
+	o)
+	    TYPE=overlayfs;;
+	t)
+	    TYPE=tar;;
     esac
 done
 shift $((OPTIND-1))
 
+if [ $BZ2 -eq 1 ] && [ "$TYPE" != "tar" ]; then
+    echo "-z is meaningless if not using a tar chroot and will be ignored" >&2
+fi
+
 set -xe
 
+: ${VG=/dev/dink}
 : ${CHROOTDIR=/srv}
 : ${MIRRORHOST=localhost:9999}
 : ${DATA="$(dirname "$0")"}
 SUITE=$1
 ARCH=$2
 CHROOT="${SUITE}-${ARCH}-sbuild"
+DEVICE="$VG/$CHROOT"
 FILE="$CHROOTDIR"/"$CHROOT".tar
 [ $BZ2 -eq 1 ] && FILE="${FILE}.bz2"
 SIZE=4G
@@ -38,8 +49,13 @@ if fgrep -qxRs "[$CHROOT]" /etc/schroot/schroot.conf /etc/schroot/chroot.d; then
 	echo "Chroot $CHROOT already exists." >&2
 	exit 1
 fi
-if [ -e "$FILE" ]; then
+if [ "$TYPE" = "tar" ] && [ -e "$FILE" ]; then
 	echo "Chroot tarball $FILE already exists." >&2
+	exit 1
+fi
+
+if [ "$TYPE" = "overlayfs" ] && lvdisplay $DEVICE > /dev/null 2>&1; then
+	echo "LV $DEVICE already exists." >&2
 	exit 1
 fi
 
@@ -70,6 +86,12 @@ else
 	exit 1
 fi
 
+if [ "$TYPE" = "overlayfs" ]; then
+    lvcreate --size "$SIZE" --name "$CHROOT" "$VG"
+    mkfs.ext3 "$DEVICE"
+    tune2fs -c 0 -i 0 "$DEVICE"
+fi
+
 exittrap() { 
     if [ $DEBUG -ne 1 ]; then
 	rm -rf "$TMPDIR" || :
@@ -78,8 +100,13 @@ exittrap() {
     fi
 }
 TMPDIR=$(mktemp -d /var/tmp/make-chroot.XXXXXX)
-TARGET="$TMPDIR/root"
-SCRIPTCFG="default/config"
+if [ "$TYPE" = "overlayfs" ]; then
+    TARGET="$TMPDIR"
+    mount "$DEVICE" "$TARGET"
+else
+    TARGET="$TMPDIR/root"
+    SCRIPTCFG="default/config"
+fi
 debootstrap --variant=buildd --include=apt,apt-utils,gnupg,build-essential,fakeroot --arch "$ARCH" "$SUITE" "$TARGET" "$MIRROR"
 install -m a=rx,u+w "$DATA/policy-rc.d" "$TARGET/usr/sbin/"
 mkdir -p "$TARGET/dev/pts"
@@ -95,14 +122,20 @@ else
 fi
 mkdir -p "$TARGET/afs"
 mkdir -p "$TARGET/mit"
-TAROPTS="cf"
-[ $BZ2 -eq 1 ] && TAROPTS="cjf"
-(cd "$TMPDIR" && tar "$TAROPTS" "$FILE" --numeric-owner root)
-rm -rf "$TMPDIR"
+if [ "$TYPE" = "overlayfs" ]; then
+    umount "$TARGET"
+    rmdir "$TARGET"
+else
+    TAROPTS="cf"
+    [ $BZ2 -eq 1 ] && TAROPTS="cjf"
+    (cd "$TMPDIR" && tar "$TAROPTS" "$FILE" --numeric-owner root)
+    rm -rf "$TMPDIR"
+fi
 exittrap() { :; }
 
 ! [ -s "$CONF" ] || echo >> "$CONF"
-cat >> "$CONF" <<EOF
+if [ "$TYPE" = "overlayfs" ]; then
+    cat >> "$CONF" <<EOF
 [$CHROOT]
 type=file
 description=$CHROOT
@@ -114,6 +147,19 @@ file=$FILE
 location=/root
 personality=$PERSONALITY
 EOF
+else
+    cat >> "$CONF" <<EOF
+[$CHROOT]
+type=block-device
+union-type=overlayfs
+description=$CHROOT
+groups=root,sbuild
+root-groups=root,sbuild
+source-groups=root
+device=$DEVICE
+personality=$PERSONALITY
+EOF
+fi
 
 schroot --chroot="${CHROOT}-source" --directory=/ -- /bin/sh -xe - \
     8< "$SOURCES" \
