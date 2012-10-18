@@ -4,7 +4,7 @@
 # 18.9.60.73 = athena10.mit.edu (formerly 18.92.2.195)
 
 cd /
-wget http://18.9.60.73/installer/precise/debathena.tar.gz > /dev/tty5 2>&1
+wget http://18.9.60.73/installer/quantal/debathena.tar.gz > /dev/tty5 2>&1
 tar xzf debathena.tar.gz
 chvt 5
 sh debathena/installer.sh < /dev/tty5 > /dev/tty5 2>&1
