@@ -125,7 +125,9 @@ netconfig () {
   # also fails, as the DHCP values override it.
   echo "Killing dhcp client."
   killall dhclient
-  ETH0="$(ip -o link show | grep -v loopback | cut -d: -f 2 | tr -d ' ')"
+  echo -n "Determining which interface to use... "
+  ETH0="$(ip -o link show | grep -v loopback | cut -d: -f 2 | tr -d ' ' | head -1)"
+  echo "$ETH0"
   echo "Running: ip addr flush dev $ETH0"
   ip addr flush dev $ETH0
   echo "Running: ip addr add $IPADDR/$maskbits broadcast $bc dev $ETH0"
@@ -396,6 +398,9 @@ if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
     acpi="reboot=pci"
 fi
 
+# TODO: Pass the actual interface we're using, not "auto"
+# Or decide that we only support the first interface, and determine
+# the name of it using the same method in stage2
 kargs="$knetinfo $kbdcode $acpi locale=en_US interface=auto \
 url=http://18.9.60.73/installer/$distro/debathena.preseed \
 da/pxe=$pxetype da/i=$installertype da/m=$mirrorsite \
