@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="squeeze wheezy hardy lucid natty oneiric precise quantal"
+DEBIAN_CODES="squeeze wheezy lucid oneiric precise quantal"
 gettag() {
     case "$1" in
 	squeeze)
@@ -9,13 +9,11 @@ gettag() {
 	    echo "~debian7.0~0.4"
 	    ;;
 	hardy)
+	    # Remove this at the end of April 2013
 	    echo "~ubuntu8.04"
 	    ;;
 	lucid)
 	    echo "~ubuntu10.04"
-	    ;;
-	natty)
-	    echo "~ubuntu11.04"
 	    ;;
 	oneiric)
 	    echo "~ubuntu11.10"
