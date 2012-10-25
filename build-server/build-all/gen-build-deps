@@ -7,14 +7,6 @@ my $psuite = $ARGV[0];
 $psuite or die "Usage: gen-build-deps <previous suite name>";
 $ENV{DEBATHENA_APT} or $ENV{DEBATHENA_APT}="/mit/debathena/apt";
 
-my $debugmode = $ENV{DEBATHENA_DEBUG} ? 1 : 0;
-
-sub debug {
-    if ($debugmode) {
-	print STDERR "D:", @_, "\n";
-    }
-}
-
 sub list {
 	my ($l) = @_;
 	my @a = split(/, /, $l);
@@ -32,15 +24,11 @@ my %src_deps = ();
 while (<DPKG>) {
 	last if /^$/;
 	my ($source) = /^Package: (.*)$/ or die;
-	debug("Examining $source");
 	@{$src_deps{$source}} = ();
 	while (<DPKG>) {
 		last if ($_ eq "\n");
 		if (my ($depends) = /^Build-Depends: (.*)$/) {
-		    for (list($depends)) {
-			debug("Adding $_ as source-dep of $source");
-			push @{$src_deps{$source}}, $_ ;
-		    }
+			push @{$src_deps{$source}}, $_ for (list($depends));
 		} else {
 			die;
 		}
@@ -59,26 +47,17 @@ my %pkg_deps=();
 while (<DPKG>) {
 	last if /^$/;
 	my ($package) = /^Package: (.*)$/ or die;
-	debug("Examining binary package $package");
 	$pkg_src{$package} = $package;
 	$pkg_provider{$package} = $package;
-	debug("Setting src and provider to itself");
 	@{$pkg_deps{$package}} = ();
 	while (<DPKG>) {
 		last if ($_ eq "\n");
 		if (my ($source) = /^Source: (.*)$/) {
 			$pkg_src{$package} = $source;
-			debug("--Changing src to $source");
 		} elsif (my ($provides) = /^Provides: (.*)$/) {
-		    for (list($provides)) {
-			$pkg_provider{$_} = $package;
-			debug("--Adding $package as a provider of $_");
-		    }
+			$pkg_provider{$_} = $package for (list($provides));
 		} elsif (my ($depends) = /^Depends: (.*)$/) {
-			for (list($depends)) {
-			    push @{$pkg_deps{$package}}, $_;	
-			    debug("--Adding $_ to dependencies of $package");
-			}
+			push @{$pkg_deps{$package}}, $_ for (list($depends));
 		} else {
 			die;
 		}
