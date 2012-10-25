@@ -29,7 +29,7 @@ fi
 
 set -xe
 
-: ${VG=/dev/dink}
+: ${VG=/dev/builder}
 : ${CHROOTDIR=/srv}
 : ${MIRRORHOST=localhost:9999}
 : ${DATA="$(dirname "$0")"}
@@ -137,6 +137,18 @@ exittrap() { :; }
 if [ "$TYPE" = "overlayfs" ]; then
     cat >> "$CONF" <<EOF
 [$CHROOT]
+type=block-device
+union-type=overlayfs
+description=$CHROOT
+groups=root,sbuild
+root-groups=root,sbuild
+source-groups=root
+device=$DEVICE
+personality=$PERSONALITY
+EOF
+else
+    cat >> "$CONF" <<EOF
+[$CHROOT]
 type=file
 description=$CHROOT
 groups=root,sbuild
@@ -145,18 +157,6 @@ source-groups=root
 script-config=$SCRIPTCFG
 file=$FILE
 location=/root
-personality=$PERSONALITY
-EOF
-else
-    cat >> "$CONF" <<EOF
-[$CHROOT]
-type=block-device
-union-type=overlayfs
-description=$CHROOT
-groups=root,sbuild
-root-groups=root,sbuild
-source-groups=root
-device=$DEVICE
 personality=$PERSONALITY
 EOF
 fi
