@@ -1,5 +1,5 @@
 suite := quantal
-psuite := precise
+psuite := quantal
 STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
 package = $(STAMPS)/$(1).done
