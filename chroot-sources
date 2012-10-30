@@ -7,10 +7,34 @@
 # "-proposed", or "-development"),
 #
 # If DEBATHENA_RELEASE is unset, assume we're building out of -development.
+# DEBATHENA_BUILD_DIST is the target build distribution.  Note:
+# SBUILD_BUILD_CONF_DISTRIBUTION is not set as of sbuild 0.60.6 or
+# later.  An environment_filter in ~/.sbuildrc must be configured to
+# allow passing of this variable.
 
 : ${DEBATHENA_RELEASE=-development}
 : ${DEBATHENA_MIRROR:=http://debathena.mit.edu/apt}
-dist="$SBUILD_BUILD_CONF_DISTRIBUTION"
+: ${DEBATHENA_BUILD_DIST:="$SBUILD_BUILD_CONF_DISTRIBUTION"}
+if [ -z "$DEBATHENA_BUILD_DIST" ]; then
+    echo "Warning: DEBATHENA_BUILD_DIST is unset or empty!" >&2
+    if [ -r /etc/lsb-release ]; then
+	echo "Attempting to guess dist from lsb-release..." >&2
+	. /etc/lsb-release
+	if [ -n "$DISTRIB_CODENAME" ]; then
+	    DEBATHENA_BUILD_DIST="$DISTRIB_CODENAME"
+	fi
+    fi
+    if [ -z "$DEBATHENA_BUILD_DIST" ] && echo "$SCHROOT_CHROOT_NAME" | \
+	egrep -q "^[a-z]+-(amd64|i386)-sbuild$"; then
+	echo "Attempting to guess dist from chroot name..." >&2
+	DEBATHENA_BUILD_DIST=$(echo "$SCHROOT_CHROOT_NAME" | cut -d\- -f 1)
+    fi
+fi
+if [ -z "$DEBATHENA_BUILD_DIST" ]; then
+    echo "*** ERROR: Cannot determine distribution to build.  Stop." >&2
+    exit 1
+fi
+dist="$DEBATHENA_BUILD_DIST"
 list=/etc/apt/sources.list.d/debathena.list
 
 rm -f "$list"

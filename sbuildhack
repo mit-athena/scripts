@@ -28,6 +28,7 @@ if [ -e nobuild ] && fgrep -q "$dist" nobuild; then
   exit
 fi
 
+env DEBATHENA_BUILD_DIST="$dist" \
 sbuild --append-to-version=`gettag "$dist"` \
 	-d "$dist" --arch="$arch" \
 	--apt-update --apt-distupgrade \

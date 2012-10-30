@@ -57,7 +57,7 @@ fi
 # Build the .dsc if necessary.
 if ! [ -e "$dsc" ]; then
     if ! [ -e "${package}_$version.dsc" ]; then
-        schroot -c "${psuite}-amd64-sbuild" -u root -- sh -ec "SBUILD_BUILD_CONF_DISTRIBUTION=$psuite $(readlink -f /mit/debathena/bin/chroot-sources) && apt-get update && apt-get source $package"
+        schroot -c "${psuite}-amd64-sbuild" -u root -- sh -ec "DEBATHENA_BUILD_DIST=$psuite $(readlink -f /mit/debathena/bin/chroot-sources) && apt-get update && apt-get source $package"
     fi
     if ! ([ -e "${package}_${version}_source.changes" ] || [ -e "${package}_${version}_amd64.changes" ] || [ -e "${package}_${version}_i386.changes" ]); then
         (cd "${package}-${version/-*/}" && dpkg-genchanges -S -sa >"../${package}_${version}_source.changes")

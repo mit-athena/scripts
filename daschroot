@@ -17,7 +17,7 @@ if ! schroot -c "$dist-$arch-sbuild" -i >/dev/null; then
 fi
 
 session=$(schroot -c "$dist-$arch-sbuild" -b)
-schroot -c "$session" -r -u root -- env SBUILD_BUILD_CONF_DISTRIBUTION="$dist" "$(readlink -f "$DA_SCRIPTS_DIR/chroot-sources")"
+schroot -c "$session" -r -u root -- env DEBATHENA_BUILD_DIST="$dist" "$(readlink -f "$DA_SCRIPTS_DIR/chroot-sources")"
 if [ "$#" -gt 0 ]; then
     echo "I: Entering schroot session $session"
 fi
