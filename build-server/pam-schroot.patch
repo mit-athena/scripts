@@ -1,0 +1,15 @@
+--- schroot.orig	2012-02-13 18:05:53.000000000 -0500
++++ schroot	2012-10-31 11:52:21.570979794 -0400
+@@ -28,7 +28,11 @@
+ # /etc/shadow entries.
+ @include common-auth
+ @include common-account
+-@include common-session
++#@include common-session
++
++# DEBATHENA: We don't want common-session running (because of AFS PAGs).
++# Instead, we want a nasic pam_unix session module in place of common-session. 
++session required pam_unix.so 
+ 
+ # Sets up user limits, please uncomment and read /etc/security/limits.conf
+ # to enable this functionality.
