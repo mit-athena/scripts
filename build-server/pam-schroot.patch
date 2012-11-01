@@ -8,7 +8,7 @@
 +#@include common-session
 +
 +# DEBATHENA: We don't want common-session running (because of AFS PAGs).
-+# Instead, we want a nasic pam_unix session module in place of common-session. 
++# Instead, we want a basic pam_unix session module in place of common-session. 
 +session required pam_unix.so 
  
  # Sets up user limits, please uncomment and read /etc/security/limits.conf
