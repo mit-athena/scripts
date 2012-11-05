@@ -12,7 +12,9 @@ TYPE=tar
 while getopts 'dzot' opt; do
     case "$opt" in
 	d)
-	    DEBUG=1;;
+	    DEBUG=1
+	    set -x
+	    ;;
 	z)
 	    BZ2=1;;
 	o)
@@ -27,7 +29,12 @@ if [ $BZ2 -eq 1 ] && [ "$TYPE" != "tar" ]; then
     echo "-z is meaningless if not using a tar chroot and will be ignored" >&2
 fi
 
-set -xe
+if [ -z "$1" ] || [ -z "$2" ]; then
+    echo "Usage: $0 <suite> <arch>" >&2
+    exit 1
+fi
+
+set -e
 
 : ${VG=/dev/builder}
 : ${CHROOTDIR=/srv}
@@ -46,7 +53,7 @@ for sig in 1 2 13 15; do trap "exit $(($sig + 128))" $sig; done
 trap 'exittrap' EXIT
 
 if fgrep -qxRs "[$CHROOT]" /etc/schroot/schroot.conf /etc/schroot/chroot.d; then
-	echo "Chroot $CHROOT already exists." >&2
+	echo "Chroot $CHROOT config already exists." >&2
 	exit 1
 fi
 if [ "$TYPE" = "tar" ] && [ -e "$FILE" ]; then
@@ -82,7 +89,7 @@ elif [ -e "$SOURCESD/ubuntu/$SUITE.list" ]; then
 	SOURCES="$SOURCESD/ubuntu/$SUITE.list"
 	MIRROR="http://$MIRRORHOST/ubuntu"
 else
-	echo "Unrecognized suite $SUITE." >&2
+	echo "Unrecognized suite $SUITE. (Did you create the sources.list file?)" >&2
 	exit 1
 fi
 
