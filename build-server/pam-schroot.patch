@@ -1,5 +1,5 @@
---- schroot.orig	2012-02-13 18:05:53.000000000 -0500
-+++ schroot	2012-10-31 11:52:21.570979794 -0400
+--- /etc/pam.d/schroot.orig	2012-02-13 18:05:53.000000000 -0500
++++ /etc/pam.d/schroot	2012-10-31 11:52:21.570979794 -0400
 @@ -28,7 +28,11 @@
  # /etc/shadow entries.
  @include common-auth
