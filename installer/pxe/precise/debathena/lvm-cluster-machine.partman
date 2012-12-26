@@ -1,6 +1,6 @@
 cluster ::
 
-200 200 200 ext3
+500 200 500 ext3
         $primary{ } $bootable{ }
 	method{ format } format{ }
 	use_filesystem{ } filesystem{ ext3 }
