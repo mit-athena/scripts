@@ -28,9 +28,20 @@ if [ -e nobuild ] && fgrep -q "$dist" nobuild; then
   exit
 fi
 
+SBUILD_EXTRA_ARGS=
+if [ "$DEBATHENA_PRESERVE_CHROOT" = "yes" ]; then
+    SBUILD_EXTRA_ARGS="--purge=never --purge-session=never --purge-deps=never"
+fi
+
 env DEBATHENA_BUILD_DIST="$dist" \
 sbuild --append-to-version=`gettag "$dist"` \
 	-d "$dist" --arch="$arch" \
 	--apt-update --apt-distupgrade \
 	--setup-hook="$(readlink -f "$DA_SCRIPTS_DIR/chroot-sources")" \
-	-v "$@"
+	-v "$SBUILD_EXTRA_ARGS" "$@"
+rc=$?
+if [ "$DEBATHENA_PRESERVE_CHROOT" = "yes" ]; then
+    echo "NOTE: build chroot has been preserved.  Clean it up manually" >&2
+    echo "with schroot -e." > &2
+fi
+exit $rc
