@@ -27,8 +27,8 @@ else
 prog=$1; shift
 
 for code in $DEBIAN_CODES; do
-    $prog ${code}-i386-sbuild-source -- "$@"
-    $prog ${code}-amd64-sbuild-source -- "$@"
+    $prog source:${code}-i386-sbuild -- "$@"
+    $prog source:${code}-amd64-sbuild -- "$@"
 done
 
 fi

@@ -4,6 +4,5 @@
 
 # Updates the system packages in one or more schroots.
 
-sbuild-update "$@"
-sbuild-distupgrade "$@"
-sbuild-clean -c -r "$@"
+sbuild-update -u -g -c "$@"
+
