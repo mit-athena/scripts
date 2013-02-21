@@ -82,21 +82,28 @@ case $distro in
   hardy|lucid)
     ubuntu=yes
     ;;
-  natty|oneiric|precise)
+  oneiric|precise|quantal)
     ubuntu=yes
     aptitude=apt-get
     ;;
-  quantal)
+  raring)
     ubuntu=yes
     aptitude=apt-get
-    output "The release you are running ($distro) is not supported"
-    output "and installing Debathena on it is probably a bad idea."
+    output "The release you are running ($distro) is not yet supported"
+    output "and installing Debathena on it is probably a bad idea,"
+    output "particularly for any purpose other than beta testing."
+    output ""
+    output "(New releases are generally supported a couple of weeks"
+    output "after the official release date.  We strongly encourage you"
+    output "to check http://debathena.mit.edu for support information"
+    output "and try again later, or install the previous version of"
+    output "the operating system.)"
     if ! test -f /root/pxe-install-flag; then
 	ask "Are you sure you want to proceed? [y/N] " n
 	[ y != "$answer" ] && exit 1
     fi
     ;;
-  lenny|intrepid|jaunty|karmic|maverick)
+  lenny|intrepid|jaunty|karmic|maverick|natty)
     error "The release you are running ($distro) is no longer supported."
     error "Generally, Debathena de-supports releases when they are no longer"
     error "supported by upstream.  If you believe you received this message"
