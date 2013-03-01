@@ -12,20 +12,6 @@ set -e
 # The user's umask will sometimes carry over; don't let that happen.
 umask 022
 
-# Set the "seen" flag for all debconf questions that we configure
-# (Note: cluster installs still run noninteractively)
-cat <<EOF | debconf-set-selections
-openafs-client  openafs-client/thiscell seen true
-openafs-client  openafs-client/cachesize seen true
-krb5-config     krb5-config/default_realm seen true
-zephyr-clients  zephyr-clients/servers seen true
-# These are also questions asked by default, but 
-# the user should probably see them anyway.
-#gdm     shared/default-x-display-manager seen true
-#cyrus-common    cyrus-common/removespool seen true
-#hddtemp hddtemp/daemon seen true
-EOF
-
 output() {
   printf '\033[38m'; echo "$@"; printf '\033[0m'
 }
@@ -165,6 +151,7 @@ while [ standard != "$category" -a login != "$category" -a \
   output -n "Please choose a category or press control-C to abort: "
   read category
 done
+
 if [ cluster = "$category" ]; then
   # We still want these set for cluster installs, which should be truly
   # noninteractive
@@ -309,6 +296,30 @@ else
   read dummy
 fi
 
+# Set the "seen" flag for all debconf questions that we configure
+# cluster is still non-interactive, see above.
+# Except you can't set the "seen" flag for something that isn't installed
+# so also set some sane defaults
+cat <<EOF | debconf-set-selections
+# Set sane defaults
+openafs-client  openafs-client/thiscell string grand.central.org
+openafs-client  openafs-client/cachesize string 150000
+# A null value is fine as of krb5 1.6.dfsg.3-1
+krb5-config     krb5-config/default_realm string 
+# No value means use Hesiod
+zephyr-clients  zephyr-clients/servers string
+# Then mark them as seen
+openafs-client  openafs-client/thiscell seen true
+openafs-client  openafs-client/cachesize seen true
+krb5-config     krb5-config/default_realm seen true
+zephyr-clients  zephyr-clients/servers seen true
+# These are also questions asked by default, but 
+# the user should probably see them anyway.
+#gdm     shared/default-x-display-manager seen true
+#cyrus-common    cyrus-common/removespool seen true
+#hddtemp hddtemp/daemon seen true
+EOF
+
 apt-get update
 
 output "Verifying machine is up to date..."
@@ -347,6 +358,42 @@ if aptitude show openafs-modules-dkms > /dev/null; then
   modules="openafs-modules-dkms"
 else
   openafs_component=" openafs"
+fi
+
+# Select the correct headers package
+kernel_hdr_meta_pkgs=
+if [ "$ubuntu" = "yes" ]; then
+    # Ubuntu kernel metapackages have a source of 'linux-meta'
+    # Find all of them and replace "-image-" with "-headers-".
+    kernel_hdr_meta_pkgs=$(dpkg-query -W -f '${Source}\t${Package}\n' 'linux-image-*' | awk '$1=="linux-meta" { sub(/-image-/, "-headers-", $2); print $2 }')
+else
+    # Debian.  "Yay".  Old squeeze has linux-latest-2.6 as the
+    # metapackage.  squeeze-backpors and newer have linux-latest as
+    # the metpackage.  For bonus points, wheezy can have two packages
+    # installed with linux-latest as the metapackage, because one of
+    # those is itself a metapckage.
+    kernel_hdr_meta_pkgs=$(dpkg-query -W -f '${Source}::${Package}\n' 'linux-image-*' | awk -F:: '$1~/^linux-latest/ { sub(/-image-/, "-headers-", $2); print $2 }')
+fi
+pkgs_to_install=
+for p in $kernel_hdr_meta_pkgs; do
+    # Only install real packages
+    if apt-cache show $p | grep -q '^Source: '; then
+	pkgs_to_install=" $p"
+    fi
+done
+if [ -z "$pkgs_to_install" ]; then
+    output "We cannot find a kernel header metapackage for your kernel."
+    output "You will need one in order for DKMS to build the openafs"
+    output "kernel module.  You should probably stop here and figure out"
+    output "what kernel metapackage you're running, and install the"
+    output "corresponding kernel headers package."
+    ask "Do you want to continue anyway? [y/N] " n
+    if [ y != "$answer" ]; then
+	exit 0
+    fi
+else
+    output "Installing header packages: $pkgs_to_install"
+    apt-get -y install $pkgs_to_install
 fi
 
 output "Adding the Debathena repository to the apt sources"
