@@ -1,0 +1,18 @@
+cluster ::
+
+200 200 200 ext3
+        $primary{ } $bootable{ }
+	method{ format } format{ }
+	use_filesystem{ } filesystem{ ext3 }
+	mountpoint{ /boot } .
+
+10000 100000 1000000000 ext3
+        $lvmok{ }
+	use_filesystem{ } filesystem{ ext3 }
+	method{ format } format{ }
+	mountpoint{ / } .
+
+512 300% 300% linux-swap
+        $lvmok{ }
+	method{ swap } format{ } .
+
