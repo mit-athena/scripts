@@ -304,6 +304,7 @@ cat <<EOF | debconf-set-selections
 # Set sane defaults
 openafs-client  openafs-client/thiscell string grand.central.org
 openafs-client  openafs-client/cachesize string 150000
+cyrus-common	cyrus-common/removespools	boolean	false
 # A null value is fine as of krb5 1.6.dfsg.3-1
 krb5-config     krb5-config/default_realm string 
 # No value means use Hesiod
@@ -316,7 +317,7 @@ zephyr-clients  zephyr-clients/servers seen true
 # These are also questions asked by default, but 
 # the user should probably see them anyway.
 #gdm     shared/default-x-display-manager seen true
-#cyrus-common    cyrus-common/removespool seen true
+cyrus-common    cyrus-common/removespool seen true
 #hddtemp hddtemp/daemon seen true
 EOF
 
@@ -365,7 +366,9 @@ kernel_hdr_meta_pkgs=
 if [ "$ubuntu" = "yes" ]; then
     # Ubuntu kernel metapackages have a source of 'linux-meta'
     # Find all of them and replace "-image-" with "-headers-".
-    kernel_hdr_meta_pkgs=$(dpkg-query -W -f '${Source}\t${Package}\n' 'linux-image-*' | awk '$1=="linux-meta" { sub(/-image-/, "-headers-", $2); print $2 }')
+    # Except the source _starts with_ linux-meta because of HWE
+    # stacks (e.g. linux-meta-lts-quantal.  I hate you all.
+    kernel_hdr_meta_pkgs=$(dpkg-query -W -f '${Source}\t${Package}\n' 'linux-image-*' | awk '$1 ~ /^linux-meta/ { sub(/-image-/, "-headers-", $2); print $2 }')
 else
     # Debian.  "Yay".  Old squeeze has linux-latest-2.6 as the
     # metapackage.  squeeze-backpors and newer have linux-latest as
