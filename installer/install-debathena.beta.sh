@@ -411,15 +411,27 @@ if [ ! -e "$sourceslist" ] || ! grep -v ^# "$sourceslist" | grep -q debathena; t
   echo "deb-src http://debathena.mit.edu/apt $distro debathena debathena-config debathena-system$openafs_component" >> $sourceslist
 fi
 
-# Note that hesiod may contain multiple apt_release tokens.  We want to
-# include known repositories but make no assumptions about wanting
-# others.  (For instances, "development" does @i{not} automatically
-# infer "proposed".)
-hescluster=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT) || hescluster=""
+# As of 6 March 2013, Hesiod no longer contains multiple unversioned 
+# apt_release tokens (Trac: #1036).  development implies proposed.
+# bleeding implies development, and the transitive property applies.
+# It's possible we should have this be configurable via a URL
+# rather than hardcoded.
+apt_release=$(dig +short +bufsize=2048 ${hostname}.cluster.ns.athena.mit.edu TXT | tr -d '"' | awk '$1=="apt_release" { print $2 }')
 
-aptexplained=false
-for hc in proposed development bleeding; do
-  if echo "$hescluster" | grep -Fxq "\"apt_release $hc\""; then
+if [ -n "$apt_release" ]; then
+  extra_repos=
+  case "$apt_release" in
+    development)
+      extra_repos="development proposed" ;;
+    proposed)
+      extra_repos="proposed" ;;
+    bleeding)
+      extra_repos="bleeding development proposed" ;;
+    *)
+      output "NOTE: Ignoring unknown apt_release value: \"$apt_release\"" ;;
+  esac
+  aptexplained=false
+  for hc in $extra_repos; do
     echo "Adding $distro-$hc apt repository."
     if [ "${aptexplained}" = false ] ; then
       echo "" >> $clustersourceslist
@@ -431,8 +443,8 @@ for hc in proposed development bleeding; do
     echo "" >> $clustersourceslist
     echo "deb http://debathena.mit.edu/apt $distro-${hc} debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
     echo "deb-src http://debathena.mit.edu/apt $distro-${hc} debathena debathena-config debathena-system$openafs_component" >> $clustersourceslist
-  fi
-done
+  done
+fi
 
 if [ "$ubuntu" = "yes" ]; then
   output "Making sure the universe repository is enabled"
