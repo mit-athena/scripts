@@ -1,0 +1,2 @@
+deb http://MIRRORHOST/debian sid main
+deb-src http://MIRRORHOST/debian sid main
