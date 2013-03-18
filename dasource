@@ -103,6 +103,7 @@ do_package() {
   esac
 
   # Generate debian/control from debian/control.in if control.in exists
+ [ -f "$dir/debian/control.in" ] && echo "NOTE: Obsolete CDBS package -- convert to DH7!"
   ([ -f "$dir/debian/control.in" ] && cd $dir && DEB_AUTO_UPDATE_DEBIAN_CONTROL=yes debian/rules debian/control || :)
   [ -f "$dir/debian/control" ] || die "Can't find or generate debian/control!"
 
