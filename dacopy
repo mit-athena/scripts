@@ -18,8 +18,16 @@ fi
 
 if [ "$1" = "-bleeding" ] || [ "$2" = "-bleeding" ]; then
     echo "You're not supposed to move or copy things to or from -bleeding."
-    echo "Exiting..."
-    exit 1
+    if [ "${DA_SHOOT_SELF_IN_FOOT:-x}" != "yesplease" ]; then
+	echo "Exiting..."
+	exit 1
+    fi
+    echo -n "This is a terrible idea.  Type 'y' to continue anyway: "
+    read answer
+    if [ "$answer" != "y" ]; then
+	echo "You have chosen wisely."
+	exit 1
+    fi
 fi
 
 
