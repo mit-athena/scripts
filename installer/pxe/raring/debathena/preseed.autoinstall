@@ -70,6 +70,8 @@ d-i partman-auto-lvm/new_vg_name string athena
 d-i partman-auto-lvm/guided_size string max
 # Don't punt for no-method filesystems.  Another undocumented option.
 d-i partman-basicmethods/method_only boolean false
+# It's not 1999, GRUB is capable of booting LVM:
+d-i partman-auto-lvm/no_boot boolean true
 
 # This makes partman automatically partition without confirmation, provided
 # that you told it what to do using one of the methods above.
