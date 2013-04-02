@@ -152,7 +152,10 @@ while [ standard != "$category" -a login != "$category" -a \
   read category
 done
 
-if [ cluster = "$category" ]; then
+# We need noninteractive for PXE installs because you're not supposed
+# to be interactive in a late_command, and nothing works (like
+# debconf, for example).  Until #702 is fixed.
+if [ cluster = "$category" ] || test -f /root/pxe-install-flag; then
   # We still want these set for cluster installs, which should be truly
   # noninteractive
   export DEBCONF_NONINTERACTIVE_SEEN=true
@@ -518,3 +521,7 @@ if [ cluster = "$category" ] ; then
   echo "Setting hardware clock to UTC."
   hwclock --systohc --utc
 fi
+
+# Remove the pxe install flag
+rm -f /root/pxe-install-flag
+    
