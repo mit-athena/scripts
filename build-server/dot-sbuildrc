@@ -1,0 +1,23 @@
+# This is the ~/.sbuildrc for the 'builder' account
+$mailto = undef;
+$log_dir = '/tmp/sbuild-logs';
+$maintainer_name = 'Debathena Project <debathena@mit.edu>';
+$force_orig_source = 1;
+$sbuild_mode = 'user';
+# Pass all DEBATHENA-specific variables to external commands
+# (e.g. chroot-sources)
+# N.B. This replaces the default value, it does not union them.
+# So ensure that this has the defaults as noted in sbuild.conf
+$environment_filter = [ '^DEBATHENA_', 
+		        '^KRB5CCNAME_',
+		        '^PATH$',
+                        '^DEB(IAN|SIGN)?_[A-Z_]+$',
+                        '^(C(PP|XX)?|LD|F)FLAGS(_APPEND)?$',
+                        '^USER(NAME)?$',
+                        '^LOGNAME$',
+                        '^HOME$',
+                        '^TERM$',
+                        '^SHELL$'];
+# Ensure file evaluates as true in Perl
+1;
+
