@@ -1,0 +1,6 @@
+deb http://MIRRORHOST/ubuntu raring main restricted universe
+deb-src http://MIRRORHOST/ubuntu raring main restricted universe
+deb http://MIRRORHOST/ubuntu raring-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu raring-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security raring-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security raring-security main restricted universe

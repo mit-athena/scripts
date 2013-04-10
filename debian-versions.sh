@@ -24,6 +24,9 @@ gettag() {
 	quantal)
 	    echo "~ubuntu12.10"
 	    ;;
+	raring)
+	    echo "~ubuntu13.04~0.1"
+	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
 	    ;;
