@@ -123,7 +123,7 @@ mkdir -p "$TARGET/dev/pts"
 # config that bind-mounts /run/shm instead of /dev/shm
 if [ -L "$TARGET/dev/shm" ] &&
    [ "$(readlink "$TARGET/dev/shm")" = "/run/shm" ]; then
-    SCRIPTCFG="default-slash-run/config"
+    SCRIPTCFG="default/config-slash-run"
 else
     mkdir -p "$TARGET/dev/shm"
 fi
