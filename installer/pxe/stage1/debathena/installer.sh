@@ -328,6 +328,13 @@ else
   netconfig
 fi
 
+extra_kargs=""
+if [ "$installertype" = "beta" ]; then
+    echo "Any extra kernel arguments to pass to kexec?"
+    echo "(I hope you know what you're doing.  Press Enter for none.)"
+    read extra_kargs
+fi
+
 if [ "$pxetype" = "cluster" ] && [ "$partitioning" = "auto" ]; then
     cat << EOF
 ************************************************************
@@ -404,16 +411,7 @@ fi
 kargs="$knetinfo $kbdcode $acpi locale=en_US interface=auto \
 url=http://18.9.60.73/installer/$distro/debathena.preseed \
 da/pxe=$pxetype da/i=$installertype da/m=$mirrorsite \
-da/part=$partitioning --"
-
-extra_kargs=""
-if [ "$installertype" = "beta" ]; then
-    echo "Any extra kernel arguments to pass to kexec?"
-    echo "(I hope you know what you're doing.  Press Enter for none.)"
-    read extra_kargs
-fi
-
-kargs="$kargs $extra_kargs"
+da/part=$partitioning $extra_kargs --"
 
 echo "Continuing in five seconds..."
 if [ "$test" = "test" ]; then
