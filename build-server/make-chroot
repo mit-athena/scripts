@@ -8,7 +8,7 @@
 
 DEBUG=0
 BZ2=0
-TYPE=tar
+TYPE=overlayfs
 while getopts 'dzot' opt; do
     case "$opt" in
 	d)
