@@ -406,12 +406,22 @@ url=http://18.9.60.73/installer/$distro/debathena.preseed \
 da/pxe=$pxetype da/i=$installertype da/m=$mirrorsite \
 da/part=$partitioning --"
 
+extra_kargs=""
+if [ "$installertype" = "beta" ]; then
+    echo "Any extra kernel arguments to pass to kexec?"
+    echo "(I hope you know what you're doing.  Press Enter for none.)"
+    read extra_kargs
+fi
+
+kargs="$kargs $extra_kargs"
+
 echo "Continuing in five seconds..."
 if [ "$test" = "test" ]; then
     echo "Would run kexec with these args:"
     echo "$dkargs $kargs"
     exit 0
 fi
+
 if hash wc > /dev/null 2>&1; then
     if [ $(echo "$dkargs $kargs" | wc -c) -gt 512 ]; then
 	echo "Kernel arguments exceed 512 bytes.  This will probably"
