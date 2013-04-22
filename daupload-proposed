@@ -20,6 +20,14 @@ set -e
 : ${DA_SCRIPTS_DIR="$(dirname "$0")"}
 . "$DA_SCRIPTS_DIR"/debian-versions.sh
 
+if [ -n "$DEBIAN_CODES_OVERRIDE" ]; then
+    echo "Will override DEBIAN_CODES with: $DEBIAN_CODES_OVERRIDE"
+    echo -n "Continue? [y/N]"
+    read a
+    [ "$a" = "y" ]
+    DEBIAN_CODES="$DEBIAN_CODES_OVERRIDE"
+fi
+
 case "$(basename "$0")" in
     daupload-release)
 	release=""
@@ -109,6 +117,11 @@ if [ $S -ne 1 ]; then
 	[ $A -eq 1 ] || v dareprepro include "${code}${release}" "${base}${tag}_i386.changes"
 	v dareprepro include "${code}${release}" "${base}${tag}_amd64.changes"
     done
+fi
+
+if [ -n "$DEBIAN_CODES_OVERRIDE" ]; then
+    echo "Codes overridden, skipping copy of files.  Cleanup by hand."
+    exit 0
 fi
 
 changes=$change
