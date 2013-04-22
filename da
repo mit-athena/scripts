@@ -18,6 +18,14 @@
 : ${DA_SCRIPTS_DIR="$(dirname "$0")"}
 . "$DA_SCRIPTS_DIR"/debian-versions.sh
 
+if [ -n "$DEBIAN_CODES_OVERRIDE" ]; then
+    echo "Will override DEBIAN_CODES with: $DEBIAN_CODES_OVERRIDE"
+    echo -n "Continue? [y/N]"
+    read a
+    [ "$a" = "y" ] || exit 0
+    DEBIAN_CODES="$DEBIAN_CODES_OVERRIDE"
+fi
+
 A=0
 if [ "$1" = -A ]; then A=1; shift; fi
 prog="$1"; shift
