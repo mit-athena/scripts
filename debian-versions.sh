@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="squeeze wheezy lucid oneiric precise quantal"
+DEBIAN_CODES="squeeze wheezy lucid oneiric precise quantal raring"
 gettag() {
     case "$1" in
 	squeeze)
@@ -25,7 +25,7 @@ gettag() {
 	    echo "~ubuntu12.10"
 	    ;;
 	raring)
-	    echo "~ubuntu13.04~0.1"
+	    echo "~ubuntu13.04"
 	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
