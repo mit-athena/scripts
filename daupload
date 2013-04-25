@@ -22,7 +22,7 @@ set -e
 
 if [ -n "$DEBIAN_CODES_OVERRIDE" ]; then
     echo "Will override DEBIAN_CODES with: $DEBIAN_CODES_OVERRIDE"
-    echo -n "Continue? [y/N]"
+    echo -n "Continue? [y/N] "
     read a
     [ "$a" = "y" ]
     DEBIAN_CODES="$DEBIAN_CODES_OVERRIDE"
@@ -30,6 +30,10 @@ fi
 
 case "$(basename "$0")" in
     daupload-release)
+	echo "You're uploading to PRODUCTION.  This may not be a good idea." >&2
+	echo -n "Continue? [y/N]"
+	read a
+	[ "$a" = "y" ]
 	release=""
 	;;
     daupload-proposed)
