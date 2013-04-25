@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Usage: daupload-equivs CHANGESFILE
+# Usage: daupload-equivs-proposed CHANGESFILE
+# Usage: daupload-equivs-dev CHANGESFILE
+
+# Adds an equivs-generated package to all dists.  Since equivs-built
+# packages are very simple, there is no need to build them separately
+# for each dist.
+
+: ${DA_SCRIPTS_DIR="$(dirname "$0")"}
+. "$DA_SCRIPTS_DIR"/debian-versions.sh
+
+case "$(basename "$0")" in
+    daupload-equivs)
+        release=""
+        ;;
+    daupload-equivs-proposed)
+        release="-proposed"
+        ;;
+    daupload-equivs-dev)
+        release="-development"
+        ;;
+    *)
+        echo "Unknown release." >&2
+        exit 1
+        ;;
+esac
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 CHANGESFILE" >&2
+    exit 1
+fi
+
+for code in $DEBIAN_CODES; do
+    dareprepro include "${code}${release}" "$1"
+done
