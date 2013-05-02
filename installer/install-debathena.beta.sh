@@ -65,14 +65,14 @@ aptitude=aptitude
 case $distro in
   squeeze)
     ;;
-  hardy|lucid)
+  lucid)
     ubuntu=yes
     ;;
-  oneiric|precise|quantal)
+  precise|quantal|raring)
     ubuntu=yes
     aptitude=apt-get
     ;;
-  raring)
+  saucy)
     ubuntu=yes
     aptitude=apt-get
     output "The release you are running ($distro) is not yet supported"
@@ -89,7 +89,7 @@ case $distro in
 	[ y != "$answer" ] && exit 1
     fi
     ;;
-  lenny|intrepid|jaunty|karmic|maverick|natty)
+  lenny|hardy|intrepid|jaunty|karmic|maverick|natty|oneiric)
     error "The release you are running ($distro) is no longer supported."
     error "Generally, Debathena de-supports releases when they are no longer"
     error "supported by upstream.  If you believe you received this message"
