@@ -1,0 +1,4 @@
+deb http://MIRRORHOST/debian jessie main
+deb-src http://MIRRORHOST/debian jessie main
+deb http://MIRRORHOST/debian-security jessie/updates main
+deb-src http://MIRRORHOST/debian-security jessie/updates main

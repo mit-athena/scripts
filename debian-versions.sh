@@ -6,7 +6,10 @@ gettag() {
 	    echo "~debian6.0"
 	    ;;
 	wheezy)
-	    echo "~debian7.0~0.4"
+	    echo "~debian7.0"
+	    ;;
+	jessie)
+	    echo "~debian8.0~0.1"
 	    ;;
 	hardy)
 	    # Remove this at the end of April 2013
