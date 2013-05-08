@@ -1,6 +1,12 @@
-suite := quantal
-psuite := quantal
-STAMPS := /afs/sipb.mit.edu/project/debathena/arch/amd64_deb40/bin/build-server/build-all/stamps/stamps.$(suite)
+ifndef suite
+$(error FATAL: 'suite' is not set (e.g. make suite=foo [psuite=bar] target))
+endif
+ifndef psuite
+$(warning WARNING: 'psuite' is not defined.  Assuming a rebuild (psuite=$(suite)))
+psuite:= $(suite)
+endif
+
+STAMPS := /afs/sipb.mit.edu/project/debathena/machines/awesome-build-server/stamps.$(suite)
 
 package = $(STAMPS)/$(1).done
 
