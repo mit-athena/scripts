@@ -1,0 +1,5 @@
+debathena-build-server (1.0) unstable; urgency=low
+
+  * Initial release (Trac: #912)
+
+ -- Jonathan Reed <jdreed@mit.edu>  Thu, 09 May 2013 13:19:30 -0400

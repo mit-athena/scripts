@@ -1,0 +1,10 @@
+make-chroot usr/sbin
+gen-distributions usr/lib/debathena-build-server
+policy-rc.d usr/share/debathena-build-server
+dot-devscripts usr/share/debathena-build-server
+dot-sbuildrc usr/share/debathena-build-server
+sources.list.d/* usr/share/debathena-build-server/sources.list.d
+build-all/do-build usr/lib/debathena-build-server/do-build
+build-all/gen-build-deps usr/lib/debathena-build-server/do-build
+build-all/Makefile usr/share/debathena-build-sever/build-all
+schroot-profile/* etc/schroot/debathena

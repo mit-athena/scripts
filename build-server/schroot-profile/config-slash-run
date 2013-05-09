@@ -1,0 +1,15 @@
+# The debathena schroot profile is largely based on the "default"
+# profile.  The major difference is an fstab entry that bind-mounts
+# /afs, and also in this case bind-mounts /dev/shm to the right place
+# See schroot.conf(5) and schroot-script-config(5) for further details.
+# The files detailed below may also be edited to further customise
+# this profile.
+
+# Filesystems to mount inside the chroot.
+FSTAB="/etc/schroot/default/fstab-slash-run"
+
+# Files to copy from the host system into the chroot.
+COPYFILES="/etc/schroot/default/copyfiles"
+
+# System NSS databases to copy into the chroot.
+NSSDATABASES="/etc/schroot/default/nssdatabases"
