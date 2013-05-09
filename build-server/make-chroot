@@ -39,7 +39,11 @@ set -e
 : ${VG=/dev/builder}
 : ${CHROOTDIR=/srv}
 : ${MIRRORHOST=localhost:9999}
-: ${DATA="$(dirname "$0")"}
+: ${DATA="/usr/share/debathena-build-server"}
+if [ ! -d "$DATA" ]; then
+    DATA="$(dirname "$0")"
+    echo "WARNING: Falling back to DATA=$DATA" >&2
+fi
 SUITE=$1
 ARCH=$2
 CHROOT="${SUITE}-${ARCH}-sbuild"
@@ -112,7 +116,7 @@ if [ "$TYPE" = "overlayfs" ]; then
     mount "$DEVICE" "$TARGET"
 else
     TARGET="$TMPDIR/root"
-    SCRIPTCFG="default/config"
+    SCRIPTCFG="debathena/config"
 fi
 debootstrap --variant=buildd --include=apt,apt-utils,gnupg,build-essential,fakeroot --arch "$ARCH" "$SUITE" "$TARGET" "$MIRROR"
 install -m a=rx,u+w "$DATA/policy-rc.d" "$TARGET/usr/sbin/"
@@ -123,7 +127,7 @@ mkdir -p "$TARGET/dev/pts"
 # config that bind-mounts /run/shm instead of /dev/shm
 if [ -L "$TARGET/dev/shm" ] &&
    [ "$(readlink "$TARGET/dev/shm")" = "/run/shm" ]; then
-    SCRIPTCFG="default/config-slash-run"
+    SCRIPTCFG="debathena/config-slash-run"
 else
     mkdir -p "$TARGET/dev/shm"
 fi
@@ -150,6 +154,7 @@ description=$CHROOT
 groups=root,sbuild
 root-groups=root,sbuild
 source-groups=root
+script-config=$SCRIPTCFG
 device=$DEVICE
 personality=$PERSONALITY
 EOF
