@@ -40,6 +40,9 @@ set -e
 : ${CHROOTDIR=/srv}
 : ${MIRRORHOST=localhost:9999}
 : ${DATA="/usr/share/debathena-build-server"}
+# This used to include its own copy of the key, we now just use the
+# one from archive-keyring
+: ${APTKEY="/usr/share/keyrings/debathena-archive-keyring.gpg"}
 if [ ! -d "$DATA" ]; then
     DATA="$(dirname "$0")"
     echo "WARNING: Falling back to DATA=$DATA" >&2
@@ -175,7 +178,7 @@ fi
 
 schroot --chroot="${CHROOT}-source" --directory=/ -- /bin/sh -xe - \
     8< "$SOURCES" \
-    9< "$DATA/debathena-archive.asc" \
+    9< "$APTKEY" \
     <<EOF
 #/debootstrap/debootstrap --second-stage
 dpkg-divert --local --rename --add /sbin/initctl
@@ -188,3 +191,5 @@ sed "s|MIRRORHOST|$MIRRORHOST|" <&8 > /etc/apt/sources.list
 apt-get -q -y update
 apt-get -q -y dist-upgrade
 EOF
+echo "Done: $CHROOT created successfully."
+exit 0
