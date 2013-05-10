@@ -1,0 +1,12 @@
+#!/usr/bin/perl -0p
+# 
+# This script modifies /etc/pam.d/schroot to replace common-session with
+# pam_unix.so for basic session support.  If common-session is not
+# excluded, it creates a new AFS PAG and does other undesirable things.
+#
+# This script is normally called as a config-packge-dev transform
+# script, but can be applied by hand with something like:
+#    mv /etc/pam.d/schroot /etc/pam.d/schroot.orig
+#    modify_schroot < /etc/pam.d/schroot.orig > /etc/pam.d/schroot
+#
+s/^(\@include common-session)$/#$1\nsession required pam_unix.so/m or die;

@@ -1,5 +1,2 @@
-# -*- mode: text; fill-column: 10000 -*-
-# Patch pam's schroot configuration, to avoid running common-session
-# because AFS PAGs
-/etc/pam.d/schroot.debathena sed -e 's/^\(@include common-session\)$/# \1\nsession required pam_unix.so/'
-/etc/approx/approx.conf.debathena debian/transform_approx.conf
+/etc/pam.d/schroot.debathena modify_etc_pam.d_schroot
+/etc/approx/approx.conf.debathena modify_etc_approx_approx.conf

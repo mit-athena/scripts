@@ -1,7 +1,0 @@
-#debian          http://debian.lcs.mit.edu/debian
-debian		 http://mirrors.mit.edu/debian
-debian-security http://security.us.debian.org
-#ubuntu          http://archive.ubuntu.com/ubuntu
-ubuntu		 http://mirrors.mit.edu/ubuntu
-ubuntu-security http://security.ubuntu.com/ubuntu
-debathena       http://debathena.mit.edu/apt

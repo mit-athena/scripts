@@ -1,8 +1,0 @@
---- /etc/schroot/mount-defaults.orig	2008-05-28 19:53:28.000000000 -0400
-+++ /etc/schroot/mount-defaults	2008-05-28 19:53:54.000000000 -0400
-@@ -6,5 +6,6 @@
- proc		/proc		proc	defaults	0	0
- /dev/pts	/dev/pts	none	rw,bind		0	0
- tmpfs		/dev/shm	tmpfs	defaults	0	0
- /tmp		/tmp		none	rw,bind		0	0
-+/afs		/afs		none	rw,bind		0	0
