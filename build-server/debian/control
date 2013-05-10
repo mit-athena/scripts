@@ -16,6 +16,8 @@ Depends: debathena-archive-keyring,
  subversion,
  debathena-debian-dev,
  ${misc:Depends}
+Provides: ${diverted-files}
+Conflicts: ${diverted-files}
 Description: Suite of tools to create a Debathena build server
  This package includes a set of scripts, tools, and dependencies
  necessary to create a Debathena build server.  You probably don't

@@ -1,2 +1,4 @@
-/etc/pam.d/schroot.debathena modify_etc_pam.d_schroot
-/etc/approx/approx.conf.debathena modify_etc_approx_approx.conf
+# The initial dot is necessary to make it clear this is a script in
+# the root of the package, not a command in $PATH
+/etc/pam.d/schroot.debathena ./modify_etc_pam.d_schroot
+/etc/approx/approx.conf.debathena ./modify_etc_approx_approx.conf
