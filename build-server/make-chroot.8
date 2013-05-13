@@ -49,8 +49,11 @@ this, you may wish to use a local low-number udev rule (in
 
 SUBSYSTEM=="block", DM_UUID=="LVM*", ENV{UDISKS_AUTO}="0", ENV{UDISKS_PRESENTATION_HIDE}="1"
 
-The above rule (on one line) will hide any LVM partitions from UDisks.
-Customize the rule as you see fit.
+The above rule (on one line) should hide any LVM partitions from UDisks.
+Except it probably won't work, so just disable automounting completely:
+
+gsettings set org.gnome.desktop.media-handling automount false
+gsettings set org.gnome.desktop.media-handling automount-open false
 
 .SH SEE ALSO
 

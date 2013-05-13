@@ -6,10 +6,10 @@
 # this profile.
 
 # Filesystems to mount inside the chroot.
-FSTAB="/etc/schroot/default/fstab-slash-run"
+FSTAB="/etc/schroot/debathena/fstab-slash-run"
 
 # Files to copy from the host system into the chroot.
-COPYFILES="/etc/schroot/default/copyfiles"
+COPYFILES="/etc/schroot/debathena/copyfiles"
 
 # System NSS databases to copy into the chroot.
-NSSDATABASES="/etc/schroot/default/nssdatabases"
+NSSDATABASES="/etc/schroot/debathena/nssdatabases"
