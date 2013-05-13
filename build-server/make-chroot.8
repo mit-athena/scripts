@@ -1,0 +1,61 @@
+.TH MAKE-CHROOT 8 "13 May 2013" "deabthena-build-server"
+.SH NAME
+make-chroot \- Create a chroot suitable for use with the Debathena build environment
+.SH SYNOPSIS
+.nf
+.B make-chroot [options] \fIsuite\fP \fIarch\fP
+.sp
+.SH DESCRIPTION
+.BR make-chroot
+can be used to create a chroot suitable for use with the Debathena build
+environment.  \fIsuite\fP is the codename of a release (e.g. precise,
+squeeze), and \fIarch\fP is one of "i386" or "amd64".
+
+.SH OPTIONS
+.IP -d
+Debug mode.  Sets "-x" in the shell and also will not remove a tar-based
+chroot's directory if something fails.
+.IP -z
+When using tar-based chroots, compress with bzip2.
+.IP -o
+Create an overlayfs chroot, not a tar chroot (default).
+.IP -t
+Create a tar chroot, not an overlayfs chroot.
+
+.SH ENVIRONMENT VARIABLES
+The following environment variables influence this script.
+.IP VG
+When create tar-based chroots, create them in this LVM2 volume group.
+You must use the full path (e.g. /dev/\fIvolgroup\fP).  
+(Default: /dev/builder)
+.IP CHROOTDIR
+Create tar-based chroots in this directory.  (Default: /srv)
+.IP MIRRORHOST
+Use this HTTP host for the upstream mirror.  (Default: localhost:9999)
+.IP DATA
+Data (such as the sources.list files) for make-chroot is found in this
+location. (Default: /usr/share/debathena-build-server).  If the
+directory does not exist, it will fall back to $(dirname $0)
+.IP APTKEY
+The Debathena archive keyring.  
+(Default: /usr/share/keyrings/debathena-archive-keyring.gpg)
+
+.SH NOTES
+
+When using this in a desktop environment, Nautilus/UDisks will happily
+throw up new windows everytime an LV is created or mounted.  To disable
+this, you may wish to use a local low-number udev rule (in
+/etc/udev/rules.d) with content such as:
+
+SUBSYSTEM=="block", DM_UUID=="LVM*", ENV{UDISKS_AUTO}="0", ENV{UDISKS_PRESENTATION_HIDE}="1"
+
+The above rule (on one line) will hide any LVM partitions from UDisks.
+Customize the rule as you see fit.
+
+.SH SEE ALSO
+
+schroot.conf(5), debootstrap(8), schroot(1)
+
+.SH AUTHOR
+SIPB Debathena Project (http://debathena.mit.edu)
+

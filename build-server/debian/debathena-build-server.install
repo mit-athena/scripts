@@ -1,4 +1,5 @@
 make-chroot usr/sbin
+make-chroot.8 usr/share/man/man8
 gen-distributions usr/lib/debathena-build-server
 policy-rc.d usr/share/debathena-build-server
 dot-devscripts usr/share/debathena-build-server
