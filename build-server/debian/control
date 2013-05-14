@@ -2,7 +2,8 @@ Source: debathena-build-server
 Section: debathena/utils
 Priority: extra
 Maintainer: Debathena Project <debathena@mit.edu>
-Build-Depends: debhelper (>= 8.0.0), config-package-dev (>= 5.1.1~)
+Build-Depends: debhelper (>= 8.0.0), config-package-dev (>= 5.1.1~), 
+ schroot, approx
 Standards-Version: 3.9.3
 
 Package: debathena-build-server
