@@ -25,7 +25,6 @@ LOGDIR=$BASEDIR/log
 NOW=$(date +"%d-%m-%y")
 LOG=$LOGDIR/"install-test-"$NOW".log"
 
-
 function usage() {
   cat<< EO
         Usage:  -s <suite> -a <architecture> -h <hostname> -i <ip> -p <preseed>
@@ -70,34 +69,29 @@ if [ -d tmp ] ; then
 fi
 
 mkdir $BASEDIR/tmp
+mkdir $BASEDIR/tmp/isolinux
 TMPDIR=$BASEDIR/tmp
 
+
 echo "creating build files..." | tee -a $LOG
-cp -R $BASEDIR/isolinux $TMPDIR
 
-echo "fetching kernel and initrd..." | tee -a $LOG
-wget -q http://mirrors.mit.edu/ubuntu/dists/$SUITE/main/installer-$ARCH/current/images/netboot/ubuntu-installer/$ARCH/linux -O $TMPDIR/linux
-wget -q http://mirrors.mit.edu/ubuntu/dists/$SUITE/main/installer-$ARCH/current/images/netboot/ubuntu-installer/$ARCH/initrd.gz -O $TMPDIR/initrd.gz
+ISOLINUXBIN=/usr/lib/syslinux/isolinux.bin
 
-ISOLINUXBIN=$TMPDIR/isolinux/isolinux.bin
-ISOLINUXBOOT=$TMPDIR/isolinux/boot.cat
-ISOLINUXCFG=$TMPDIR/isolinux/isolinux.cfg
-
-# sane?
 if [ ! -f $ISOLINUXBIN ] ; then
   echo "isolinux.bin not found at: $ISOLINUXBIN exiting..." | tee -a $LOG
   exit 1
 fi
 
-if [ ! -f $ISOLINUXBOOT ] ; then
-  echo "boot.cat not found at: $ISOLINUXBOOT exiting..." | tee -a $LOG
+cp $ISOLINUXBIN $TMPDIR/isolinux
+
+if [ ! -f $BASEDIR/isolinux/isolinux.cfg ] ; then
+  echo "isolinux.cfg not found. exiting..." | tee -a $LOG
   exit 1
 fi
 
-if [ ! -f $ISOLINUXCFG ] ; then
-  echo "isolinux.cfg not found at: $ISOLINUXCFG exiting..." | tee -a $LOG
-  exit 1
-fi
+cp -R $BASEDIR/isolinux $TMPDIR
+
+ISOLINUXCFG=$TMPDIR/isolinux/isolinux.cfg 
 
 echo "seeding isolinux.cfg..." | tee -a $LOG
 
@@ -105,17 +99,20 @@ sed -i "s|%HOSTNAME%|$HOSTNAME|g" $ISOLINUXCFG
 sed -i "s|%IP%|$IP|g" $ISOLINUXCFG
 sed -i "s|%PRESEED%|$PRESEED|g" $ISOLINUXCFG
 
+echo "fetching kernel and initrd..." | tee -a $LOG
+wget -q http://mirrors.mit.edu/ubuntu/dists/$SUITE/main/installer-$ARCH/current/images/netboot/ubuntu-installer/$ARCH/linux -O $TMPDIR/linux
+wget -q http://mirrors.mit.edu/ubuntu/dists/$SUITE/main/installer-$ARCH/current/images/netboot/ubuntu-installer/$ARCH/initrd.gz -O $TMPDIR/initrd.gz
+
 echo "creating iso image..." | tee -a $LOG
 
 IMAGENAME=$SUITE-$ARCH-netboot.iso
-BUILDDIR=$TMPDIR
 
 mkisofs -r -V "Debathena Boot" \
         -cache-inodes \
         -J -l -b isolinux/isolinux.bin \
         -c isolinux/boot.cat -no-emul-boot \
         -boot-load-size 4 -boot-info-table \
-        -o $IMAGENAME $BUILDDIR 2>&1 | tee -a $LOG
+        -o $IMAGENAME $TMPDIR 2>&1 | tee -a $LOG
 
 if [ ! -f $BASEDIR/$IMAGENAME ] ; then
   echo "iso creation failed. exiting..." | tee -a $LOG
@@ -140,14 +137,16 @@ echo "sleeping for 4 hours before launching tests..." | tee -a $LOG
 
 sleep 240m
 
-ATHINFO_VERSION=`athinfo $IP version`
-ATHINFO_VERSION_PASS=`$ATHINFO_VERSION | grep -c debathena-cluster`
+ATHINFO_VERSION_PASS=`athinfo $HOSTNAME version | grep -c debathena-cluster`
 
+#TODO: get more useful reporting here. The last messages weren't quite working as expected
 if [[ $ATHINFO_VERSION_PASS -ne 1 ]] ; then
-  echo "athinfo version returned: $ATHINFO_VERSION. Test Failed." | tee -a $LOG
+  echo "Test Failed." | tee -a $LOG
 else
- echo "Test Passed! athinfo version: $ATHINFO_VERSION" | tee -a $LOG
+ echo "Test Passed." | tee -a $LOG
 fi
+
+vmrun stop $TMPDIR/vm/default.vmx 2>&1 | tee -a $LOG
 
 echo "done."
 
