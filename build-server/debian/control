@@ -23,3 +23,4 @@ Description: Suite of tools to create a Debathena build server
  This package includes a set of scripts, tools, and dependencies
  necessary to create a Debathena build server.  You probably don't
  want this package unless you're contributing to the project.
+X-Debathena-No-Build: lucid
