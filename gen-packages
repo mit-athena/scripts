@@ -1,18 +1,10 @@
 #!/bin/sh
 
-# Usage: gen-packages [-c|-r] [LOCATION]
+# Usage: gen-packages
 
 # Scans the repository or a checkout of it and generates a file named
 # "packages" in the current directory containing a table of source
-# package names and their corresponding directories.  Scanning a
-# checkout is much faster, but relies on the checkout being
-# sufficiently up to date.
-
-# If -c is specified, scans a checkout.  If -r is specified, scans the
-# repository.  -r is the default.
-
-# If LOCATION is specified, it is used in preference to the canonical
-# Athena repository trunk or the canonical source checkout.
+# package names and their corresponding directories.
 
 set -e
 
@@ -22,56 +14,30 @@ die() {
 }
 
 usage() {
-  die "gen-packages [-r|-c] [LOCATION]"
+  die "gen-packages"
 }
 
-type=repos
-
-while getopts cr opt; do
-  case "$opt" in
-  c)
-    type=checkout
-    ;;
-  r)
-    type=repos
-    ;;
-  \?)
-    usage
-    ;;
-  esac
+rm -f packages.git.unsorted
+GITHUB_PREFIX="https://raw.github.com/mit-athena"
+# Change this once submodules are working
+REPOS=$(ssh athenasnap@git.mit.edu "ls -d /git/athena/*.git")
+for repo in $REPOS; do
+  echo "Looking at $repo"
+  repo_base=${repo%.git}
+  repo_base=${repo_base#/git/athena/}
+  URI="${GITHUB_PREFIX}/${repo_base}/master/debian/control"
+  name=$(curl -sf "$URI" | sed -ne 's/^Source: \(.*\)$/\1/p')
+  if [ -n "$name" ]; then
+    printf "%-35s %s\n" $name $repo >> packages.git.unsorted
+    continue
+  fi
+  name=$(curl -sf "${URI}.in" | sed -ne 's/^Source: \(.*\)$/\1/p')
+  if [ -n "$name" ]; then
+    printf "%-35s %s\n" $name $repo >> packages.git.unsorted
+    continue
+  fi
+  echo "** Couldn't find a control or control.in file!  Skipping..."
 done
 
-shift $(($OPTIND - 1))
-if [ $# -gt 0 ]; then
-  loc=$1
-elif [ $type = repos ]; then
-  loc=svn+ssh://svn.mit.edu/athena/trunk
-else
-  loc=/afs/dev.mit.edu/source/src-svn
-fi
-
-rm -f packages.unsorted
-echo "Scanning file list of $loc"
-if [ $type = repos ]; then
-  for cf in $(svn ls -R $loc | egrep 'debian/control(\.in)*$'); do
-    echo "Reading $cf"
-    name=$(svn cat $loc/$cf | sed -ne 's/^Source: \(.*\)$/\1/p')
-    dir=${cf%.in}
-    dir=${dir%/debian/control}
-    printf "%-35s %s\n" $name $dir >> packages.unsorted
-  done
-else
-  for cf in $(cd $loc && find | egrep 'debian/control(\.in)*$' \
-      | sed -ne 's/^\.\///p'); do
-    echo "Reading $cf"
-    name=$(sed -ne 's/^Source: \(.*\)$/\1/p' $loc/$cf)
-    dir=${cf%.in}
-    dir=${dir%/debian/control}
-    printf "%-35s %s\n" $name $dir >> packages.unsorted
-  done
-fi
-
-# cyrus-sasl2-mit has a debian dir but is really a debathenify package.
-# config-package dev has some example packages we want to filter out.
-sort -u packages.unsorted | egrep -v "cyrus-sasl2-mit|/examples/" > packages
-rm -f packages.unsorted
+sort -u packages.git.unsorted > packages.git
+rm -f packages.git.unsorted

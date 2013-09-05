@@ -27,7 +27,7 @@ usage() {
 }
 : ${DA_SCRIPTS_DIR="$(dirname "$(readlink -f "$0")")"}
 basedir="$DA_SCRIPTS_DIR"
-repo=svn+ssh://svn.mit.edu/athena/trunk
+repo=git+ssh://git.mit.edu
 
 while getopts r: opt; do
   case "$opt" in
@@ -64,13 +64,20 @@ do_package() {
     die "More than one checkout under $pkgname!"
   elif [ -d $pattern ]; then
     dir=$(echo $pattern)
-    echo "Updating and cleaning $dir"
-    (cd $dir && svn update && svn revert -R . &&
-     svn st | awk '/^?/ {print $2}' | xargs rm -vrf)
+    if [ -d "${dir}/.svn" ]; then
+	echo "Old SVN checkout found.  Killing with fire..."
+	rm -rf "$dir"
+	dir=$pkgname/$pkgname
+	echo "Checking out $repo$pkgpath into $dir"
+	git clone $repo$pkgpath $dir
+    else
+	echo "Updating and cleaning $dir"
+	(cd $dir && git checkout -f && git pull)
+    fi
   else
     dir=$pkgname/$pkgname
-    echo "Checking out $repo/$pkgpath into $dir"
-    svn co $repo/$pkgpath $dir
+    echo "Checking out $repo$pkgpath into $dir"
+    git clone $repo$pkgpath $dir
   fi
 
   # Ensure that we're not trying to do something stupid
@@ -93,14 +100,15 @@ do_package() {
     dir=$correctdir
   fi
 
+  # TODO: Sanity-check that the version in configure.ac matches the
+  #       upstream version
+
   # Add autoconf goo if it's an Athena source directory.
-  case $pkgpath in
-  athena/*)
-    if [ -e "$dir/configure.in" ]; then
-	(cd $dir && $basedir/daconfiscate)
-    fi
-    ;;
-  esac
+  # We can no longer determine this from the repo path
+  if [ -e "$dir/configure.in" ] && ! [ -e "$dir/configure.ac" ] \
+      && ! [ -e "$dir/configure" ]; then
+      (cd $dir && $basedir/daconfiscate)
+  fi
 
   # Generate debian/control from debian/control.in if control.in exists
  [ -f "$dir/debian/control.in" ] && echo "NOTE: Obsolete CDBS package -- convert to DH7!"
