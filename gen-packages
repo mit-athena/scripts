@@ -17,7 +17,7 @@ usage() {
   die "gen-packages"
 }
 
-rm -f packages.git.unsorted
+rm -f packages.unsorted
 GITHUB_PREFIX="https://raw.github.com/mit-athena"
 # Change this once submodules are working
 REPOS=$(ssh athenasnap@git.mit.edu "ls -d /git/athena/*.git")
@@ -28,16 +28,16 @@ for repo in $REPOS; do
   URI="${GITHUB_PREFIX}/${repo_base}/master/debian/control"
   name=$(curl -sf "$URI" | sed -ne 's/^Source: \(.*\)$/\1/p')
   if [ -n "$name" ]; then
-    printf "%-35s %s\n" $name $repo >> packages.git.unsorted
+    printf "%-35s %s\n" $name $repo >> packages.unsorted
     continue
   fi
   name=$(curl -sf "${URI}.in" | sed -ne 's/^Source: \(.*\)$/\1/p')
   if [ -n "$name" ]; then
-    printf "%-35s %s\n" $name $repo >> packages.git.unsorted
+    printf "%-35s %s\n" $name $repo >> packages.unsorted
     continue
   fi
   echo "** Couldn't find a control or control.in file!  Skipping..."
 done
 
-sort -u packages.git.unsorted > packages.git
-rm -f packages.git.unsorted
+sort -u packages.unsorted > packages
+rm -f packages.unsorted
