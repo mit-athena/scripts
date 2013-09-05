@@ -182,11 +182,15 @@ if [ $# -gt 0 ]; then
     do_package $pkgname $pkgpath
   done
 else
+  echo -n "Really build ALL source packages? (y/N) "
+  read answer
+  if [ "$answer" = "y" ]; then
   # Build all source packages.
-  exec <"$packages"
-  while read pkgname pkgpath; do
-    do_package $pkgname $pkgpath
-  done
+    exec <"$packages"
+    while read pkgname pkgpath; do
+      do_package $pkgname $pkgpath
+    done
+  fi
 fi
 # Unset trap
 trap - EXIT
