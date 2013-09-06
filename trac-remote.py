@@ -6,7 +6,7 @@ import logging
 from optparse import OptionParser
 
 LOGGER_NAME="trac-remote"
-DEFAULT_CREDENTIALS=os.getenv('HOME', '~') + "/.trac-credentials"
+DEFAULT_CREDENTIALS=os.getenv('HOME', '') + "/.trac-credentials"
 DEFAULT_SERVER="athena10.mit.edu"
 DEFAULT_RPC_PATH="/trac/login/rpc"
 
