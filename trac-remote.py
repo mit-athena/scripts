@@ -64,6 +64,13 @@ class Trac:
         self._update(ticket_id, comment,
                      {"action": "committed"}, True, author)
 
+    def test(self):
+        try:
+            response = self._server.system.getAPIVersion()
+            print "API Version: ", response
+        except xmlrpclib.Fault, e:
+            print >>sys.stderr, e.message
+            sys.exit(1)
 
 if __name__ == '__main__':
     parser = OptionParser()
