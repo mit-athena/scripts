@@ -144,7 +144,7 @@ do_package() {
 
   # Build an unsigned package, ignoring version control subdirs in the source.
   echo "Creating source package"
-  (cd $dir && debuild -S -i -I.svn -sa -us -uc)
+  (cd $dir && debuild -S -i -I -sa -us -uc)
 
   if grep '^Architecture: ' $dir/debian/control | grep -q -v 'Architecture: all'; then
     echo "At least one arch-dependent binary package; run sbuildhack WITHOUT -A." >&2
