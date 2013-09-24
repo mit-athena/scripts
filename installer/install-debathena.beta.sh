@@ -366,6 +366,19 @@ else
   openafs_component=" openafs"
 fi
 
+if [ "$modules" = "openafs-modules-dkms" ] && \
+   echo "$(dpkg-query -W -f '${Status}\n' linux-image-\*-lts-raring)" | grep -qx "install ok installed"; then
+    output "Ubuntu does not yet support OpenAFS on this kernel."
+    output "You will need to configure the OpenAFS PPA instead."
+    if [ cluster != "$category" ]; then
+	ask "Is that ok? [Y/n] " y
+	if [ y != "$answer" ]; then
+	    exit 0
+	fi
+    fi
+    add-apt-repository -y ppa:openafs/stable
+fi
+
 # Select the correct headers package
 kernel_hdr_meta_pkgs=
 if [ "$ubuntu" = "yes" ]; then
