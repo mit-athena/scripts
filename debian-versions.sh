@@ -26,6 +26,9 @@ gettag() {
 	saucy)
 	    echo "~ubuntu13.10~0.1"
 	    ;;
+	raspbian-wheezy)
+	    echo "~raspbian7.0~0.1"
+	    ;;
 	versions)
 	    echo "$DEBIAN_CODES"
 	    ;;
