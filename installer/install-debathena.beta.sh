@@ -367,7 +367,7 @@ else
 fi
 
 if [ "$modules" = "openafs-modules-dkms" ] && \
-   echo "$(dpkg-query -W -f '${Status}\n' linux-image-\*-lts-raring)" | grep -qx "install ok installed"; then
+   dpkg-query -W -f '${Status}\n' linux-image-\*-lts-raring 2>/dev/null | grep -qx "install ok installed"; then
     output "Ubuntu does not yet support OpenAFS on this kernel."
     output "You will need to configure the OpenAFS PPA instead."
     if [ cluster != "$category" ]; then
