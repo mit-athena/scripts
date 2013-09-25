@@ -366,7 +366,8 @@ fi
 dkargs="DEBCONF_DEBUG=5"
 
 nodhcp="netcfg/disable_dhcp=true"
-case "$distro" in
+distrobase=$(echo "$distro" | sed -e 's/-.*//')
+case "$distrobase" in
     oneiric|precise|quantal|raring)
         kbdcode="keyboard-configuration/layoutcode=us"
         # "Yay"
