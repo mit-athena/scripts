@@ -1,0 +1,6 @@
+deb http://MIRRORHOST/ubuntu saucy main restricted universe
+deb-src http://MIRRORHOST/ubuntu saucy main restricted universe
+deb http://MIRRORHOST/ubuntu saucy-updates main restricted universe
+deb-src http://MIRRORHOST/ubuntu saucy-updates main restricted universe
+deb http://MIRRORHOST/ubuntu-security saucy-security main restricted universe
+deb-src http://MIRRORHOST/ubuntu-security saucy-security main restricted universe
