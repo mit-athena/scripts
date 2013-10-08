@@ -16,7 +16,7 @@ tag=$(gettag $suite)
 trap 'echo "An error occured.  Press Enter to continue." >&2; echo -en "\a"; read ERROR; touch "$stamp.error"' EXIT
 touch "$stamp.started"
 dir=$(echo ${DEBATHENA_BUILD_AREA}/*/"${package#debathena-}")
-if [ ! -e $dir ]; then
+if [ ! -e "$dir" ]; then
     dir=$(echo ${DEBATHENA_BUILD_AREA}/*/"${package}")
 fi
 [ -e "$dir" ]
