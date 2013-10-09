@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="squeeze wheezy jessie lucid precise quantal raring"
+DEBIAN_CODES="squeeze wheezy jessie lucid precise quantal raring saucy"
 gettag() {
     case "$1" in
 	squeeze)
