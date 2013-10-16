@@ -24,7 +24,7 @@ gettag() {
 	    echo "~ubuntu13.04"
 	    ;;
 	saucy)
-	    echo "~ubuntu13.10~0.1"
+	    echo "~ubuntu13.10"
 	    ;;
 	raspbian-wheezy)
 	    echo "~raspbian7.0~0.1"
