@@ -69,19 +69,16 @@ case $distro in
   jessie)
     prerelease=yes
     ;;
-  lucid)
-    ubuntu=yes
-    ;;
-  precise|quantal|raring)
+  precise|saucy)
     ubuntu=yes
     aptitude=apt-get
     ;;
-  saucy)
+  trusty)
     ubuntu=yes
     aptitude=apt-get
     prerelease=yes
     ;;
-  lenny|hardy|intrepid|jaunty|karmic|maverick|natty|oneiric)
+  lenny|hardy|intrepid|jaunty|karmic|lucid|maverick|natty|oneiric|quantal|raring)
     error "The release you are running ($distro) is no longer supported."
     error "Generally, Debathena de-supports releases when they are no longer"
     error "supported by upstream.  If you believe you received this message"
