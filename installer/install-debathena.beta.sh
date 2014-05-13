@@ -63,6 +63,7 @@ fi
 distro=`lsb_release -cs`
 aptitude=aptitude
 prerelease=no
+add_apt_repo=python-software-properties
 case $distro in
   squeeze|wheezy)
     ;;
@@ -77,6 +78,7 @@ case $distro in
     ubuntu=yes
     aptitude=apt-get
     prerelease=yes
+    add_apt_repo=software-properties-common
     ;;
   lenny|hardy|intrepid|jaunty|karmic|lucid|maverick|natty|oneiric|quantal|raring)
     error "The release you are running ($distro) is no longer supported."
@@ -353,6 +355,11 @@ apt-get -y install wget dnsutils
 if [ yes = "$resolvconfhack" ]; then
   output "Installing resolvconf ahead of time"
   apt-get -y install resolvconf
+fi
+
+if ! hash add-apt-repository >/dev/null 2>&1; then
+    output "Installing add-apt-repository"
+    apt-get -y install "$add_apt_repo"
 fi
 
 # Only add our openafs component if DKMS isn't available
