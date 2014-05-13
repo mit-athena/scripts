@@ -377,7 +377,7 @@ if [ "$modules" = "openafs-modules-dkms" ] && \
 	    ppa="no"
 	fi
     fi
-    if [ "$ppa" = "yes"]; then
+    if [ "$ppa" = "yes" ]; then
 	output "Enabling OpenAFS PPA..."
 	add-apt-repository -y ppa:openafs/stable
     fi
