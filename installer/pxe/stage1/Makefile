@@ -7,7 +7,7 @@ default:
 install: ${d}/debathena.tar.gz
 
 ${d}/debathena.tar.gz: debathena.preseed debathena-loader.sh debathena
-	svnversion > debathena/version
-	tar czvf ${d}/debathena.tar.gz --exclude "*~" --exclude "*/.svn*" debathena
+	git rev-parse --short HEAD > debathena/version
+	tar czvf ${d}/debathena.tar.gz --exclude "*~" debathena
 	cp debathena.preseed debathena-loader.sh ${d}
 	rm debathena/version
