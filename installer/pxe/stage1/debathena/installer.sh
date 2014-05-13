@@ -365,20 +365,34 @@ if [ "$test" != "test" ]; then
 fi
 dkargs="DEBCONF_DEBUG=5"
 
-nodhcp="netcfg/disable_dhcp=true"
+nodhcp="netcfg/disable_autoconfig=true"
+kbdcode="keyboard-configuration/layoutcode=us"
 distrobase=$(echo "$distro" | sed -e 's/-.*//')
 case "$distrobase" in
-    oneiric|precise|quantal|raring)
-        kbdcode="keyboard-configuration/layoutcode=us"
-        # "Yay"
-        nodhcp="netcfg/disable_autoconfig=true"
+    precise|trusty)
 	;;
-    natty)
-        # Sigh
-        kbdcode="keyboard-configuration/layoutcode=us"
-        ;;
     *)
-        kbdcode="console-setup/layoutcode=us"
+	echo "I don't know how to preconfigure '$distrobase'"
+	while true; do
+	    echo "Enter the d-i configuration to select a keyboard layout"
+	    echo -n "or leave blank to prompt later: "
+	    read kbdcode
+	    echo "Enter the d-i configuration to disable dhcp"
+	    echo -n "(leaving it blank probably won't work): "
+	    read nodhcp
+	    echo
+	    echo "Will pass these kernel arguments:"
+	    echo "$kbdcode $nodhcp"
+	    echo -n "ok? [Y/n]"
+	    read answer
+	    case $answer in
+		[nN]*)
+		    ;;
+		*)
+		    break
+		    ;;
+	    esac
+	done
         ;;
 esac
 
