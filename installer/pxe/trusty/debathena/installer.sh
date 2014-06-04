@@ -36,6 +36,7 @@ installertype=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/i= | sed -e 's/.*=//'
 mirrorsite=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/m= | sed -e 's/.*=//'`
 partitioning=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/part= | sed -e 's/.*=//'`
 nodhcp=`sed -e 's/ /\n/g' < /proc/cmdline | grep netcfg/disable_dhcp= | sed -e 's/.*=//'`
+debugmode=`sed -e 's/ /\n/g' < /proc/cmdline | grep da/dbg= | sed -e 's/.*=//'`
 
 
 echo "Picked up values from command line:
@@ -163,7 +164,15 @@ EOF
 echo "$pxetype" > pxe-install-flag
 
 echo "Initial Debathena installer complete; exiting preconfig to start main install."
-if [ "$pxetype" != "cluster" ] || [ "$installertype" = "beta" ]; then
+if [ "$pxetype" != "cluster" ]; then
+  echo "Hit return to continue."
+  read r
+fi
+if [ "$debugmode" = "1" ]; then
+  echo "Installer debugging enabled.  The install will pause at"
+  echo "various breakpoints.  You can end debugging at any time"
+  echo "by removing the /debathena/debug file."
+  touch /debathena/debug
   echo "Hit return to continue."
   read r
 fi

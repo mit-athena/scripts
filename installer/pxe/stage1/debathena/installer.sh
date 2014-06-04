@@ -173,6 +173,7 @@ if [ -f "/debathena/version" ]; then
   debug "SVN: " "$(cat /debathena/version)"
 fi
 
+debugmode=""
 debug "Mirror $mirrorsite Type $installertype Arch $arch"
 
 echo "Welcome to Athena, Stage 1 Installer"
@@ -181,7 +182,9 @@ echo
 while [ -z "$pxetype" ] ; do
   echo
   echo "Will install ${ccc}$distro${nnn} ($arch) using $installertype installer"
-  echo "from $mirrorsite using $partitioning partitioning"
+  echo -n "from $mirrorsite using $partitioning partitioning"
+  [ -n "$debugmode" ] &&  echo -n " with debugging."
+  echo
   echo
   echo "Choose one:"
   echo
@@ -199,11 +202,9 @@ while [ -z "$pxetype" ] ; do
   echo "  4: /bin/sh (for rescue purposes)"
   echo
   echo "  Advanced users only:"
-  echo "    m: Select a different mirror. "
-  echo "    b: Toggle between beta and production installer. "
-  echo "    d: Change the distro (version)."
-  echo "    a: Change architecture."
-  echo "    p: Toggle between manual and auto partitioning. "
+  echo "    m: Select a different mirror.           d: Change the distro (version)."
+  echo "    a: Change architecture.                 z: Toggle debug mode."
+  echo "    b: Toggle beta installer                p: Toggle manual partitioning."
   echo
   echo -n "Choose: "
   read r
@@ -275,6 +276,15 @@ while [ -z "$pxetype" ] ; do
 	  arch="$oldarch"
       fi
       unset oldarch
+      ;;
+    z|Z)
+      if [ -n "$debugmode" ]; then
+        echo "Turning debug mode off."
+	debugmode=""
+      else
+        echo "Turning debug mode on."
+	debugmode="da/dbg=1"
+      fi
       ;;
     *)
       echo "Choose one of the above, please.";;
@@ -426,7 +436,7 @@ fi
 kargs="$knetinfo $kbdcode $acpi locale=en_US interface=auto \
 url=http://18.9.60.73/installer/$distro/debathena.preseed \
 da/pxe=$pxetype da/i=$installertype da/m=$mirrorsite \
-da/part=$partitioning $extra_kargs --"
+da/part=$partitioning $debugmode $extra_kargs --"
 
 echo "Continuing in five seconds..."
 if [ "$test" = "test" ]; then
