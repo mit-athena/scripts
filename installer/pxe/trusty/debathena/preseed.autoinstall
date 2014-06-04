@@ -15,6 +15,9 @@ d-i pkgsel/update-policy select none
 # skip displaying a list if there is more than one interface.
 d-i netcfg/choose_interface select auto
 
+# Don't try to configure NetworkManager
+d-i netcfg/target_network_config select ifupdown
+
 ##############################################################################
 ##############################################################################
 
