@@ -548,6 +548,10 @@ if [ "$divertedbg" = "yes" ]; then
 fi
 
 if [ cluster = "$category" ] ; then
+  if hash apt-file >/dev/null 2>&1; then
+    output "Updating the apt-file cache..."
+    apt-file update
+  fi
   # Force an /etc/adjtime entry so there's no confusion about whether the
   # hardware clock is UTC or local.
   echo "Setting hardware clock to UTC."
@@ -556,4 +560,3 @@ fi
 
 # Remove the pxe install flag
 rm -f /root/pxe-install-flag
-    
