@@ -174,6 +174,29 @@ mainpackage=debathena-$category
 csoft=no
 tsoft=no
 resolvconfhack=no
+msmtpmta=no
+
+if [ cluster = "$category" ]; then
+  msmtpmta=yes
+else
+  echo "Debathena provides the 'debathena-msmtp-mta' package, which includes"
+  echo "a wrapper for the 'sendmail' command that configures it to use the"
+  echo "MIT outgoing servers and Kerberos authentication."
+  echo "Advanced users may wish to skip this package and configure their own"
+  echo "mail transport agent (e.g. Postfix) instead."
+  echo
+  maildefault=n
+  mailprompt="[y/N]"
+  if [ workstation = "$category" ] ; then
+    maildefault=y
+    mailprompt="[Y/n]"
+  fi
+  ask "Install debathena-msmtp-mta? $mailprompt" $maildefault
+  if [ y = "$answer" ]; then
+    msmtpmta=yes
+  fi
+fi
+
 echo "The extra-software package installs a standard set of software"
 echo "determined to be of interest to MIT users, such as LaTeX.  It is pretty"
 echo "big (several gigabytes, possibly more)."
@@ -312,6 +335,7 @@ fi
 # so also set some sane defaults
 cat <<EOF | debconf-set-selections
 # Set sane defaults
+postfix	postfix/main_mailer_type	select	Internet Site
 openafs-client  openafs-client/thiscell string grand.central.org
 openafs-client  openafs-client/cachesize string 150000
 cyrus-common	cyrus-common/removespools	boolean	false
@@ -537,6 +561,11 @@ fi
 if [ yes = "$tsoft" ]; then
   output "Installing debathena-thirdparty"
   DEBIAN_PRIORITY=critical $aptitude -y install debathena-thirdparty
+fi
+
+if [ yes = "$msmtpmta" ]; then
+  output "Installing debathena-msmtp-mta"
+  DEBIAN_PRIORITY=critical $aptitude -y install debathena-msmtp-mta
 fi
 
 # Post-install cleanup for cluster systems.
