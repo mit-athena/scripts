@@ -17,6 +17,14 @@ youlose() {
   reboot
 }
 
+# Unmount partitions because partman and d-i are incompetent.
+# http://ubuntuforums.org/showthread.php?t=2215103&p=12977473
+# LP: 1355845
+for p in $(list-devices partition); do
+  umount "$p" || true
+done
+
+
 first_disk=`list-devices disk | head -n1`
 if ! echo "$first_disk" | grep -q ^/dev; then
   youlose "No disks found."
