@@ -1,467 +1,447 @@
 #!/bin/sh
+#
+# The Debathena stage 1 installer.  This installer will:
+# - configure networking
+# - determine what metapackage to install, as well as some other advanced
+#   installation options
+# - download the stage2 initrd and kernel
+# - kexec into them.
 
-dnscgi="http://18.9.60.73/website/dns.cgi"
+OWNER="install-debathena"
+: ${PREFIX="/debathena"}
+TEMPLATE_FILE="${PREFIX}/debathena.templates"
+NETPARAMS="${PREFIX}/athena/netparams"
+MASKS_FILE="${PREFIX}/athena/masks"
+DEFAULT_DISTRO=trusty
+NAMESERVERS="18.72.0.3 18.71.0.151 18.70.0.160"
 
-test=
-if [ "$1" = "--test" ]; then
-  test="test"
-  echo "** TESTING MODE"
-fi
+# A URI which, if it can be reached, indicates the machine has
+# a real connection to MITnet
+NETWORK_TEST_URI="http://debathena.mit.edu/net-install"
 
-if [ "$test" != "test" ]; then
-    cd /debathena
-fi
+# Net device to use (filled in later)
+ETH0=
 
 debug () {
-  if [ "$test" != "test" ]; then
+  if [ -z "$DA_DEBUG" ]; then
     logger -t install.debug "$@"
   else
-    echo "DEBUG: $@"
+    echo "$DEBUG: $@" >&2
   fi
 }
 
-pxetype=""
-
-netconfig () {
-  echo "Configuring network..."
-  mp=/debathena
-  if [ "$test" = "test" ]; then
-      mp="`dirname $0`"
-  fi
-  export IPADDR NETMASK GATEWAY SYSTEM CONTROL HOSTNAME
-  # This will fail if dhreg addresses ever stop being able to reach net 18
-  # First make sure we're talking to who we think we are
-  havedns=n
-  ipprompt="Enter IP address:"
-  if [ "$(wget -qO - "$dnscgi/q")" = "Debathena DNS-CGI" ]; then
-    havedns=y
-    ipprompt="Enter IP address or hostname:"
-  fi
-
-  while [ -z "$IPADDR" ] ; do
-    HOSTNAME=
-    echo -n "$ipprompt "
-    read IPADDR
-    debug "In netconfig, user entered '$IPADDR'"
-    # RFC1123 does permit hostnames to start with digits, moira doesn't
-    # If you do that, suck it up and type the IP
-    if echo "$IPADDR" | grep -q '[a-zA-Z]'; then
-      HOSTNAME="$IPADDR"
-      IPADDR=
-      if [ "$havedns" != "y" ]; then
-	echo "Enter a valid IP address.  (DNS not available)".
-	continue
-      fi
-      echo "Looking up IP for $HOSTNAME..."
-      dig="$(wget -qO - "$dnscgi/a/$HOSTNAME")"
-      if echo "$dig" | grep -q '^OK:'; then
-	IPADDR="$(echo "$dig" | sed 's/^OK: //')"
-	echo "Found $IPADDR..."
-      else
-	echo "$dig"
-	echo "Could not look up IP address for $HOSTNAME.  Try again."
-      fi
-    fi
-  done
-
-  if [ -z "$HOSTNAME" ] && [ "$havedns" = "y" ]; then
-    dig="$(wget -qO - "$dnscgi/ptr/$IPADDR")"
-    if echo "$dig" | grep -q '^OK:'; then
-      HOSTNAME="$(echo "$dig" | sed 's/^OK: //')"
-      echo "$IPADDR reverse-resolves to $HOSTNAME..."
-    else
-      echo "$dig"
-      echo "Could not look up hostname for $IPADDR."
-      echo "Cannot continue without a valid hostname."
-      echo "Please note that if this address was newly requested,"
-      echo "or its hostname was changed, it can take up to 2 business days"
-      echo "before DNS information is correct."
-      echo 
-      echo "Please try again once DNS has been updated or use a different"
-      echo "IP address.  You may now restart or shut down this workstation."
-      while true; do
-	  read foo
-	  if [ "$foo" = "xyzzy" ]; then 
-	      break
-	  fi
-      done
-    fi
-  fi
-  if [ -z "$HOSTNAME" ]; then
-      HOSTNAME=install-target-host
-  fi
-  
-  HOSTNAME="$(echo "$HOSTNAME" | tr A-Z a-z | sed 's/\.mit\.edu$//')"
-
-  NETMASK=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 1`
-  net=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 2`
-  bc=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 3`
-  GATEWAY=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 4`
-  maskbits=`$mp/athena/netparams -f $mp/athena/masks "$IPADDR"|cut -d\  -f 5`
-
-  echo "Address: $IPADDR"
-  echo
-  echo "Autoconfigured settings:"
-  echo "  Netmask bits: $maskbits"
-  echo "  Broadcast: $bc"
-  echo "  Gateway: $GATEWAY"
-
-  debug "Calculated values: $HOSTNAME $NETMASK $GATEWAY $bc"
-
-  if [ "$pxetype" != cluster ] ; then
-    echo -n "Are these OK? [Y/n]: "; read response
-    case $response in
-      y|Y|"") ;;
-      *) 
-      echo -n "Netmask bits [$maskbits]: "; read r; if [ -n "$r" ] ; then maskbits=$r ; fi
-      echo -n "Broadcast [$bc]: "; read r; if [ -n "$r" ] ; then bc=$r ; fi
-      echo -n "Gateway [$GATEWAY]: "; read r; if [ -n "$r" ] ; then GATEWAY=$r ; fi
-    esac
-  fi
-
-  if [ "$test" != "test" ]; then
-  # We can not set the hostname here; running "debconf-set netcfg/get_hostname"
-  # causes fatal reentry problems.  Setting values directly with preseeding
-  # also fails, as the DHCP values override it.
-  echo "Killing dhcp client."
-  killall dhclient
-  echo -n "Determining which interface to use... "
-  ETH0="$(ip -o link show | grep -v loopback | cut -d: -f 2 | tr -d ' ' | head -1)"
-  echo "$ETH0"
-  echo "Running: ip addr flush dev $ETH0"
-  ip addr flush dev $ETH0
-  echo "Running: ip addr add $IPADDR/$maskbits broadcast $bc dev $ETH0"
-  ip addr add "$IPADDR/$maskbits" broadcast "$bc" dev $ETH0
-  echo "Flushing old default route."
-  route delete default 2> /dev/null
-  echo "Running: route add default gw $GATEWAY"
-  route add default gw "$GATEWAY"
-  echo "Replacing installer DHCP nameserver with MIT nameservers."
-  sed -e '/nameserver/s/ .*/ 18.72.0.3/' < /etc/resolv.conf > /etc/resolv.conf.new
-  echo "nameserver	18.70.0.160" >> /etc/resolv.conf.new
-  echo "nameserver	18.71.0.151" >> /etc/resolv.conf.new
-  mv -f /etc/resolv.conf.new /etc/resolv.conf
-  fi
-}
-
-# Color strings. I'd like to use tput, but the installer doesn't have it.
-esc=""
-nnn="${esc}[m"          # Normal
-ccc="${esc}[36m"        # Cyan
-rrr="${esc}[1;31m"      # Bold and red
-ddd="${esc}[1;31;47m"   # Plus gray background
-ddb="${esc}[1;31;47;5m" # Plus blinking
-
-
-mirrorsite="mirrors.mit.edu"
-installertype="production"
-distro="trusty"
-partitioning="auto"
-arch="i386"
-# That is a space and a tab
-if egrep -q '^flags[ 	].* lm( |$)' /proc/cpuinfo;  then 
-  arch="amd64"
-fi
-
-# Of course the installer doesn't have `date`
-# time.mit.edu/kerberos.mit.edu is 18.7.21.144
-# This will probably break eventually
-debug "** Install begins at $(nc -w1 18.7.21.144 13)"
-
-if [ -f "/debathena/version" ]; then
-  echo -n "SVN version: " && cat /debathena/version
-  debug "SVN: " "$(cat /debathena/version)"
-fi
-
-debugmode=""
-debug "Mirror $mirrorsite Type $installertype Arch $arch"
-
-echo "Welcome to Athena, Stage 1 Installer"
-echo
-
-while [ -z "$pxetype" ] ; do
-  echo
-  echo "Will install ${ccc}$distro${nnn} ($arch) using $installertype installer"
-  echo -n "from $mirrorsite using $partitioning partitioning"
-  [ -n "$debugmode" ] &&  echo -n " with debugging."
-  echo
-  echo
-  echo "Choose one:"
-  echo
-  echo "  1: Perform an unattended ${ccc}debathena-cluster${nnn} install, ${rrr}ERASING your"
-  echo "     ENTIRE DISK${nnn}. This option is only intended for people setting up"
-  echo "     public cluster machines maintained by IS&T/Athena. "
-  echo
-  echo "  2: Do a ${ccc}normal Debathena install${nnn}.  You'll need to answer normal Ubuntu"
-  echo "     install prompts, and then the Athena-specific prompts, including"
-  echo "     choosing which flavor of Debathena you'd like (e.g., private workstation)."
-  echo
-  echo "  3: Punt to a completely ${ccc}vanilla install of Ubuntu${nnn}."
-  echo "     (Note: locale and keyboard have already been set.)"
-  echo
-  echo "  4: /bin/sh (for rescue purposes)"
-  echo
-  echo "  Advanced users only:"
-  echo "    m: Select a different mirror.           d: Change the distro (version)."
-  echo "    a: Change architecture.                 z: Toggle debug mode."
-  echo "    b: Toggle beta installer                p: Toggle manual partitioning."
-  echo
-  echo -n "Choose: "
-  read r
-  case "$r" in
-    1)
-      echo "Debathena CLUSTER it is."; pxetype=cluster ;;
-    2)
-      echo "Normal Debathena install it is."; pxetype=choose ;;
-    3)
-      echo "Vanilla Ubuntu it is."; pxetype=vanilla;;
-    4)
-      echo "Here's a shell.  You'll return to this prompt when done."
-      echo
-      echo "Note: This shell has no job control, and unless you know"
-      echo "what you're doing, you almost certainly want to switch to"
-      echo "VT2 (by pressing Ctrl-Alt-F2), and use the shell there."
-      echo "You can return to this screen (VT5) by pressing Ctrl-Alt-F5."
-      echo
-      /bin/sh;;
-    m|M)
-      echo
-      echo "NOTE: There is no data validation.  Don't make a typo."
-      echo -n "Enter a new mirror hostname: "
-      read mirrorsite
-      ;;
-    d|D)
-      echo
-      echo "NOTE: There is no data validation.  Don't make a typo."
-      echo -n "Enter a new distro: "
-      read distro
-      ;;
-    b|B)
-      if [ "$installertype" = "production" ]; then
-        echo "Switching to beta installer."
-        installertype="beta"
-      else
-        echo "Switching to production installer."
-        installertype="production"
-      fi
-      ;;
-    p|P)
-      if [ "$partitioning" = "auto" ]; then
-        echo "Switching to manual partitioning."
-	echo "Your disk will (probably) not be erased."
-        partitioning="manual"
-	echo "Normally, cluster machines get:"
-	echo " - a 200MB ext3 /boot partition"
-	echo " - an LVM volume group named 'athena', containing"
-	echo "   - a (3x system RAM)-sized swap LV (at least 512 MB)"
-	echo "   - a root LV taking up half the remaining space (at least 10 GB)"
-	echo
-	echo "You probably want to set up something similar."
-	echo
-	echo "Backups are ALWAYS a good idea.  Stop and make one now."
-	echo "Press Enter to continue."
-	read dummy
-      else
-        echo "Switching to auto partitioning."
-        partitioning="auto"
-      fi
-      ;;
-    a|A)
-      echo
-      oldarch="$arch"
-      echo -n "Enter a new arch (acceptable values: i386, amd64): "
-      read arch
-      if [ "$arch" != "i386" ] && [ "$arch" != "amd64" ]; then
-	  echo "Invalid value.  Reverting to $arch."
-	  arch="$oldarch"
-      fi
-      unset oldarch
-      ;;
-    z|Z)
-      if [ -n "$debugmode" ]; then
-        echo "Turning debug mode off."
-	debugmode=""
-      else
-        echo "Turning debug mode on."
-	debugmode="da/dbg=1"
-      fi
-      ;;
-    *)
-      echo "Choose one of the above, please.";;
-  esac
-done
-
-debug "*** Main menu complete"
-debug "Mirror: $mirrorsite Type: $installertype Part: $partitioning"
-debug "Arch: $arch Distro: $distro Pxetype: $pxetype"
-debug "$ETH0:"
-debug "$(ip address show $ETH0)"
-debug "routing:"
-debug "$(route)"
-debug "resolv.conf:"
-debug "$(cat /etc/resolv.conf)"
-
-##############################################################################
-
-
-# Consider setting a static IP address, especially if we can't reach the mirror.
-if [ cluster != "$pxetype" ]; then
-  # We're at a point in the install process where we can be fairly sure
-  # that nothing else is happening, so "killall wget" should be safe.
-  (sleep 5; killall wget >/dev/null 2>&1) &
-  if wget -s http://$mirrorsite/ubuntu ; then
-    if ip address show to 18.0.0.0/8 | grep -q . && ! ip address show to 18.2.0.0/16 | grep -q . ; then
-      echo "Your computer seems to be registered on MITnet."
-    else
-      echo "Your computer seems not to be registered on MITnet, but the mirror"
-      echo "site $mirrorsite is accessible."
-    fi
-    echo
-    echo "${ccc}You can continue the install using your existing dynamic address.${nnn}"
-    echo -n "Configure a static address anyway?  [y/N]: "
-    while : ; do
-      read r
-      case "$r" in
-        N*|n*|"") break;;
-        y*|Y*) netconfig; break;;
-      esac
-      echo -n "Choose: [y/N]: "
-    done
+run () {
+  if [ -n "$DA_DEBUG" ]; then
+    echo "Command: $@"
   else
-    echo "The mirror site $mirrorsite is NOT accessible in your current"
-    echo "dynamic configuration."
-    echo
-    echo "${rrr}You must specify a static address for the installation.${nnn}"
-    netconfig
+    "$@"
   fi
+}
+
+# Some Debconf helper functions to avoid having to
+# type the owner each time
+
+# Get the value of a question
+get () {
+  question="$1"
+  db_get $OWNER/$question && echo "$RET"
+}
+
+# Ask a question with a priority (defaults to 'high')
+# and a title (defaults to "Debathena Installer")
+# Then call db_get, so the value is in RET
+ask () {
+  question="$1"
+  priority="${2:-high}"
+  db_fset $OWNER/$question seen false
+  db_title "${3:-Debathena Installer}"
+  db_input "$priority" $OWNER/$question
+  if [ $? -ge 10 ] && [ $? -le 29 ]; then
+    error "An internal error occurred while asking a question"
+  fi
+  db_go && db_get $OWNER/$question
+}
+
+# Thin wrapper around db_subst
+swap () {
+  question="$1"
+  db_subst $OWNER/$question "$2" "$3"
+}
+
+# Attempt to run the netparams command.  If it succeeds,
+# pre-seed the netmask and gateway values
+guess_netparams() {
+  local params
+  params="$($NETPARAMS -f "$MASKS_FILE" "$IPADDR" 2>/dev/null)"
+  if [ $? -eq 0 ]; then
+    # netparams returns its output in this format:
+    #    NETMASK NETWORK BROADCAST GATEWAY MASKBITS
+    db_set $OWNER/netmask "$(echo "$params" | cut -d ' ' -f 1)"
+    db_set $OWNER/gateway "$(echo "$params" | cut -d ' ' -f 4)"
+    return 0
+  else
+    return 1
+  fi
+}
+
+confirm_net() {
+  swap confirm_net IPADDR "$(get ipaddr)"
+  swap confirm_net HOSTNAME "$(get hostname)"
+  swap confirm_net NETMASK "$(get netmask)"
+  swap confirm_net GATEWAY "$(get gateway)"
+  db_set $OWNER/confirm_net true
+  ask confirm_net
+}
+
+error () {
+  msg="${1:-The installation cannot continue.}"
+  swap ohnoes errormsg "$msg"
+  ask ohnoes critical
+  while true; do
+    echo "Please reboot now."
+    read dummy
+  done
+}
+
+# Ask a question, requiring the answer to be a valid IP
+ask_valid_ip() {
+  while true; do
+    ask "$1"
+    if ! dahost -i "$RET"; then
+      ask invalid_ip critical
+      continue
+    fi
+    break
+  done
+}
+
+# Determine which interface to use
+select_interface() {
+  IFACES="$(ip -o link show | grep -v loopback | cut -d : -f 2 | tr -d ' ')"
+  NUMIF="$(echo "$IFACES" | wc -l)"
+  debug "Found $NUMIF interfaces: $IFACES"
+  if [ "$NUMIF" -gt 1 ]; then
+    # Do something clever here in the future
+    ETH0="$(echo "$IFACES" | head -1)"
+  elif [ "$NUMIF" -eq 1 ]; then
+    ETH0="$IFACES"
+  else
+    return 1
+  fi
+  return 0
+}
+
+# Configure the network manually
+manual_netconfig() {
+  local IPADDR params
+  while true; do
+    ask_valid_ip ipaddr critical
+    IPADDR="$RET"
+    debug manual_netconfig IPADDR "$IPADDR"
+    query_dns "$IPADDR"
+    if [ $? -eq 0 ]; then
+      db_set $OWNER/hostname "$DAHOSTNAME"
+    fi
+    ask hostname critical
+    if ! echo "$RET" | grep -qi '[a-z]'; then
+      ask invalid_hostname critical
+      continue
+    fi
+    guess_netparams
+    ask_valid_ip netmask
+    ask_valid_ip gateway
+    confirm_net
+    [ "$RET" = "true" ] && break
+  done
+}
+
+# Configure the network automagically, either from an IP
+# or hostname.  If any step of this fails, fall back to manual config
+auto_netconfig() {
+  while true; do
+    ask ip_or_hostname critical
+    IP_OR_HOST="$RET"
+    [ -n "$IP_OR_HOST" ] || continue
+    query_dns "$IP_OR_HOST"
+    case $? in
+      0)
+        break
+        ;;
+      128)
+        if ! dahost -i "$IP_OR_HOST"; then
+          db_reset "$OWNER/dns_not_found"
+          ask dns_not_found
+          [ "$RET" = "true" ] || return 1
+        else
+          # Pre-seed the value for manual config
+          db_set $OWNER/ipaddr "$IP_OR_HOST"
+          return 1
+        fi
+        ;;
+      *)
+        return 1
+        ;;
+    esac
+  done
+  IPADDR="$DAIPADDR"
+  db_set $OWNER/ipaddr "$IPADDR"
+  db_set $OWNER/hostname "$DAHOSTNAME"
+  guess_netparams
+}
+
+# Look up something in DNS, with a debconf progress bar
+query_dns() {
+  db_progress START 0 2 $OWNER/please_wait
+  db_progress STEP 1
+  db_progress INFO $OWNER/querying_dns
+  LOOKUP="$(dahost -s "$@")"
+  rv=$?
+  debug "query_dns" "rv=$rv" "LOOKUP=$LOOKUP"
+  db_progress SET 2
+  db_progress STOP
+  if [ $rv -eq 0 ]; then
+    eval "$LOOKUP"
+  else
+    DAIPADDR=
+    DAHOSTNAME=
+  fi
+  debug "query_dns" "DAIPADDR=$DAIPADDR DAHOSTNAME=$DAHOSTNAME"
+  unset LOOKUP
+  return $rv
+}
+
+apply_netconfig() {
+  IPADDR="$(get ipaddr)"
+  NETMASK="$(get netmask)"
+  GATEWAY="$(get gateway)"
+
+  if [ -n "$IPADDR" ] && [ -n "$NETMASK" ] && [ -n "$GATEWAY" ]; then
+    run killall dhclient
+    run ip addr flush dev $ETH0
+    run ip addr add $IPADDR/$NETMASK dev $ETH0
+    run route delete default 2>/dev/null
+    run route add default gw "$GATEWAY"
+    rm -f $PREFIX/resolv.conf.tmp
+    for ns in $NAMESERVERS; do
+      echo "nameserver $ns" >> $PREFIX/resolv.conf.tmp
+    done
+    mv -f $PREFIX/resolv.conf.tmp /etc/resolv.conf
+  fi
+  unset IPADDR NETMASK GATEWAY
+}
+
+netconfig() {
+  if ! auto_netconfig; then
+    ask autonet_fail critical
+    manual_netconfig
+  else
+    confirm_net
+    [ "$RET" = "true" ] || manual_netconfig
+  fi
+}
+
+test_uri() {
+  local WGETARGS
+  WGETARGS="--spider"
+  if run wget --help 2>&1 | grep -q BusyBox; then
+    WGETARGS="-s"
+  fi
+  # Test the mirror
+  wget $WGETARGS "$1" 2>&1 > /dev/null
+}
+
+split_choices() {
+  # Given a multi $RET value, split it into tab-separated
+  # fields (suitable for the default IFS) and replace spaces
+  # in question names with underscores.
+  SPLIT="$(echo "$RET" | sed -e 's/, /\t/g; s/ /_/g;')"
+}
+
+advanced() {
+  db_reset $OWNER/advanced
+  db_metaget $OWNER/advanced Choices
+  split_choices
+  for choice in $SPLIT; do
+    db_reset $OWNER/$choice
+  done
+  advanced_opts=
+  ask advanced
+  [ $? -eq 30 ] && return
+  split_choices
+  for adv in $SPLIT; do
+    ask $adv
+  done
+}
+
+config_network() {
+  if [ "$(get use_dhcp)" = "true" ]; then
+    # Hope for the best
+    db_set $OWNER/hostname "$(hostname)"
+  else
+    netconfig
+    apply_netconfig
+  fi
+}
+
+config_installer() {
+  db_set $OWNER/distribution "$DEFAULT_DISTRO"
+  default_pkg="workstation"
+  pkg_choices="standard, login, login-graphical, workstation"
+  # You are not allowed to install -cluster with DHCP
+  if [ "$(get use_dhcp)" != "true" ]; then
+    default_pkg="cluster"
+    pkg_choices="${pkg_choices}, cluster"
+  fi
+  swap metapackage meta_choices "$pkg_choices"
+  db_set $OWNER/metapackage "$default_pkg"
+  while true; do
+    # Disable "backing up"
+    db_capb ""
+    ask metapackage
+    # Enable "backing up"
+    db_capb backup
+    ask want_advanced
+    [ $? -eq 30 ] && continue
+    [ "$RET" = "true" ] && advanced
+    metapackage=$(get metapackage)
+    distro=$(get distribution)
+    arch=$(get architecture)
+    installer=production
+    mirror=$(get mirror)
+    [ "$(get beta_installer)" = "true" ] && installer=beta
+    partitioning=auto
+    [ "$(get manual_partitioning)" = "true" ] && partitioning=manual
+    stage2_debug=0
+    debugtxt=
+    if [ "$(get debug_mode)" = "true" ]; then
+      stage2_debug=1
+      debugtxt="Stage 2 debugging enabled."
+    fi
+    extra_kargs="$(get kernel_arguments)"
+    swap confirm_install metapackage "$metapackage"
+    swap confirm_install distro "$distro"
+    swap confirm_install arch "$arch"
+    swap confirm_install installer "$installer"
+    swap confirm_install partitioning "$partitioning"
+    swap confirm_install mirror "$mirror"
+    swap confirm_install extra_kargs "$extra_kargs"
+    swap confirm_install debugtxt "$debugtxt"
+    db_set $OWNER/confirm_install true
+    ask confirm_install
+    [ "$RET" = "true" ] && break
+  done
+  # Turn off back up, since it's pointless now.
+  db_capb ""
+  if [ "$partitioning" = "auto" ]; then
+    ask destroys
+  fi
+}
+
+# Begin main installer code
+
+# Load debconf
+. /usr/share/debconf/confmodule
+
+# Unclear if needed, since we're talking to an existing
+# frontend already?
+db_version 2.0
+
+# Load our template file
+db_x_loadtemplatefile $TEMPLATE_FILE $OWNER
+# in cdebconf (in d-i), this returns 0 even if loading fails,
+# because of course it does
+if [ $? -ne 0 ]; then
+  echo "Failed to load templates!" >&2
+  exit 1
+fi
+
+arch=unknown
+# If archdetect exists (in d-i) it returns, e.g. amd64/generic
+if hash archdetect > /dev/null 2>&1; then
+  arch="$(archdetect | cut -d / -f 1)"
 else
-  netconfig
+  case "$(uname -m)" in
+    x86_64)
+      arch=amd64;;
+    i[3-6]86)
+      arch=i386;;
+  esac
+fi
+if ! [ -x "$PREFIX/lib/host.$arch" ]; then
+  error "The installer was unable to locate its DNS helper."
+else
+  ln -s "$PREFIX/lib/host.$arch" "$PREFIX/lib/dahost"
+fi
+if ! [ -x "$PREFIX/lib/kexec" ]; then
+  error "The installer was unable to locate kexec."
+fi
+export PATH="$PREFIX/lib:$PATH"
+
+if ! select_interface; then
+  error "Could not find an Ethernet interface to use."
 fi
 
-extra_kargs=""
-if [ "$installertype" = "beta" ]; then
-    echo "Any extra kernel arguments to pass to kexec?"
-    echo "(I hope you know what you're doing.  Press Enter for none.)"
-    read extra_kargs
+if test_uri "$NETWORK_TEST_URI"; then
+  ask use_dhcp critical
 fi
 
-if [ "$pxetype" = "cluster" ] && [ "$partitioning" = "auto" ]; then
-    cat << EOF
-************************************************************
-               ${ddb}DESTROYS${nnn}
-${rrr}THIS PROCEDURE ${ddd}DESTROYS${nnn}${rrr} THE CONTENTS OF THE HARD DISK.${nnn}
-               ${ddb}DESTROYS${nnn}
+# TODO: Once apply_netconfig is idempotent, wrap this in a loop, and
+# allow the user to back up and try again if the mirror can't be contacted.
+config_network
+config_installer
 
-IF YOU DO NOT WISH TO CONTINUE, REBOOT NOW.
-
-************************************************************
-EOF
+if ! test_uri "http://$mirror/ubuntu"; then
+  error "Cannot contact mirror: $mirror"
 fi
-echo
-echo "Installer configuration complete.  Press Enter to begin"
-echo "or reboot your workstation now to abort installation."
-read r
-
-# Fetch secondary (real) installer, invoking as specified above:
-
-echo "Fetching next installer phase..."
-# Network config now done above.
-if [ "$test" != "test" ]; then
-  mkdir /h; cd /h
-  wget "http://debathena.mit.edu/net-install/kexec"
-  wget "http://debathena.mit.edu/net-install/${distro}/${arch}/initrd.gz"
-  wget "http://debathena.mit.edu/net-install/${distro}/${arch}/linux"
-  chmod 755 kexec
-fi
-dkargs="DEBCONF_DEBUG=5"
 
 nodhcp="netcfg/disable_autoconfig=true"
 kbdcode="keyboard-configuration/layoutcode=us"
-distrobase=$(echo "$distro" | sed -e 's/-.*//')
-case "$distrobase" in
-    precise|trusty)
-	;;
-    *)
-	echo "I don't know how to preconfigure '$distrobase'"
-	while true; do
-	    echo "Enter the d-i configuration to select a keyboard layout"
-	    echo -n "or leave blank to prompt later: "
-	    read kbdcode
-	    echo "Enter the d-i configuration to disable dhcp"
-	    echo -n "(leaving it blank probably won't work): "
-	    read nodhcp
-	    echo
-	    echo "Will pass these kernel arguments:"
-	    echo "$kbdcode $nodhcp"
-	    echo -n "ok? [Y/n]"
-	    read answer
-	    case $answer in
-		[nN]*)
-		    ;;
-		*)
-		    break
-		    ;;
-	    esac
-	done
-        ;;
-esac
 
-hname="$HOSTNAME"
-if [ "$IPADDR" = dhcp ] ; then
-  knetinfo="netcfg/get_hostname=$hname "
+#netcfg arguments
+if [ "$(get use_dhcp)" = "true" ]; then
+  netcfg="netcfg/get_hostname=$(get hostname)"
 else
-  # There's no good way to get a hostname here, but the postinstall will deal.
-  # True, but thanks to wget, there's a bad way to get a hostname
-  knetinfo="$nodhcp \
-netcfg/get_domain=mit.edu \
-netcfg/get_hostname=$hname \
-netcfg/get_nameservers=\"18.72.0.3 18.70.0.160 18.71.0.151\" \
-netcfg/get_ipaddress=$IPADDR \
-netcfg/get_netmask=$NETMASK \
-netcfg/get_gateway=$GATEWAY \
-netcfg/confirm_static=true"
+  netcfg="$nodhcp netcfg/get_domain=mit.edu netcfg/get_hostname=$(get hostname) \
+netcfg/get_nameservers=\"$NAMESERVERS\" \
+netcfg/get_ipaddress=$(get ipaddr) netcfg/get_netmask=$(get netmask) \
+netcfg/get_gateway=$(get gateway) netcfg/confirm_static=true"
 fi
 
-# SIGH  See LP #818933
-# This is fixed in Oneiric's kernel, but the PXE server is still serving
-# natty (and will continue to do so until we have hardware that fails)
-acpi=""
-if [ "$(cat /sys/class/dmi/id/product_name)" = "OptiPlex 790" ]; then
-    acpi="reboot=pci"
-fi
-
-# TODO: Pass the actual interface we're using, not "auto"
-# Or decide that we only support the first interface, and determine
-# the name of it using the same method in stage2
-kargs="$knetinfo $kbdcode $acpi locale=en_US interface=auto \
+# TODO: Pass the actual interface we're using, not "auto", once we figure out
+#       all the BOOTIF implications
+kargs="$netcfg $kbdcode locale=en_US interface=auto \
 url=http://18.9.60.73/installer/$distro/debathena.preseed \
-da/pxe=$pxetype da/i=$installertype da/m=$mirrorsite \
-da/part=$partitioning $debugmode $extra_kargs --"
+da/pxe=$metapackage da/i=$installer da/m=$mirror \
+da/part=$partitioning da/dbg=$stage2_debug $extra_kargs"
 
-echo "Continuing in five seconds..."
-if [ "$test" = "test" ]; then
-    echo "Would run kexec with these args:"
-    echo "$dkargs $kargs"
-    exit 0
-fi
+# Download the stage 2 components
+# Why don't we just fetch these from the mirror, you ask?  Excellent
+# question.  With the HWE stacks, there is no deterministic way to say
+# "Give me the latest 12.04 installer".  You have to "know" that
+# 12.04.2 is quantal, 12.04.4 is saucy, etc.  So we'll continue to
+# use /net-install for now, because we can't have nice things.
+db_progress START 0 4 $OWNER/please_wait
+db_progress STEP 1
+swap downloading thing "stage 2 kernel"
+db_progress INFO $OWNER/downloading
+run rm -rf "$PREFIX/stage2"
+run mkdir "$PREFIX/stage2"
+run wget -q -P "$PREFIX/stage2" "http://debathena.mit.edu/net-install/$distro/$arch/linux"
+db_progress STEP 2
+swap downloading thing "stage 2 initrd"
+db_progress INFO $OWNER/downloading
+run wget -q -P "$PREFIX/stage2" "http://debathena.mit.edu/net-install/$distro/$arch/initrd.gz"
+db_progress STEP 3
+run kexec -l "$PREFIX/stage2/linux" --append="$kargs" --initrd="$PREFIX/stage2/initrd.gz"
+db_progress STEP 4
+db_progress STOP
+run kexec -e
 
-if hash wc > /dev/null 2>&1; then
-    if [ $(echo "$dkargs $kargs" | wc -c) -gt 512 ]; then
-	echo "Kernel arguments exceed 512 bytes.  This will probably"
-	echo "end badly.  If this install fails, be sure to mention"
-	echo "this specific message in your bug report."
-    fi
-fi
+# If we got here, something above failed.
+error "The installer failed to load stage 2 of the installation."
 
-debug "About to run kexec with these args: $dkargs $kargs"
-./kexec -l linux --append="$dkargs $kargs" --initrd=initrd.gz \
-	  && sleep 3 && chvt 1 && sleep 2 && ./kexec -e
-curaddr="$(ip address show $ETH0 | grep inet | sed -e 's/^[ ]*inet //' | cut -d/ -f 1)"
-echo "Secondary installed failed; please contact release-team@mit.edu"
-echo "with the circumstances of your install attempt.  Here's a shell for debugging."
-echo "You can type 'httpd' to start an HTTP server which will make"
-echo "the system log available if you connect to http://$curaddr"
-# We don't want to let this fall through to an actual install of whatever
-# kernel we're using.
-while : ; do /bin/sh ; done
-exit 0
+# This should never fall through, but...
+while true; do
+  echo "Fatal error."
+  read dummy
+done
