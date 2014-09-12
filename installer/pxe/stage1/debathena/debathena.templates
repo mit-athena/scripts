@@ -1,0 +1,221 @@
+# These two templates are used in automatic network
+# configuration.  Their values are not used elsewhere
+Template: install-debathena/ip_or_hostname
+Type: string
+Description: Enter hostname or IP.
+ A hostname and static IP address is required to install Debathena via
+ PXE.  You may enter either the hostname or the IP address here.
+ .
+ If you don't have a hostname or IP address, consult your local IT
+ staff, or contact helpdesk@mit.edu.  Do not attempt to make up a
+ hostname or IP address -- it will render your system unusable.
+
+Template: install-debathena/autonet_fail
+Type: text
+Description: Will proceed with manual configuration...
+ Unable to automatically determine the correct network settings based on
+ the information provided.
+
+# The actual static IP.  Used as a prompt in manual netconfig
+Template: install-debathena/ipaddr
+Type: string
+Description: Enter IP address
+ Enter the static IP address for your workstation.
+
+# The actual hostname (FQDN).  Used as a prompt in manual netconfig
+Template: install-debathena/hostname
+Type: string
+Description: Enter hostname
+ Enter the hostname for your machine.
+
+Template: install-debathena/netmask
+Type: string
+Description: Enter the subnet mask
+ Enter your subnet mask ("netmask"), in IPv4 format.
+
+Template: install-debathena/gateway
+Type: string
+Description: Enter your gateway
+ Enter your gateway address.  This may also be called
+ your router or default gateway.
+
+# Feedback during manual net config
+Template: install-debathena/invalid_ip
+Type: text
+Description: Invalid IP address
+ That is not a valid IPv4 address.  Try again.
+
+Template: install-debathena/invalid_hostname
+Type: text
+Description: Hostname invalid
+ That is not a valid hostname.  Starting over...
+
+Template: install-debathena/dns_not_found
+Type: boolean
+Default: false
+Description: Try again?
+ Could not find that hostname in DNS.
+
+Template: install-debathena/confirm_net
+Type: boolean
+Default: true
+Description: Are these settings ok?
+ Hostname: ${HOSTNAME}
+ .
+ IP/Netmask: ${IPADDR}/${NETMASK}
+ .
+ Gateway: ${GATEWAY}
+
+Template: install-debathena/use_dhcp
+Type: boolean
+Default: false
+Description: Accept these DHCP settings?
+ The DHCP server appears to have given you a valid network
+ address.  Normally, you would specify a hostname and static IP
+ address when installing Debathena, but you can use DHCP under some
+ circumstances.  If you elect to use DHCP, you will be unable to install
+ debathena-cluster.
+ .
+ (If you do not understand this question, please answer "No".)
+
+# Installer-related templates
+Template: install-debathena/want_advanced
+Type: boolean
+Default: false
+Description: Enable advanced features?
+ Do you want to enable advanced installer features?
+
+# The choices here mirror the questions below
+Template: install-debathena/advanced
+Type: multiselect
+Choices: mirror, architecture, beta installer, distribution, debug mode, manual partitioning, kernel arguments
+Description: Select features to customize:
+ Beta testers and other advanced users may wish to customize some additional
+ features.
+ .
+ For a normal installation, do not select any features in this list.
+
+Template: install-debathena/mirror
+Type: string
+Default: mirrors.mit.edu
+Description: Enter a mirror address:
+ N.B. This only applies to the base operating system.
+
+Template: install-debathena/architecture
+Type: string
+Default: amd64
+Description: Enter an architecture:
+
+Template: install-debathena/beta_installer
+Type: boolean
+Default: false
+Description: Use beta installer?
+
+Template: install-debathena/distribution
+Type: string
+Description: Enter distribution codename:
+ Enter the codename of the distribution you wish to install.
+ (e.g. "trusty", "precise", "wheezy")
+
+Template: install-debathena/debug_mode
+Type: boolean
+Default: false
+Description: Enable debugging mode in stage 2?
+
+Template: install-debathena/manual_partitioning
+Type: boolean
+Default: false
+Description: Use manual partitioning?
+ Select whether or not to use manual partitioning.
+ .
+ IMPORTANT: Selecting 'no' will COMPLETELY ERASE YOUR HARD DRIVE.
+ YOU WILL LOSE ALL YOUR DATA.
+
+Template: install-debathena/kernel_arguments
+Type: string
+Default: DEBCONF_DEBUG=5
+Description: Extra kernel arguments?
+ This would be the place to pass netcfg or keyboard-configuration args too.
+ .
+ Here be dragons.
+
+Template: install-debathena/confirm_install
+Type: boolean
+Default: true
+Description: Proceed with installation?
+ Will install *${metapackage}* on *${distro}* (${arch}) from *${mirror}*
+ using *${installer}* installer with *${partitioning}* partitioning.
+ ${debugtxt}
+ .
+ Stage 2 kernel arguments: ${kargs}
+
+# DESTROYS DESTROYS DESTROYS
+Template: install-debathena/destroys
+Type: text
+Description: Otherwise, continue with the installation
+ You have selected automatic partitioning.
+ .
+ **********************************************************
+ .
+ * THIS PROCEDURE DESTROYS THE CONTENTS OF THE HARD DISK. *
+ .
+ **********************************************************
+ .
+ Your entire hard drive will be PERMANENTLY ERASED.  If this is not what
+ you want, please power off your computer now.
+
+Template: install-debathena/really_quit
+Type: boolean
+Description: Are you sure you want to cancel?
+ If you cancel the installation here, you cannot proceed
+ and will have to reboot.
+
+Template: install-debathena/ohnoes
+Type: note
+Description: Installation Aborted
+ ${errormsg}
+ .
+ You should probably reboot at this point.
+ .
+ Advanced users can switch to VT2 or VT3 (Ctrl-Alt-F2 or F3) and
+ start a shell for debugging.
+
+# This is always asked
+Template: install-debathena/metapackage
+Type: select
+Choices: ${meta_choices}
+Description: Select a metapackage:
+ Please select the 'flavor' of Debathena that best suits your needs.
+ .
+  standard: Athena client software and customizations.
+  login: Allow Athena accounts to log in to your machine.
+  login-graphical: Includes Athena graphical login customizations
+  workstation: Managed configuration with automatic updates
+  cluster: IS&T public workstation (no customizations)
+
+# db_progress related templates
+Template: install-debathena/please_wait
+Type: text
+Description: Please wait...
+
+Template: install-debathena/querying_dns
+Type: text
+Description: Querying DNS...
+
+Template: install-debathena/downloading
+Type: text
+Description: Downloading ${thing}
+
+# Not currently in use
+Template: install-debathena/prerelease
+Type: note
+Description: Preliminary Support
+ The release you are running is not yet supported and installing
+ Debathena on it is probably a bad idea, particularly for any
+ purpose other than beta testing.
+ .
+ (New releases are generally supported a couple of weeks
+ after the official release date.  We strongly encourage you
+ to check http://debathena.mit.edu for support information
+ and try again later, or install the previous version of
+ the operating system.)
