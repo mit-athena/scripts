@@ -1,14 +1,32 @@
 #!/bin/sh
 
-# This could probably all just go in the preseed file, but what a mess!
-# 18.9.60.73 = athena10.mit.edu (formerly 18.92.2.195)
+# To minimize the number of places we hardcode things, we use the
+# preseed URL to figure out where to get the tarball from.
+# This will break if the .preseed and tarball are not in the same
+# location.  "Don't do that."
 
-cd /
-wget http://18.9.60.73/installer/stage1/debathena.tar.gz > /dev/tty5 2>&1
-tar xzf debathena.tar.gz
+URI="$(debconf-get preseed/url | sed -e 's/debathena\.preseed$/debathena.tar.gz/')"
+
+if [ -n "$URI" ]; then
+    cd /
+    wget "$URI" > /dev/tty5 2>&1
+    tar xzf debathena.tar.gz > /dev/tty5 2>&1
+    [ -x /debathena/installer.sh ] && exec /debathena/installer.sh
+else
+    echo "Error: failed to retrieve preseed/url from debconf" > /dev/tty5
+fi
 chvt 5
-sh debathena/installer.sh < /dev/tty5 > /dev/tty5 2>&1
-# We will in theory always kexec out before this point
-chvt 1
-# Pick up the generated preseed file (if any):
-echo file://debathena/preseed
+cat <<EOF > /dev/tty5
+************************************************************************
+* If you are seeing this message, something went wrong.
+* Contact release-team@mit.edu and report this error message, as well as
+* any error messages you may see above this line.
+
+* You can reboot your computer now.  No changes were made to your
+* computer.
+************************************************************************
+EOF
+while true; do
+    sh < /dev/tty5 > /dev/tty5 2>&1
+done
+
