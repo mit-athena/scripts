@@ -6,7 +6,11 @@ INSTALLER=stage1
 default:
 	: Use "make install" to move this from where the installer will fetch it.
 
-install: host ${d}/debathena.tar.gz
+install: host kexec ${d}/debathena.tar.gz
+
+kexec: kexec/kexec
+	mkdir -p debathena/lib
+	install -m 755 kexec/kexec debathena/lib
 
 host: host.amd64 host.i386
 	mkdir -p debathena/lib
@@ -32,4 +36,4 @@ clean:
 	rm -rf debathena/lib
 	rm debathena.preseed
 
-.PHONY: clean install host debathena.preseed
+.PHONY: clean install host kexec debathena.preseed
