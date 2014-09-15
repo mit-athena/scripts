@@ -40,9 +40,16 @@ if [ `id -u` != "0" ]; then
   exit 1
 fi
 
-pxetype=
+unattended=no
+category=""
+
+# Legacy code (to be replaced with debconf at some point)
 if test -f /root/pxe-install-flag ; then
-  pxetype=`head -1 /root/pxe-install-flag`
+  category="$(head -1 /root/pxe-install-flag)"
+  unattended=yes
+  echo "PXE cluster install detected, so installing \"$category\"."
+  # Remove the pxe install flag
+  rm -f /root/pxe-install-flag
 fi
 
 have_lsbrelease="$(dpkg-query -W -f '${Status}' lsb-release 2>/dev/null)"
@@ -111,7 +118,7 @@ if [ "$prerelease" = "yes" ]; then
     output "to check http://debathena.mit.edu for support information"
     output "and try again later, or install the previous version of"
     output "the operating system.)"
-    if ! test -f /root/pxe-install-flag; then
+    if [ "$unattended" != "yes" ]; then
 	ask "Are you sure you want to proceed? [y/N] " n
 	[ y != "$answer" ] && exit 1
     fi
@@ -151,11 +158,6 @@ device will have an uninterrupted network connection.
 EOF
 fi
 
-category=""
-if [ cluster = "$pxetype" ] ; then
-  category=cluster ;
-  echo "PXE cluster install detected, so installing \"cluster\"."
-fi
 while [ standard != "$category" -a login != "$category" -a \
         login-graphical != "$category" -a workstation != "$category" -a \
         cluster != "$category" ]; do
@@ -166,9 +168,7 @@ done
 # We need noninteractive for PXE installs because you're not supposed
 # to be interactive in a late_command, and nothing works (like
 # debconf, for example).  Until #702 is fixed.
-if [ cluster = "$category" ] || test -f /root/pxe-install-flag; then
-  # We still want these set for cluster installs, which should be truly
-  # noninteractive
+if [ "$unattended" = "yes" ]; then
   export DEBCONF_NONINTERACTIVE_SEEN=true
   export DEBIAN_FRONTEND=noninteractive
 fi
@@ -255,7 +255,7 @@ echo "  Category: $category"
 echo "  Extra-software package: $csoft"
 echo "  Third-party software package: $tsoft"
 echo ""
-if [ "$pxetype" = "cluster" ] ; then
+if [ "$unattended" = "yes" ] && [ "$category" = "cluster" ]; then
   if wget -q http://athena10.mit.edu/installer/installing.txt; then
      cat installing.txt > /dev/tty6
      date > /dev/tty6
@@ -286,7 +286,7 @@ if [ "$pxetype" = "cluster" ] ; then
   # Clear toxic environment settings inherited from the installer.
   unset DEBCONF_REDIR
   unset DEBIAN_HAS_FRONTEND
-  if [ cluster = "$pxetype" ] ; then
+  if [ cluster = "$category" ] && [ "$unattended" = "yes" ]; then
     # Network, LVM, and display config that's specific to PXE cluster installs.
     # If someone is installing -cluster on an already-installed machine, it's
     # assumed that this config has already happened and shouldn't be stomped on.
@@ -358,7 +358,7 @@ apt-get update
 output "Verifying machine is up to date..."
 pattern='^0 upgraded, 0 newly installed, 0 to remove'
 if ! apt-get --simulate --assume-yes dist-upgrade | grep -q "$pattern"; then
-    if [ -n "$pxetype" ] ; then
+    if [ "$unattended" = "yes" ] ; then
 	output "Forcing an upgrade"
 	apt-get --assume-yes dist-upgrade
     else 
@@ -406,7 +406,7 @@ if [ "$modules" = "openafs-modules-dkms" ] && \
     output "team.  We recommend using the PPA, as it is mostly likely to"
     output "keep pace with Ubuntu's kernel updates.  For some releases,"
     output "the PPA is required for AFS to function correctly at all."
-    if [ cluster != "$category" ]; then
+    if [ "$unattended" != "yes" ]; then
 	ask "Is that ok? [Y/n] " y
 	if [ y != "$answer" ]; then
 	    ppa="no"
@@ -590,6 +590,3 @@ if [ cluster = "$category" ] ; then
   echo "Setting hardware clock to UTC."
   hwclock --systohc --utc
 fi
-
-# Remove the pxe install flag
-rm -f /root/pxe-install-flag
