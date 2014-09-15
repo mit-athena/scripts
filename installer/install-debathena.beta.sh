@@ -178,23 +178,30 @@ mainpackage=debathena-$category
 csoft=no
 tsoft=no
 resolvconfhack=no
-msmtpmta=no
 
-if [ cluster = "$category" ]; then
-  msmtpmta=yes
-else
+case "$category" in
+  cluster)
+    msmtpmta=yes
+    ;;
+  workstation)
+    msmtpmta=yes
+    maildefault=y
+    mailprompt="[Y/n]"
+    ;;
+  *)
+    msmtpmta=no
+    maildefault=n
+    mailprompt="[y/N]"
+    ;;
+esac
+
+if [ "$unattended" != "yes" ]; then
   echo "Debathena provides the 'debathena-msmtp-mta' package, which includes"
   echo "a wrapper for the 'sendmail' command that configures it to use the"
   echo "MIT outgoing servers and Kerberos authentication."
   echo "Advanced users may wish to skip this package and configure their own"
   echo "mail transport agent (e.g. Postfix) instead."
   echo
-  maildefault=n
-  mailprompt="[y/N]"
-  if [ workstation = "$category" ] ; then
-    maildefault=y
-    mailprompt="[Y/n]"
-  fi
   ask "Install debathena-msmtp-mta? $mailprompt" $maildefault
   if [ y = "$answer" ]; then
     msmtpmta=yes
@@ -252,6 +259,7 @@ fi
 
 echo "A summary of your choices:"
 echo "  Category: $category"
+echo "  msmtp-mta: $msmtpmta"
 echo "  Extra-software package: $csoft"
 echo "  Third-party software package: $tsoft"
 echo ""
