@@ -70,6 +70,11 @@ case $distro in
   jessie)
     prerelease=yes
     ;;
+  utopic)
+    prerelease=yes
+    ubuntu=yes
+    aptitude=apt-get
+    ;;
   precise|saucy)
     ubuntu=yes
     aptitude=apt-get
@@ -77,7 +82,6 @@ case $distro in
   trusty)
     ubuntu=yes
     aptitude=apt-get
-    prerelease=yes
     add_apt_repo=software-properties-common
     ;;
   lenny|hardy|intrepid|jaunty|karmic|lucid|maverick|natty|oneiric|quantal|raring)
