@@ -294,50 +294,9 @@ if [ "$unattended" = "yes" ]; then
   echo "Mounting /proc."
   mount /proc 2> /dev/null || :
   # Clear toxic environment settings inherited from the installer.
+  # TODO: verify this is still needed in modern installers
   unset DEBCONF_REDIR
   unset DEBIAN_HAS_FRONTEND
-  if [ cluster = "$category" ] && [ "$unattended" = "yes" ]; then
-    # Network, LVM, and display config that's specific to PXE cluster installs.
-    # If someone is installing -cluster on an already-installed machine, it's
-    # assumed that this config has already happened and shouldn't be stomped on.
-
-    # Configure network based on the preseed file settings, if present.
-    if test -f /root/debathena.preseed && ! grep -q netcfg/get_ipaddress /proc/cmdline; then
-      # Switch to canonical hostname.
-      ohostname=`cat /etc/hostname`
-      # Hack to avoid installing debconf-get for just this.
-      ipaddr=`grep netcfg/get_ipaddress /root/debathena.preseed|sed -e 's/.* //'`
-      netmask=`grep netcfg/get_netmask /root/debathena.preseed|sed -e 's/.* //'`
-      gateway=`grep netcfg/get_gateway /root/debathena.preseed|sed -e 's/.* //'`
-
-      hostname=`host $ipaddr | \
-          sed 's#^.*domain name pointer \(.*\)$#\1#' | sed 's;\.*$;;' | \
-          tr '[A-Z]' '[a-z]'`
-      if echo $hostname|grep -q "not found" ; then
-	hostname=""
-	printf "\a"; sleep 1 ; printf "\a"; sleep 1 ;printf "\a"
-	echo "The IP address you selected, $ipaddr, does not have an associated"
-	echo "hostname.  Please confirm that you're using the correct address."
-	while [ -z "$hostname" ] ; do
-	  echo -n "Enter fully qualified hostname [no default]: "
-	  read hostname
-	done
-      fi
-      echo ${hostname%%.*} > /etc/hostname
-      sed -e 's/\(127\.0\.1\.1[ 	]*\).*/\1'"$hostname ${hostname%%.*}/" < /etc/hosts > /etc/hosts.new
-      mv -f /etc/hosts.new /etc/hosts
-      if grep -q dhcp /etc/network/interfaces ; then
-	sed -e s/dhcp/static/ < /etc/network/interfaces > /etc/network/interfaces.new
-	echo "	address $ipaddr" >> /etc/network/interfaces.new
-	echo "	netmask $netmask" >> /etc/network/interfaces.new
-	echo "	gateway $gateway" >> /etc/network/interfaces.new
-	echo "	dns-nameservers 18.72.0.3 18.70.0.160 18.71.0.151" >> /etc/network/interfaces.new
-	mv -f /etc/network/interfaces.new /etc/network/interfaces
-      fi
-      hostname ${hostname%%.*}
-    fi
-
-  fi
 else
   output "Press return to begin or control-C to abort"
   read dummy
