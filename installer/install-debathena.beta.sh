@@ -283,7 +283,9 @@ if [ "$unattended" = "yes" ] && [ "$category" = "cluster" ]; then
 	  divertedbg=no
       fi
   fi
+fi
 
+if [ "$unattended" = "yes" ]; then
   # Setup for package installs in a chrooted immediately-postinstall environment.
   echo "Setting locale."
   export LANG
