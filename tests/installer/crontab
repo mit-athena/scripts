@@ -1,0 +1,3 @@
+MAILTO=debathena-install-test-errors@mit.edu
+0 8 * * * /home/tester/test-cluster-machines.sh beta
+0 20 * * * /home/tester/test-cluster-machines.sh
