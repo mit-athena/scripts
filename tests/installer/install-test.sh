@@ -34,10 +34,10 @@ stop_qemu() {
     fi
     if ! echo quit | nc localhost 4444; then
 	echo "Couldn't send quit command to monitor! Trying to kill.." >&2
-	kill "$PID" || :
+	kill -- "$PID" || :
     fi
     sleep 1
-    if kill -0 "$PID" 2>/dev/null; then
+    if kill -0 -- "$PID" 2>/dev/null; then
 	echo "Uh oh, QEMU is still running.  You're on your own." >&2
     fi
 }
@@ -101,7 +101,7 @@ case "$ARCH" in
 	;;
 esac
 [ -n "$SUITE" ] || die "SUITE unspecified"
-[ -f "$ISOLINUXBIN" ] || die "$ISOLINUXBIN missing"
+[ -f "$ISOLINUXBIN" ] || die "isolinux.bin ($ISOLINUXBIN) missing"
 
 if [ -n "$LOGFILE" ]; then
     if ! [ -d "$(dirname "$LOGFILE")" ]; then
@@ -131,13 +131,14 @@ set -ex
 TMPDIR=$(mktemp -d --tmpdir="$SCRATCH")
 
 echo -n "Looking up $HOSTNAME ... "
-# This will always return true because of tail(1)
+# Ensure this doesn't fail
+set +o pipefail
 IP=$(dig +short $HOSTNAME | tail -1)
 if echo "$IP" | grep -q '[^0-9\.]'; then
     echo "bad IP ($IP)."
     exit 1
 else
-    echo "$IP"
+    echo "IP=$IP"
 fi
 
 # Ewww, replace this with netparams ASAP
