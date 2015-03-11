@@ -9,7 +9,7 @@ gettag() {
 	    echo "~debian7.0"
 	    ;;
 	jessie)
-	    echo "~debian8.0~0.1"
+	    echo "~debian8.0~0.2"
 	    ;;
 	lucid)
 	    echo "~ubuntu10.04"
