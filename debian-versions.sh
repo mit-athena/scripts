@@ -1,5 +1,5 @@
 #!/bin/sh
-DEBIAN_CODES="wheezy jessie precise trusty vivid wily"
+DEBIAN_CODES="wheezy jessie precise trusty wily xenial"
 gettag() {
     case "$1" in
 	squeeze)
@@ -37,6 +37,9 @@ gettag() {
 	    ;;
 	wily)
 	    echo "~ubuntu15.10~0.1"
+	    ;;
+	xenial)
+	    echo "~ubuntu16.04~0.1"
 	    ;;
 	raspbian-wheezy)
 	    echo "~raspbian7.0~0.1"
