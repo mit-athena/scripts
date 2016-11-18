@@ -1,5 +1,10 @@
 #!/bin/sh
-DEBIAN_CODES="wheezy jessie precise trusty wily xenial"
+
+# If you edit these releases and tags, please also update
+# dabuildsys/config.py in build-system.git (checked out on the builder
+# at ~/build-system).
+
+DEBIAN_CODES="wheezy jessie stretch precise trusty wily xenial"
 gettag() {
     case "$1" in
 	squeeze)
@@ -9,7 +14,10 @@ gettag() {
 	    echo "~debian7.0"
 	    ;;
 	jessie)
-	    echo "~debian8.0~0.3"
+	    echo "~debian8.0"
+	    ;;
+	stretch)
+	    echo "~debian9.0~0.1"
 	    ;;
 	lucid)
 	    echo "~ubuntu10.04"
