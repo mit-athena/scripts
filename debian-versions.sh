@@ -4,7 +4,7 @@
 # dabuildsys/config.py in build-system.git (checked out on the builder
 # at ~/build-system).
 
-DEBIAN_CODES="wheezy jessie stretch precise trusty wily xenial"
+DEBIAN_CODES="wheezy jessie stretch precise trusty xenial"
 gettag() {
     case "$1" in
 	squeeze)
