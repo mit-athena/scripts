@@ -25,7 +25,7 @@ if [ -z "$DEBATHENA_BUILD_DIST" ]; then
 	fi
     fi
     if [ -z "$DEBATHENA_BUILD_DIST" ] && echo "$SCHROOT_CHROOT_NAME" | \
-	egrep -q "^[a-z]+-(amd64|i386)-sbuild$"; then
+	egrep -q "^[a-z]+-(amd64|i386)(-sbuild)?$"; then
 	echo "Attempting to guess dist from chroot name..." >&2
 	DEBATHENA_BUILD_DIST=$(echo "$SCHROOT_CHROOT_NAME" | cut -d\- -f 1)
     fi
