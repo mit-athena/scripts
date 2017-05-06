@@ -66,4 +66,6 @@ deb-src $DEBATHENA_MIRROR ${dist}-development debathena debathena-config
 EOF
 fi
 
+apt-key add /afs/sipb.mit.edu/project/debathena/apt/debathena-archive-keyring.asc
+
 DEBIAN_FRONTEND=noninteractive apt-get update
