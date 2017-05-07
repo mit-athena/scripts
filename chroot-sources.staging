@@ -1,0 +1,4 @@
+#!/bin/sh
+: ${DEBATHENA_RELEASE=-staging}
+export DEBATHENA_RELEASE
+exec "$(dirname "$0")/chroot-sources"
