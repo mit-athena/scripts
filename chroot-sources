@@ -67,5 +67,6 @@ EOF
 fi
 
 apt-key add /afs/sipb.mit.edu/project/debathena/apt/debathena-archive-keyring.asc
+dpkg --remove pkg-create-dbgsym
 
 DEBIAN_FRONTEND=noninteractive apt-get update
