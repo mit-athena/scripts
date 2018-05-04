@@ -55,12 +55,12 @@ gettag() {
 	zesty)
 	    echo "~ubuntu17.04~0.1"
 	    ;;
-        artful)
-            echo "~ubuntu17.10~0.1"
-            ;;
-        bionic)
-            echo "~ubuntu18.10~0.1"
-            ;;
+	artful)
+	    echo "~ubuntu17.10~0.1"
+	    ;;
+	bionic)
+	    echo "~ubuntu18.04~0.1"
+	    ;;
 	raspbian-wheezy)
 	    echo "~raspbian7.0~0.1"
 	    ;;
