@@ -4,7 +4,7 @@
 # dabuildsys/config.py in build-system.git (checked out on the builder
 # at ~/build-system).
 
-DEBIAN_CODES="wheezy jessie stretch precise trusty xenial artful"
+DEBIAN_CODES="wheezy jessie stretch precise trusty xenial artful bionic"
 gettag() {
     case "$1" in
 	squeeze)
@@ -57,6 +57,9 @@ gettag() {
 	    ;;
         artful)
             echo "~ubuntu17.10~0.1"
+            ;;
+        bionic)
+            echo "~ubuntu18.10~0.1"
             ;;
 	raspbian-wheezy)
 	    echo "~raspbian7.0~0.1"
