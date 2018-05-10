@@ -17,7 +17,7 @@ gettag() {
 	    echo "~debian8.0"
 	    ;;
 	stretch)
-	    echo "~debian9.0~0.1"
+	    echo "~debian9.0"
 	    ;;
 	lucid)
 	    echo "~ubuntu10.04"
@@ -47,7 +47,7 @@ gettag() {
 	    echo "~ubuntu15.10~0.1"
 	    ;;
 	xenial)
-	    echo "~ubuntu16.04~0.1"
+	    echo "~ubuntu16.04"
 	    ;;
 	yakkety)
 	    echo "~ubuntu16.10~0.1"
@@ -56,10 +56,10 @@ gettag() {
 	    echo "~ubuntu17.04~0.1"
 	    ;;
 	artful)
-	    echo "~ubuntu17.10~0.1"
+	    echo "~ubuntu17.10"
 	    ;;
 	bionic)
-	    echo "~ubuntu18.04~0.1"
+	    echo "~ubuntu18.04"
 	    ;;
 	raspbian-wheezy)
 	    echo "~raspbian7.0~0.1"
