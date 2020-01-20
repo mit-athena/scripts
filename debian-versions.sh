@@ -19,6 +19,9 @@ gettag() {
 	stretch)
 	    echo "~debian9.0"
 	    ;;
+	buster)
+	    echo "~debian10.0~0.1"
+	    ;;
 	lucid)
 	    echo "~ubuntu10.04"
 	    ;;
